@@ -4,6 +4,7 @@ import HomePage from '../views/HomePage.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import InstructorDashboard from '../views/InstructorDashboard.vue'
 import IndividualFormat from '../views/IndividualFormat.vue'
+import GroupFormat from '../views/GroupFormat.vue'
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path: '/individualformat',
     name: 'IndividualFormat',
     component: IndividualFormat
+  },
+  {
+    path: '/groupformat',
+    name: 'GroupFormat',
+    component: GroupFormat
   }
 ]
 
