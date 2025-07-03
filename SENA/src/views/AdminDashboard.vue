@@ -29,35 +29,35 @@ export default {
 <style scoped>
 .container-docs {
   width: 50%;
-  height: 500px;
+  height: 400px;
   background-color: rgb(255, 255, 255);
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   margin: 0 auto;
-  margin-top: 100px;
+  margin-top: 80px;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   flex-direction: column;
 }
 
 .icon-docs{
-  height: 12rem;
-  width: 12rem;
+  height: 10rem;
+  width: 10rem;
 }
 
 .title-docs {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-top: 35px;
 }
 
 .button-docs {
-  width: 30%;
+  width: 25%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  font-size: 1.4rem;
+  font-size: 1rem;
   padding: 1rem;
   border-radius: 0.5rem;
   font-weight: 500;

@@ -15,7 +15,7 @@
 <style scoped>
 .main-header {
   width: 100%;
-  height: 150px;
+  height: 100px;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.088);
   display: flex;
@@ -40,13 +40,13 @@
 
 /* Imagen del logo */
 .logo-icon {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
 }
 
 /* Texto al lado del logo */
 .logo-text {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #16a34a;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;

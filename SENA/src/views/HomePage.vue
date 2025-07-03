@@ -171,7 +171,6 @@ export default {
 /* Contenedor principal */
 .login-card {
   width: 100%;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   animation: fadeIn 0.8s ease-out;
@@ -182,13 +181,6 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
-}
-
-
-@media (min-width: 1024px) {
-  .card-content {
-    flex-direction: row;
-  }
 }
 
 /* Panel izquierdo */
@@ -202,14 +194,7 @@ export default {
   color: white;
   position: relative;
   overflow: hidden;
-  min-height: 300px;
-}
-
-@media (min-width: 1024px) {
-  .left-panel {
-    width: 50%;
-    min-height: 600px;
-  }
+  
 }
 
 .background-shapes {
@@ -258,21 +243,21 @@ export default {
 }
 
 .avatar-container {
-  width: 450px;
-  height: 450px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
   margin-bottom: 1.5rem;
   animation: bounceGentle 3s ease-in-out infinite;
 }
 
 .welcome-title {
-  font-size: 6rem;
+  font-size: 3.5rem;
   font-weight: bold;
   animation: slideUp 0.6s ease-out;
 }
 
 .welcome-subtitle {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   opacity: 0.9;
   margin-bottom: 1.5rem;
   animation: slideUp 0.8s ease-out;
@@ -315,7 +300,7 @@ export default {
 }
 
 .welcome-description {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   opacity: 0.8;
 }
 
@@ -323,13 +308,6 @@ export default {
 .right-panel {
   padding: 2rem;
   flex-direction: column;
-}
-
-@media (min-width: 1024px) {
-  .right-panel {
-    width: 50%;
-    padding: 3rem;
-  }
 }
 
 .logo-container {
@@ -344,12 +322,11 @@ export default {
   color: #16a34a;
   font-weight: bold;
   font-size: 1.125rem;
-  margin-bottom: 50px;
 }
 
 .logo-icon {
-  width: 7rem;
-  height: 7rem;
+  width: 4rem;
+  height: 4rem;
   border-radius: 0.25rem;
   display: flex;
   align-items: center;
@@ -363,39 +340,37 @@ export default {
 }
 
 .logo-text {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
 }
 
 .form-container {
   max-width: 35rem;
-  height: 550px;
+  height: 450px;
   margin: 0 auto;
   border: 1px solid rgba(222, 220, 220, 0.345);
   border-radius: 10px;
   text-align: center;
-  padding: 5rem;
+  padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.088);
 }
 
 .form-title {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bold;
   color: #1f2937;
-  margin-bottom: 0.5rem;
   animation: slideRight 0.6s ease-out;
 }
 
 .form-subtitle {
   color: #6b7280;
-  margin-bottom: 2.5rem;
-  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  font-size: 1rem;
   animation: slideRight 0.8s ease-out;
 }
 
 .form-fields {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
 }
 
 .field-group {
@@ -410,7 +385,7 @@ export default {
 
 .field-label {
   display: block;
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #374151;
   margin-bottom: 0.5rem;
@@ -422,7 +397,7 @@ export default {
 
 .form-input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -476,26 +451,11 @@ export default {
   animation: slideRight 0.6s ease-out;
 }
 
-.checkbox-container {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.checkbox {
-  width: 1rem;
-  height: 1rem;
-  color: #10b981;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  margin-right: 0.5rem;
-}
-
 .login-button {
-  width: 70%;
+  width: 60%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   padding: 1rem;
   border-radius: 0.5rem;
   font-weight: 500;
@@ -555,6 +515,43 @@ export default {
 
 .register-link:hover {
   color: #059669;
+}
+
+@media (min-width: 1440px) {
+  .form-container {
+    max-width: 26rem;
+  }
+
+  .avatar-container {
+    width: 280px;
+    height: 280px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-content {
+    flex-direction: row;
+  }
+
+  .right-panel {
+    width: 50%;
+  }
+
+  .left-panel {
+    width: 50%;
+    height: 630px;
+  }
+
+  .form-input {
+    padding-left: 3rem;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 /* Animaciones */
