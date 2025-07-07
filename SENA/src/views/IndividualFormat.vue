@@ -27,8 +27,7 @@
         </form>
 
     </section>
-
-    <div style="height: 1px;"></div>
+    
 </template>
 
 <script>
