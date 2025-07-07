@@ -22,23 +22,45 @@
 
   </section>
 
-  <div class="list-students" v-for="item in aprendices" :key="item.numero_documento">
-    <div class="card mb-3">
-      <div class="card-body">
-        <p class="card-text"><strong>Tipo documento:</strong> {{ item.tipo_documento }}</p>
-        <p class="card-text"><strong>Número documento:</strong> {{ item.numero_documento }}</p>
-        <p class="card-text"><strong>Nombre:</strong> {{ item.nombre }}</p>
-        <p class="card-text"><strong>Apellidos:</strong> {{ item.apellidos }}</p>
-        <p class="card-text"><strong>Celular:</strong> {{ item.celular }}</p>
-        <p class="card-text"><strong>Correo electrónico:</strong> {{ item.correo_electronico }}</p>
-        <p class="card-text"><strong>Estado:</strong> {{ item.estado }}</p>
-      </div>
-    </div>
+  <div v-if="aprendices.length > 0" class="table-container">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Tipo documento</th>
+          <th>Número documento</th>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>Celular</th>
+          <th>Correo electrónico</th>
+          <th>Estado</th>
+          <th>Editar</th> <!-- Nueva columna -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in aprendices" :key="item.numero_documento">
+          <td>{{ item.tipo_documento }}</td>
+          <td>{{ item.numero_documento }}</td>
+          <td>{{ item.nombre }}</td>
+          <td>{{ item.apellidos }}</td>
+          <td>{{ item.celular }}</td>
+          <td>{{ item.correo_electronico }}</td>
+          <td>{{ item.estado }}</td>
+          <td class="no-border">
+            <button class="button-edit">
+              <img class="icon-edit" src="../assets/edit.png" alt="">
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <div v-if="buscarFicha && aprendices.length === 0" class="text-center mt-4">
+  <!-- Mensaje si se hizo la búsqueda y no hay resultados -->
+  <div v-if="busquedaRealizada && aprendices.length === 0" class="text-center mt-4">
     <p>No se encontró ningún aprendiz para la ficha ingresada.</p>
   </div>
+
+  <div class="spacer"></div>
 
 </template>
 
@@ -52,6 +74,7 @@ export default {
   data() {
     return {
       buscarFicha: '',
+      busquedaRealizada: false,
       aprendices: [],
       fichas: [
         {
@@ -132,6 +155,7 @@ export default {
       const grupo = this.fichas.find(f => f.grupo_id === Number(this.buscarFicha));
       console.log("Grupo encontrado:", grupo);
       this.aprendices = grupo ? grupo.personas : [];
+      this.busquedaRealizada = true;
     }
   }
 }
@@ -196,10 +220,92 @@ export default {
   box-shadow: 0 10px 25px rgba(8, 106, 73, 0.382);
 }
 
-.list-students{
-  width: 90%;
-  height: auto;
+.text-center {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0 auto;
+  margin-top: 50px;
+  background-color: #f9f9f9;
+  width: 70%;
+  height: 200px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.table-container {
+  width: 95%;
+  margin: 20px auto;
+  overflow-x: auto;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 10px 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+}
+
+.styled-table thead tr {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.199);
+}
+
+.styled-table tbody tr:hover {
+  background-color: #e6f4f1;
+  transition: background-color 0.3s ease;
+}
+
+.container-btn-edit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-border {
+  border: none;
+  background-color: transparent;
+}
+
+.button-edit {
+  width: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  font-size: 1rem;
+  padding: 0.4rem;
+  border-radius: 0.2rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: slideUp 0.6s ease-out;
+  margin: 0 auto;
+  margin-top: 5px;
+}
+
+.button-edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(8, 106, 73, 0.382);
+}
+
+.icon-edit {
+  height: 15px;
+}
+
+.spacer {
+  height: 50px;
 }
 
 /* ✅ Estilos responsive para pantallas menores a 768px */
