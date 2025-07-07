@@ -1,19 +1,37 @@
 <template>
   <Header></Header>
-  <section class="container-docs">
 
-    <div>
-      <img class="icon-docs" src="../assets/submit.png" alt="">
-    </div>
+  <div class="container-section-docs">
+    <section class="container-docs">
 
-    <article class="title-docs">
-        Seleccione los archivos que desea cargar
-    </article>
+      <div>
+        <img class="icon-docs" src="../assets/submit.png" alt="">
+      </div>
 
-    <button class="button-docs">
-        Cargar Archivos
-    </button>
-  </section>
+      <article class="title-docs">
+          Seleccione el reporte de aprendices que desea cargar
+      </article>
+
+      <button class="button-docs">
+          Cargar Archivos
+      </button>
+    </section>
+
+    <section class="container-docs">
+
+      <div>
+        <img class="icon-docs" src="../assets/submit.png" alt="">
+      </div>
+
+      <article class="title-docs">
+          Seleccione el reporte de fichas que desea cargar
+      </article>
+
+      <button class="button-docs">
+          Cargar Archivos
+      </button>
+    </section>
+  </div>
 </template>
 
 <script>
@@ -27,8 +45,16 @@ export default {
 </script>
 
 <style scoped>
+.container-section-docs{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  justify-items: center;
+}
+
 .container-docs {
-  width: 50%;
+  width: 80%;
   height: 400px;
   background-color: rgb(255, 255, 255);
   display: flex;
@@ -54,7 +80,7 @@ export default {
 }
 
 .button-docs {
-  width: 25%;
+  width: 35%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   font-size: 1rem;
@@ -77,7 +103,7 @@ export default {
 /* ✅ Estilos responsive para pantallas menores a 768px */
 @media (max-width: 1400px) {
   .container-docs {
-    width: 60%;
+    width: 90%;
     height: 300px;
     margin-top: 50px;
     padding: 1rem;
@@ -94,7 +120,23 @@ export default {
   }
 
   .button-docs {
-    width: 30%;
+    width: 45%;
+    font-size: 1.1rem;
+    padding: 0.8rem;
+  }
+}
+
+@media (max-width: 800px) {
+  .container-section-docs {
+    grid-template-columns: 1fr;
+  }
+
+  .container-docs{
+    width: 70%;
+  }
+
+  .button-docs {
+    width: 40%;
     font-size: 1.1rem;
     padding: 0.8rem;
   }
@@ -102,7 +144,7 @@ export default {
 
 @media (max-width: 600px) {
   .container-docs {
-    width: 50%;
+    width: 70%;
     height: 280px;
     margin: 0 auto;
     margin-top: 80px;
@@ -120,7 +162,7 @@ export default {
   }
 
   .button-docs {
-    width: 50%;
+    width: 70%;
     font-size: 1.1rem;
     padding: 0.8rem;
   }
