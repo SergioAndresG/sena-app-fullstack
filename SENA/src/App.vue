@@ -1,10 +1,14 @@
-<script setup>
-import HelloWorld from './views/HomePage.vue'
+<script setup lang="ts">
+import Footer from './components/Footer.vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute()
 </script>
 
 <template>
   <div id="app">
     <router-view /> <!-- Aquí se renderiza cada vista según la ruta -->
+    <Footer v-if="route.path !== '/' "/> <!-- Mostramos el Footer en todas las vistas Excepto en la principal '/' -->
   </div>
 </template>
 

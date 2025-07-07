@@ -1,48 +1,177 @@
+<script setup lang="ts">
+import Header from '../components/Header.vue';
+import Footer from '../components/Footer.vue';
+
+import Swal from "sweetalert2";
+import { ref } from 'vue';
+import axios from 'axios';
+
+
+const inputFichas = ref<HTMLInputElement | null>(null)
+const inputMaestro = ref<HTMLInputElement | null>(null)
+
+function abrirExploradorFichas() {
+   console.log("Abriendo input de fichas")
+  inputFichas.value?.click()
+}
+
+function abrirExploradorMaestro() {
+   console.log("Abriendo input de")
+  inputMaestro.value?.click()
+}
+
+async function subirFichas(event: Event) {
+  const files = (event.target as HTMLInputElement).files
+  if (!files || files.length === 0) return
+  const formData = new FormData()
+  for (let i = 0; i < files.length; i++) {
+    formData.append('archivos', files[i]) // El nombre 'archivos' debe coincidir con el parámetro del backend
+  }
+  Swal.fire({
+    title: 'Subiendo fichas...',
+    html: 'Progreso: <b>0%</b>',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading()
+    }
+  })
+  try {
+    const response = await axios.post('http://localhost:8000/upload-fichas/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1))
+        Swal.getHtmlContainer()!.querySelector('b')!.textContent = `${percent}%`
+      },
+    })
+    Swal.fire({
+      icon: 'success',
+      title: '✅ Archivos subidos',
+      text: response.data.message,
+      timer: 2000,
+      showConfirmButton: false,
+    })
+  } catch (error) {
+    console.error('Error al subir fichas:', error)
+    Swal.fire({
+      icon: 'error',
+      title: '❌ Error',
+      text: 'No se pudieron subir los archivos. Verifica el formato o el servidor.',
+    })
+  }
+}
+
+// declaramos la funcion async para poder usar el await dentro de la misma
+async function subirArchivoMaestro(event: Event) { // Recibe un evento como parametro (changue del input file) con tipado TypeScript
+  // obtenemos el elemento que disparo el evento le indicamos que es un input especifico de HTML
+  const fileList = (event.target as HTMLInputElement).files
+  // validamos que se vayan a subir archivos si no, termina la funcion con un return
+  if (!fileList || fileList.length === 0) return
+
+
+  const archivo = fileList[0] // Tomamos el primer archivo de la lista 
+  const formData = new FormData() // Creamos un objeto Forma Data para enviar archivos por HTTp
+  formData.append('archivo', archivo) // Agregamos el archivo al formData con la clave 'archivo'
+
+  let timerInterval: any = null
+  let progress = 0
+
+  Swal.fire({
+    title: 'Subiendo archivo...',
+    html: 'Progreso: <b>0%</b>',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading()
+    },
+  })
+
+  // Definimos un bloque try catch, para capturar errores
+  try {
+    // hacemos la peticion al backend enviando el archivo en el cuerpo de la respuesta
+    const response = await axios.post('http://localhost:8000/upload-archivo-maestro/', formData, {
+      // especificamos el tipo de contenido
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    // mostramos este mensaje si es exitosa
+    Swal.fire({
+      icon: 'success',
+      title: '✅ Archivo subido',
+      text: response.data.message,
+      timer: 2000,
+      showConfirmButton: false,
+    })
+  } catch (error) {
+    // mostramos este mensaje si algo ha fallado
+        console.error('Error al subir archivo:', error)
+
+    Swal.fire({
+      icon: 'error',
+      title: '❌ Error',
+      text: 'No se pudo subir el archivo. Verifica el formato o el servidor.',
+    });
+  }
+}
+</script>
+
+
 <template>
-  <Header></Header>
+  <Header />
 
   <div class="container-section-docs">
     <section class="container-docs">
 
       <div>
-        <img class="icon-docs" src="../assets/submit.png" alt="">
+        <img class="icon-docs" src="../assets/logo_admin.png" alt="">
       </div>
 
       <article class="title-docs">
-          Seleccione el reporte de aprendices que desea cargar
+          Seleccione el reporte PE-04
       </article>
 
-      <button class="button-docs">
+      <button class="button-docs" @click="abrirExploradorMaestro">
           Cargar Archivos
       </button>
+      <input
+        type="file"
+        ref="inputMaestro"
+        style="display: none"
+        @change="subirArchivoMaestro"
+        accept=".xlsx, .xls"
+      />
     </section>
 
     <section class="container-docs">
-
       <div>
         <img class="icon-docs" src="../assets/submit.png" alt="">
       </div>
 
       <article class="title-docs">
-          Seleccione el reporte de fichas que desea cargar
+        Seleccione los reportes de Fichas
       </article>
 
-      <button class="button-docs">
+      <button class="button-docs"  @click="abrirExploradorFichas">
           Cargar Archivos
       </button>
+
+        <input 
+        type="file"
+        ref="inputFichas"
+        style="display: none;"
+        @change="subirFichas"
+        accept=".xlsx, .xls"
+        multiple
+
+      />
+
+
     </section>
   </div>
 </template>
 
-<script>
-import Header from '../components/Header.vue';
-
-export default {
-  components: {
-    Header
-  }
-}
-</script>
 
 <style scoped>
 .container-section-docs{
@@ -55,7 +184,7 @@ export default {
 
 .container-docs {
   width: 80%;
-  height: 400px;
+  height: 450px;
   background-color: rgb(255, 255, 255);
   display: flex;
   justify-content: center;
@@ -69,8 +198,8 @@ export default {
 }
 
 .icon-docs{
-  height: 10rem;
-  width: 10rem;
+  height: 13rem;
+  width: 13rem;
 }
 
 .title-docs {
