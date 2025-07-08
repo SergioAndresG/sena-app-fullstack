@@ -1,165 +1,152 @@
-<template>
-  <Header></Header>
-  <section class="container-gf">
-    <!-- <div>
-      <img class="icon-docs" src="../assets/submit.png" alt="">
-    </div> -->
-
-    <h1 class="title-gf">
-      Para consultar el formato por ficha, digite el número de la ficha
-    </h1>
-
-    <form @submit.prevent="buscarPorFicha">
-      <label class="label-gf" for="">Número de ficha</label>
-      <input class="input-gf" type="text" v-model="buscarFicha">
-
-      <div>
-        <button class="button-gf" type="submit">
-          Consultar Ficha
-        </button>
-      </div>
-    </form>
-
-  </section>
-
-  <div v-if="aprendices.length > 0" class="table-container">
-    <table class="styled-table">
-      <thead>
-        <tr>
-          <th>Tipo documento</th>
-          <th>Número documento</th>
-          <th>Nombre</th>
-          <th>Apellidos</th>
-          <th>Celular</th>
-          <th>Correo electrónico</th>
-          <th>Estado</th>
-          <th>Editar</th> <!-- Nueva columna -->
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in aprendices" :key="item.numero_documento">
-          <td>{{ item.tipo_documento }}</td>
-          <td>{{ item.numero_documento }}</td>
-          <td>{{ item.nombre }}</td>
-          <td>{{ item.apellidos }}</td>
-          <td>{{ item.celular }}</td>
-          <td>{{ item.correo_electronico }}</td>
-          <td>{{ item.estado }}</td>
-          <td class="no-border">
-            <button class="button-edit">
-              <img class="icon-edit" src="../assets/edit.png" alt="">
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Mensaje si se hizo la búsqueda y no hay resultados -->
-  <div v-if="busquedaRealizada && aprendices.length === 0" class="text-center mt-4">
-    <p>No se encontró ningún aprendiz para la ficha ingresada.</p>
-  </div>
-
-  <div class="spacer"></div>
-
-</template>
-
-<script>
+<script setup lang="ts">
+import { ref } from 'vue';
+import axios from "axios";
 import Header from '../components/Header.vue';
 
-export default {
-  components: {
-    Header
-  },
-  data() {
-    return {
-      buscarFicha: '',
-      busquedaRealizada: false,
-      aprendices: [],
-      fichas: [
-        {
-          grupo_id: 123456,
-          personas: [
-            {
-              tipo_documento: "CC",
-              numero_documento: "1020304050",
-              nombre: "Laura",
-              apellidos: "Martínez Gómez",
-              celular: "3104567890",
-              correo_electronico: "laura.martinez@example.com",
-              estado: "EN FORMACION"
-            },
-            {
-              tipo_documento: "TI",
-              numero_documento: "1122334455",
-              nombre: "Juan",
-              apellidos: "Pérez Rodríguez",
-              celular: "3001234567",
-              correo_electronico: "juan.perez@example.com",
-              estado: "CANCELADO"
-            }
-          ]
-        },
-        {
-          grupo_id: 654321,
-          personas: [
-            {
-              tipo_documento: "CE",
-              numero_documento: "987654321",
-              nombre: "Ana",
-              apellidos: "Gómez Ruiz",
-              celular: "3119876543",
-              correo_electronico: "ana.gomez@example.com",
-              estado: "EN FORMACION"
-            },
-            {
-              tipo_documento: "NUIP",
-              numero_documento: "1234567890",
-              nombre: "Carlos",
-              apellidos: "Díaz Torres",
-              celular: "3132223344",
-              correo_electronico: "carlos.diaz@example.com",
-              estado: "RETIRO VOLUNTARIO"
-            }
-          ]
-        },
-        {
-          grupo_id: 789012,
-          personas: [
-            {
-              tipo_documento: "PPT",
-              numero_documento: "5678901234",
-              nombre: "María",
-              apellidos: "Fernández Salazar",
-              celular: "3124567891",
-              correo_electronico: "maria.fernandez@example.com",
-              estado: "EN FORMACION"
-            },
-            {
-              tipo_documento: "CC",
-              numero_documento: "9988776655",
-              nombre: "Diego",
-              apellidos: "Ramírez López",
-              celular: "3145678902",
-              correo_electronico: "diego.ramirez@example.com",
-              estado: "CANCELADO"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  methods: {
-    buscarPorFicha() {
-      console.log("Buscando ficha:", this.buscarFicha);
-      const grupo = this.fichas.find(f => f.grupo_id === Number(this.buscarFicha));
-      console.log("Grupo encontrado:", grupo);
-      this.aprendices = grupo ? grupo.personas : [];
-      this.busquedaRealizada = true;
-    }
+// variable que guradara los aprendices
+const aprendices = ref([]);
+// variable que guarda la ficha digitada por el usuario
+let ficha = ref(<string>(''));
+// varibale que controla el estado de la caja del mensaje
+const busquedaRealizada = ref(false);
+const mostrarResultados = ref(false);
+const cargando = ref(false)
+
+// Función que cargara los aprendices de la ficha que reciba
+const cargarAprendicesFicha = async (codigoFicha: String) => {
+  cargando.value = true;
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const respuesta = await axios.get(`http://127.0.0.1:8000/ficha/${codigoFicha}/aprendices`);
+
+    console.log('Respuesta del backend:', respuesta.data); 
+
+    aprendices.value = respuesta.data.aprendices;
+    busquedaRealizada.value = true;
+    mostrarResultados.value = true;
+
+  } catch (error) {
+    console.error('Error al cargar los aprendices ', error);
+    aprendices.value = []
+    busquedaRealizada.value = true;
+    mostrarResultados.value = true;
+
+  } finally {
+    cargando.value = false;
   }
 }
+
+// Función que se llama al hacer clic en el botón
+const consultarFicha = async () => {
+  if (ficha.value.trim() !== '') {
+    cargarAprendicesFicha(ficha.value)
+  } else {
+    alert('Ingrese una ficha')
+  }
+}
+
+const volverABusqueda = () => {
+  mostrarResultados.value = false;
+  busquedaRealizada.value = false;
+  aprendices.value = [];
+  ficha.value = '';
+}
+
+
 </script>
+
+<template>
+  <Header />
+
+  <Transition name="fade-slide" mode="out-in">
+        <!--Formualario de busqueda-->
+      <section v-if="!mostrarResultados" class="container-gf" key="search-form">
+          <h1 class="title-gf">
+            Para consultar el formato por ficha, digite el número de la ficha
+          </h1>
+
+        <form @submit.prevent="consultarFicha">
+          <label for="" class="label-gf">  No. Ficha 🖱️</label>
+          <input 
+            v-model="ficha"
+            class="input-gf" 
+            type="text"
+            placeholder="Ingresa el número de la ficha"
+          >
+
+          <div>
+            <button class="button-gf" type="submit" :disabled="cargando">
+                <span v-if="!cargando">Consultar Ficha</span>
+                <span v-else>Buscando...</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!--Sección de resultados-->
+      <section v-else class="results-section" key="results">
+        <div class="results-header">
+            <h2 class="results-title">
+              Resultados para la ficha: {{ ficha }} 
+            </h2>
+            <button @click="volverABusqueda" class="buttom-back">
+              <i class="fa-solid fa-arrow-left"></i>
+              Volver a buscar
+            </button>
+        </div>
+      <!--Tabla de resultados-->
+      <Transition>
+      <div v-if="aprendices.length > 0" class="table-container">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th># </th>
+              <th>Tipo documento</th>
+              <th>Número documento</th>
+              <th>Nombre</th>
+              <th>Apellidos</th>
+              <th>Celular</th>
+              <th>Correo electrónico</th>
+              <th>Estado</th>
+              <th>Editar</th> <!-- Nueva columna -->
+            </tr>
+          </thead>
+          <tbody>
+              <tr v-for="(item, index) in aprendices" :key="item.documento" 
+                  class="table-row" 
+                  :style="{ 'animation-delay': `${index * 0.1}s` }">
+                <td>{{ index + 1 }}</td>
+                <td>{{ item.tipo_documento }}</td>
+                <td>{{ item.documento }}</td>
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.apellido }}</td>
+                <td>{{ item.celular }}</td>
+                <td>{{ item.correo }}</td>
+                <td>{{ item.estado }}</td>
+                <td class="no-border">
+                  <button class="button-edit">
+                    <img class="icon-edit" src="../assets/edit.png" alt="">
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </Transition>
+
+      <!--Mensaje si no hay resultados-->
+        <Transition name="fade" appear>
+            <!-- Mensaje si se hizo la búsqueda y no hay resultados -->
+            <div v-if="aprendices.length === 0 && busquedaRealizada" class="text-center mt-4">
+              <p>No se encontró ningún aprendiz para la ficha ingresada.</p>
+            </div>
+        </Transition>
+      </section>
+    </Transition>
+  <div class="spacer"></div>
+</template>
+
 
 <style scoped>
 .container-gf {
@@ -168,7 +155,6 @@ export default {
   background-color: rgb(255, 255, 255);
   display: flex;
   justify-content: center;
-  align-items: center;
   text-align: center;
   margin: 0 auto;
   margin-top: 50px;
@@ -176,31 +162,29 @@ export default {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   flex-direction: column;
 }
-
 .title-gf {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.3rem;
   margin-top: 25px;
   margin-bottom: 55px;
 }
-
 .label-gf {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.1rem;
 }
-
 .input-gf {
-  width: 80%;
-  padding: 0.8rem 0.8rem 0.8rem 2.5rem;
+  width: 40%;
+  padding: 0.8rem 0.8rem 0.8rem 0.8rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  margin: 1rem;
+  text-align: center;
 }
-
 .button-gf {
-  width: 45%;
+  width: 25%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   font-size: 1.1rem;
@@ -214,12 +198,14 @@ export default {
   margin: 0 auto;
   margin-top: 30px;
 }
-
 .button-gf:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(8, 106, 73, 0.382);
 }
-
+.button-gf:disabled{
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 .text-center {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.1rem;
@@ -234,13 +220,11 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-
 .table-container {
   width: 95%;
   margin: 20px auto;
   overflow-x: auto;
 }
-
 .styled-table {
   width: 100%;
   border-collapse: separate;
@@ -248,13 +232,11 @@ export default {
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
 }
-
 .styled-table thead tr {
   background-color: #ffffff;
   color: rgb(0, 0, 0);
   text-align: left;
 }
-
 .styled-table th,
 .styled-table td {
   padding: 12px 15px;
@@ -262,23 +244,19 @@ export default {
   border-radius: 5px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.199);
 }
-
 .styled-table tbody tr:hover {
   background-color: #e6f4f1;
   transition: background-color 0.3s ease;
 }
-
 .container-btn-edit {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .no-border {
   border: none;
   background-color: transparent;
 }
-
 .button-edit {
   width: 100%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -294,20 +272,117 @@ export default {
   margin: 0 auto;
   margin-top: 5px;
 }
-
 .button-edit:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(8, 106, 73, 0.382);
 }
-
 .icon-edit {
   height: 15px;
 }
-
 .spacer {
   height: 50px;
 }
-
+/* Estilos de experiencia mejorada */
+.results-section {
+  padding: 20px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+.results-title{
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+.buttom-back{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #10b981 0%, #208b69 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+}
+.buttom-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(79, 70, 229, 0.35);
+}
+.icon-back {
+  height: 16px;
+  width: 16px;
+}
+.no-results{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 40px;
+}
+.no-results-content {
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+.no-results-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+/* Transiciones */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.fade-slide-enter-form {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+.table-fade-enter-active {
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.table-fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.table-row {
+  animation: slideInUp 0.6s ease-out both;
+}
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 /* ✅ Estilos responsive para pantallas menores a 768px */
 @media (max-width: 1400px) {
   .container-gf {
@@ -357,6 +432,20 @@ export default {
     width: 50%;
     font-size: 1.1rem;
     padding: 0.8rem;
+  }
+    .results-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .results-title {
+    font-size: 1.2rem;
+  }
+  
+  .button-back {
+    width: 100%;
+    justify-content: center;
   }
 }
 

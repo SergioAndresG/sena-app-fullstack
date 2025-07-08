@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Header from '../components/Header.vue';
-import Footer from '../components/Footer.vue';
 
 import Swal from "sweetalert2";
 import { ref } from 'vue';
