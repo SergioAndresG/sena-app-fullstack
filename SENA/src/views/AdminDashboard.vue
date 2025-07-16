@@ -71,7 +71,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
   const archivo = fileList[0] // Tomamos el primer archivo de la lista 
   const formData = new FormData() // Creamos un objeto Forma Data para enviar archivos por HTTp
-  formData.append('archivo', archivo) // Agregamos el archivo al formData con la clave 'archivo'
+  formData.append('archivos', archivo) // Agregamos el archivo al formData con la clave 'archivo'
 
   let timerInterval: any = null
   let progress = 0
@@ -145,7 +145,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
     <section class="container-docs">
       <div>
-        <img class="icon-docs" src="../assets/submit.png" alt="">
+        <img class="icon-docs" src="../assets/reporte_aprendices.png" alt="">
       </div>
 
       <article class="title-docs">
@@ -192,8 +192,13 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
   margin: 0 auto;
   margin-top: 80px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.137);
   flex-direction: column;
+}
+
+.container-docs:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-5px);
 }
 
 .icon-docs{
