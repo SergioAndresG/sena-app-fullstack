@@ -24,7 +24,7 @@
 }
 /* Contenido principal */
 .footer-content {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.088);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.371);
   display: flex;
   justify-content: space-between;
   align-items: center;
