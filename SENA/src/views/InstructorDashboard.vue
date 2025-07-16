@@ -1,5 +1,5 @@
 <template>
-  <Header></Header>
+  <Header/>
 
   <div class="forms-container">
     <!-- Primera columna - Formato Grupal -->
@@ -7,12 +7,12 @@
       <div class="card">
         <div class="card-content">
           <div>
-            <img class="icon-docs" src="../assets/people.png" alt="">
+            <img class="icon-docs" src="../assets/group.png" alt="">
           </div>
           <h3 class="card-titulo">
             Aquí puede encontrar el formato F-165 grupal
           </h3>
-          <button class="btn-consultar">
+          <button class="btn-consultar" @click="irAGrupal">
             Consultar
           </button>
         </div>
@@ -29,12 +29,12 @@
       <div class="card">
         <div class="card-content">
           <div>
-            <img class="icon-docs" src="../assets/user.png" alt="">
+            <img class="icon-docs" src="../assets/individual.png" alt="">
           </div>
           <h3 class="card-titulo">
             Aquí puede encontrar el formato F-165 individual
           </h3>
-          <button class="btn-consultar">
+          <button class="btn-consultar" @click="irAIndividual">
             Consultar
           </button>
         </div>
@@ -43,14 +43,22 @@
   </div>
 </template>
 
-<script>
-import Header from '../components/Header.vue';
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import Header from '../components/Header.vue'
 
-export default {
-  components: {
-    Header
-  }
+const router = useRouter()
+
+//Redireccionar al formato grupal
+function irAGrupal(){
+  router.push('/groupformat')
 }
+
+//Redireccionar al formato individual
+function irAIndividual(){
+  router.push('/individualformat')
+}
+
 </script>
 
 <style scoped>
@@ -60,7 +68,7 @@ export default {
   gap: 0;
   min-height: 500px;
   width: 100%;
-  margin: 40px auto;
+  margin: 30px auto;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -77,8 +85,8 @@ export default {
   width: 1px;
 }
 .icon-docs{
-  height: 8rem;
-  width: 8rem;
+  height: 10rem;
+  width: 10rem;
 }
 
 .divider {
@@ -90,7 +98,7 @@ export default {
 .card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.137);
   text-align: center;
   width: clamp(350px, 30vw, 500px);
   height: clamp(350px, 30vw, 500px);
@@ -98,6 +106,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.card:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-5px);
 }
 
 .card-content {
