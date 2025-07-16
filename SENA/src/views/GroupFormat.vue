@@ -2,15 +2,30 @@
 import { ref } from 'vue';
 import axios from "axios";
 import Header from '../components/Header.vue';
+import EditAprendizModal from '../components/EditAprendizModal.vue'
 
 // variable que guradara los aprendices
-const aprendices = ref([]);
+interface Aprendiz {
+  tipo_documento: string
+  documento: string
+  nombre: string
+  apellido: string
+  celular: string
+  correo: string
+  estado: string
+}
+
+const aprendices = ref<Aprendiz[]>([])
 // variable que guarda la ficha digitada por el usuario
 let ficha = ref(<string>(''));
 // varibale que controla el estado de la caja del mensaje
 const busquedaRealizada = ref(false);
 const mostrarResultados = ref(false);
 const cargando = ref(false)
+
+//Variables para el model de edición de aprendices
+const mostrarModal = ref(false)
+const aprendizSeleccionado = ref<Aprendiz | null>(null)
 
 // Función que cargara los aprendices de la ficha que reciba
 const cargarAprendicesFicha = async (codigoFicha: String) => {
@@ -20,7 +35,7 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
     await new Promise(resolve => setTimeout(resolve, 800));
     const respuesta = await axios.get(`http://127.0.0.1:8000/ficha/${codigoFicha}/aprendices`);
 
-    console.log('Respuesta del backend:', respuesta.data); 
+    console.log('Respuesta del backend:', respuesta.data);
 
     aprendices.value = respuesta.data.aprendices;
     busquedaRealizada.value = true;
@@ -53,69 +68,78 @@ const volverABusqueda = () => {
   ficha.value = '';
 }
 
+function abrirEdicion(aprendiz: Aprendiz) {
+  console.log('Aprendiz seleccionado:', aprendiz)
+  aprendizSeleccionado.value = { ...aprendiz }
+  mostrarModal.value = true
+}
 
+function actualizarDatos(nuevosDatos: Aprendiz) {
+  const index = aprendices.value.findIndex(
+    (a) => a.documento === nuevosDatos.documento
+  )
+  if (index !== -1) {
+    aprendices.value[index] = nuevosDatos
+  }
+}
 </script>
 
 <template>
-  <Header />
+  <Header></Header>
 
   <Transition name="fade-slide" mode="out-in">
-        <!--Formualario de busqueda-->
-      <section v-if="!mostrarResultados" class="container-gf" key="search-form">
-          <h1 class="title-gf">
-            Para consultar el formato por ficha, digite el número de la ficha
-          </h1>
+    <!--Formualario de busqueda-->
+    <section v-if="!mostrarResultados" class="container-gf" key="search-form">
+      <h1 class="title-gf">
+        Para consultar el formato por ficha, digite el número de la ficha
+      </h1>
 
-        <form @submit.prevent="consultarFicha">
-          <label for="" class="label-gf">  No. Ficha 🖱️</label>
-          <input 
-            v-model="ficha"
-            class="input-gf" 
-            type="text"
-            placeholder="Ingresa el número de la ficha"
-          >
-
-          <div>
-            <button class="button-gf" type="submit" :disabled="cargando">
-                <span v-if="!cargando">Consultar Ficha</span>
-                <span v-else>Buscando...</span>
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <!--Sección de resultados-->
-      <section v-else class="results-section" key="results">
-        <div class="results-header">
-            <h2 class="results-title">
-              Resultados para la ficha: {{ ficha }} 
-            </h2>
-            <button @click="volverABusqueda" class="buttom-back">
-              <i class="fa-solid fa-arrow-left"></i>
-              Volver a buscar
-            </button>
+      <form @submit.prevent="consultarFicha">
+        <div class="container-data"><label for="" class="label-gf"> No. Ficha 🖱️</label>
+          <input v-model="ficha" class="input-gf" type="text" placeholder="Ingresa el número de la ficha">
         </div>
+
+
+        <div>
+          <button class="button-gf" type="submit" :disabled="cargando">
+            <span v-if="!cargando">Consultar Ficha</span>
+            <span v-else>Buscando...</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!--Sección de resultados-->
+    <section v-else class="results-section" key="results">
+      <div class="results-header">
+        <h2 class="results-title">
+          Resultados para la ficha: {{ ficha }}
+        </h2>
+        <button @click="volverABusqueda" class="buttom-back">
+          <i class="fa-solid fa-arrow-left"></i>
+          Volver a buscar
+        </button>
+      </div>
       <!--Tabla de resultados-->
       <Transition>
-      <div v-if="aprendices.length > 0" class="table-container">
-        <table class="styled-table">
-          <thead>
-            <tr>
-              <th># </th>
-              <th>Tipo documento</th>
-              <th>Número documento</th>
-              <th>Nombre</th>
-              <th>Apellidos</th>
-              <th>Celular</th>
-              <th>Correo electrónico</th>
-              <th>Estado</th>
-              <th>Editar</th> <!-- Nueva columna -->
-            </tr>
-          </thead>
-          <tbody>
-              <tr v-for="(item, index) in aprendices" :key="item.documento" 
-                  class="table-row" 
-                  :style="{ 'animation-delay': `${index * 0.1}s` }">
+        <div v-if="aprendices.length > 0" class="table-container">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th># </th>
+                <th>Tipo documento</th>
+                <th>Número documento</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Celular</th>
+                <th>Correo electrónico</th>
+                <th>Estado</th>
+                <th>Editar</th> <!-- Nueva columna -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in aprendices" :key="item.documento" class="table-row"
+                :style="{ 'animation-delay': `${index * 0.1}s` }">
                 <td>{{ index + 1 }}</td>
                 <td>{{ item.tipo_documento }}</td>
                 <td>{{ item.documento }}</td>
@@ -125,28 +149,30 @@ const volverABusqueda = () => {
                 <td>{{ item.correo }}</td>
                 <td>{{ item.estado }}</td>
                 <td class="no-border">
-                  <button class="button-edit">
+                  <button class="button-edit" @click="abrirEdicion(item)">
                     <img class="icon-edit" src="../assets/edit.png" alt="">
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </Transition>
 
       <!--Mensaje si no hay resultados-->
-        <Transition name="fade" appear>
-            <!-- Mensaje si se hizo la búsqueda y no hay resultados -->
-            <div v-if="aprendices.length === 0 && busquedaRealizada" class="text-center mt-4">
-              <p>No se encontró ningún aprendiz para la ficha ingresada.</p>
-            </div>
-        </Transition>
-      </section>
-    </Transition>
+      <Transition name="fade" appear>
+        <!-- Mensaje si se hizo la búsqueda y no hay resultados -->
+        <div v-if="aprendices.length === 0 && busquedaRealizada" class="text-center mt-4">
+          <p>No se encontró ningún aprendiz para la ficha ingresada.</p>
+        </div>
+      </Transition>
+    </section>
+  </Transition>
+
+  <EditAprendizModal :mostrar="mostrarModal" :aprendiz="aprendizSeleccionado" @cerrar="mostrarModal = false"
+    @actualizar="actualizarDatos" />
   <div class="spacer"></div>
 </template>
-
 
 <style scoped>
 .container-gf {
@@ -159,19 +185,22 @@ const volverABusqueda = () => {
   margin: 0 auto;
   margin-top: 50px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.189);
   flex-direction: column;
 }
+
 .title-gf {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.3rem;
   margin-top: 25px;
   margin-bottom: 55px;
 }
+
 .label-gf {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.1rem;
 }
+
 .input-gf {
   width: 40%;
   padding: 0.8rem 0.8rem 0.8rem 0.8rem;
@@ -183,6 +212,15 @@ const volverABusqueda = () => {
   margin: 1rem;
   text-align: center;
 }
+
+.container-data {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
+}
+
 .button-gf {
   width: 25%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -198,14 +236,18 @@ const volverABusqueda = () => {
   margin: 0 auto;
   margin-top: 30px;
 }
+
 .button-gf:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(8, 106, 73, 0.382);
 }
-.button-gf:disabled{
+
+.button-gf:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* Estilos de la tabla */
 .text-center {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.1rem;
@@ -220,11 +262,13 @@ const volverABusqueda = () => {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
 .table-container {
   width: 95%;
   margin: 20px auto;
   overflow-x: auto;
 }
+
 .styled-table {
   width: 100%;
   border-collapse: separate;
@@ -232,31 +276,37 @@ const volverABusqueda = () => {
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
 }
+
 .styled-table thead tr {
   background-color: #ffffff;
   color: rgb(0, 0, 0);
   text-align: left;
 }
+
 .styled-table th,
 .styled-table td {
   padding: 12px 15px;
   background-color: #ffffff;
   border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.199);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.422);
 }
+
 .styled-table tbody tr:hover {
   background-color: #e6f4f1;
   transition: background-color 0.3s ease;
 }
+
 .container-btn-edit {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .no-border {
   border: none;
   background-color: transparent;
 }
+
 .button-edit {
   width: 100%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -272,22 +322,27 @@ const volverABusqueda = () => {
   margin: 0 auto;
   margin-top: 5px;
 }
+
 .button-edit:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(8, 106, 73, 0.382);
 }
+
 .icon-edit {
   height: 15px;
 }
+
 .spacer {
   height: 50px;
 }
+
 /* Estilos de experiencia mejorada */
 .results-section {
   padding: 20px;
   max-width: 1500px;
   margin: 0 auto;
 }
+
 .results-header {
   display: flex;
   justify-content: space-between;
@@ -298,13 +353,16 @@ const volverABusqueda = () => {
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
-.results-title{
+
+.results-title {
   font-size: 1.5rem;
   font-weight: 600;
   color: #1e293b;
   margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-.buttom-back{
+
+.buttom-back {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -318,21 +376,25 @@ const volverABusqueda = () => {
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
 }
+
 .buttom-back:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 15px rgba(79, 70, 229, 0.35);
 }
+
 .icon-back {
   height: 16px;
   width: 16px;
 }
-.no-results{
+
+.no-results {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 300px;
   padding: 40px;
 }
+
 .no-results-content {
   text-align: center;
   background: white;
@@ -341,48 +403,59 @@ const volverABusqueda = () => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   max-width: 400px;
 }
+
 .no-results-subtitle {
   color: #64748b;
   font-size: 0.9rem;
   margin-top: 8px;
 }
+
 /* Transiciones */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
 .fade-slide-enter-form {
   opacity: 0;
   transform: translateX(-30px);
 }
+
 .table-fade-enter-active {
   transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
 .table-fade-enter-from {
   opacity: 0;
   transform: translateY(20px);
 }
+
 .table-row {
   animation: slideInUp 0.6s ease-out both;
 }
+
 @keyframes slideInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
+
 /* ✅ Estilos responsive para pantallas menores a 768px */
 @media (max-width: 1400px) {
   .container-gf {
@@ -433,16 +506,17 @@ const volverABusqueda = () => {
     font-size: 1.1rem;
     padding: 0.8rem;
   }
-    .results-header {
+
+  .results-header {
     flex-direction: column;
     gap: 15px;
     text-align: center;
   }
-  
+
   .results-title {
     font-size: 1.2rem;
   }
-  
+
   .button-back {
     width: 100%;
     justify-content: center;
