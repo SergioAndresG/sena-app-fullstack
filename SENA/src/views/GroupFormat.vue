@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import axios from "axios";
+import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
+import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
 
-// variable que guradara los aprendices
+// variable que guardara los aprendices
 interface Aprendiz {
   tipo_documento: string
   documento: string
@@ -16,8 +18,10 @@ interface Aprendiz {
 }
 
 const aprendices = ref<Aprendiz[]>([])
+
 // variable que guarda la ficha digitada por el usuario
 let ficha = ref(<string>(''));
+
 // varibale que controla el estado de la caja del mensaje
 const busquedaRealizada = ref(false);
 const mostrarResultados = ref(false);
@@ -26,6 +30,26 @@ const cargando = ref(false)
 //Variables para el model de edición de aprendices
 const mostrarModal = ref(false)
 const aprendizSeleccionado = ref<Aprendiz | null>(null)
+
+// variable que guardara los datos actualizados de los aprendices
+interface AprendizParaExportar {
+  tipo_documento: string;
+  documento: string;
+  nombre: string;
+  apellido: string;
+  celular: string;
+  correo: string;
+  direccion: string;
+  discapacidad: string;
+  tipo_discapacidad: string;
+  modalidad: string; // "grupal" o "individual"
+}
+
+const aprendicesExportar = ref<AprendizParaExportar[]>([]);
+
+const modalidad = 'grupal'
+
+const router = useRouter()
 
 // Función que cargara los aprendices de la ficha que reciba
 const cargarAprendicesFicha = async (codigoFicha: String) => {
@@ -57,7 +81,11 @@ const consultarFicha = async () => {
   if (ficha.value.trim() !== '') {
     cargarAprendicesFicha(ficha.value)
   } else {
-    alert('Ingrese una ficha')
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Por favor ingrese un número de ficha",
+    });
   }
 }
 
@@ -68,25 +96,96 @@ const volverABusqueda = () => {
   ficha.value = '';
 }
 
+//Función para abrir el modal de edición 
 function abrirEdicion(aprendiz: Aprendiz) {
   console.log('Aprendiz seleccionado:', aprendiz)
   aprendizSeleccionado.value = { ...aprendiz }
   mostrarModal.value = true
 }
 
-function actualizarDatos(nuevosDatos: Aprendiz) {
-  const index = aprendices.value.findIndex(
-    (a) => a.documento === nuevosDatos.documento
+function actualizarAprendiz(datosEditados) {
+  const index = aprendices.value.findIndex(a =>
+    a.documento === aprendizSeleccionado.value?.documento
   )
+
   if (index !== -1) {
-    aprendices.value[index] = nuevosDatos
+    aprendices.value[index] = {
+      ...aprendices.value[index],
+      ...datosEditados
+    }
+
+    // Actualizar exportación
+    const existente = aprendicesExportar.value.find(a => a.documento === datosEditados.documento)
+    if (!existente) {
+      aprendicesExportar.value.push(datosEditados)
+    } else {
+      Object.assign(existente, datosEditados)
+    }
   }
+}
+
+function exportarAprendices() {
+  if (aprendicesExportar.value.length === 0) {
+    Swal.fire({
+      icon: "info",
+      title: "Sin aprendices seleccionados",
+      text: "Debes editar al menos un aprendiz antes de generar el formato."
+    });
+    return;
+  }
+
+  // Asignar modalidad predeterminada antes de enviar
+  const datosConModalidad = aprendicesExportar.value.map(ap => ({
+    ...ap,
+    modalidad: "grupal"
+  }));
+  console.log("Aprendices a exportar:", datosConModalidad);
+  axios.post("http://127.0.0.1:8000/exportar-f165", {
+  modalidad: 'grupal',
+  aprendices: aprendicesExportar.value
+}, {
+    responseType: 'blob'
+  }).then(res => {
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'formato_F165.xlsx');
+    document.body.appendChild(link);
+    link.click();
+  }).catch(err => {
+    console.error("Error al exportar:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Error al exportar",
+      text: err.response?.data?.detail || "Ocurrió un error inesperado."
+    });
+  });
+}
+
+function abrirModal(aprendiz) {
+  aprendizSeleccionado.value = aprendiz
+  mostrarModal.value = true
+}
+
+function cerrarModal() {
+  mostrarModal.value = false
+}
+
+
+//Redireccionar al panel de instructor
+function irAInstructor(){
+  router.push('/instructor')
 }
 </script>
 
 <template>
   <Header></Header>
-
+  <div v-if="!mostrarResultados">
+    <button class="back-button" @click="irAInstructor">
+      <i class="fa-solid fa-arrow-left"></i>
+      Regresar
+    </button>
+  </div>
   <Transition name="fade-slide" mode="out-in">
     <!--Formualario de busqueda-->
     <section v-if="!mostrarResultados" class="container-gf" key="search-form">
@@ -149,7 +248,7 @@ function actualizarDatos(nuevosDatos: Aprendiz) {
                 <td>{{ item.correo }}</td>
                 <td>{{ item.estado }}</td>
                 <td class="no-border">
-                  <button class="button-edit" @click="abrirEdicion(item)">
+                  <button class="button-edit" @click="abrirModal(item)">
                     <img class="icon-edit" src="../assets/edit.png" alt="">
                   </button>
                 </td>
@@ -157,8 +256,11 @@ function actualizarDatos(nuevosDatos: Aprendiz) {
             </tbody>
           </table>
         </div>
-      </Transition>
 
+      </Transition>
+        <button class="back-button" @click="exportarAprendices">
+          Exportar
+        </button>
       <!--Mensaje si no hay resultados-->
       <Transition name="fade" appear>
         <!-- Mensaje si se hizo la búsqueda y no hay resultados -->
@@ -169,8 +271,12 @@ function actualizarDatos(nuevosDatos: Aprendiz) {
     </section>
   </Transition>
 
-  <EditAprendizModal :mostrar="mostrarModal" :aprendiz="aprendizSeleccionado" @cerrar="mostrarModal = false"
-    @actualizar="actualizarDatos" />
+  <EditAprendizModal 
+    :aprendiz="aprendizSeleccionado" 
+    :mostrar="mostrarModal" 
+    @cerrar="cerrarModal"
+    @actualizar="actualizarAprendiz" 
+  />
   <div class="spacer"></div>
 </template>
 
@@ -187,6 +293,26 @@ function actualizarDatos(nuevosDatos: Aprendiz) {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.189);
   flex-direction: column;
+}
+
+.back-button {
+  margin-top: 20px;
+  margin-left: 50px;
+  background: transparent;
+  font-weight: 600;
+  background: linear-gradient(135deg, #10b981 0%, #208b69 100%);
+  color: white;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 10px 18px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0  4px 6px rgba(2, 30, 14, 0.25);
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(3, 57, 17, 0.35);
 }
 
 .title-gf {
@@ -529,4 +655,4 @@ function actualizarDatos(nuevosDatos: Aprendiz) {
 
   }
 }
-</style>
+</style>  
