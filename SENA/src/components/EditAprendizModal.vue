@@ -61,17 +61,29 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
           <div class="form-group">
             <label class="form-label">¿Tiene alguna discapacidad?</label>
             <div class="checkbox-group">
-              <div class="checkbox-item">
-                <input type="checkbox" id="discapacidad-si" ${nuevoAprendiz.discapacidad === 'Sí' ? 'checked' : ''}> 
-                <label for="discapacidad-si">Sí</label>
-              </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="discapacidad-si" ${nuevoAprendiz.discapacidad === 'Sí' ? 'checked' : ''}> 
+                    <label for="discapacidad-si">Sí</label>
+                    
+                    
+                </div>
+
               <div class="checkbox-item">
                 <input type="checkbox" id="discapacidad-no" ${nuevoAprendiz.discapacidad === 'No' ? 'checked' : ''}> 
                 <label for="discapacidad-no">No</label>
               </div>
             </div>
+
+             <!-- Este div se ocultará o mostrará dinámicamente -->
+            <div id="detalle-discapacidad" style="display: ${nuevoAprendiz.discapacidad === 'Sí' ? 'block' : 'none'}">
+                <div class="form-group">
+                    <label class="form-label">¿Cuál es la situación de discapacidad que presenta?</label>
+                    <input id="tipo-disc" class="swal2-input" placeholder="Ingrese el tipo de discapacidad" value="${nuevoAprendiz.tipo_discapacidad || ''}">
+                    <p>Recuerde que debe anexar su certificado de discapacidad emitido por la EPS</p>
+                </div>
+            </div>
           </div>
-          
+
           <div class="form-group">
             <label class="form-label">Firma</label>
             <div class="firma-container">
@@ -106,12 +118,22 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             const checkboxSi = document.getElementById('discapacidad-si');
             const checkboxNo = document.getElementById('discapacidad-no');
 
+            const detalleDiscapacidad = document.getElementById('detalle-discapacidad');
+
             checkboxSi.addEventListener('change', () => {
-                if (checkboxSi.checked) checkboxNo.checked = false;
+                if (checkboxSi.checked) {
+                    checkboxNo.checked = false;
+                    detalleDiscapacidad.style.display = 'block';
+                } else {
+                    detalleDiscapacidad.style.display = 'none';
+                }
             });
 
             checkboxNo.addEventListener('change', () => {
-                if (checkboxNo.checked) checkboxSi.checked = false;
+                if (checkboxNo.checked) {
+                    checkboxSi.checked = false;
+                    detalleDiscapacidad.style.display = 'none';
+                }
             });
 
             // Función para obtener posición del mouse/touch
@@ -138,7 +160,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             const draw = (e) => {
                 e.preventDefault();
                 if (!isDrawing) return;
-                
+
                 const pos = getPosition(e);
                 ctx.lineWidth = 2;
                 ctx.lineCap = 'round';
@@ -169,13 +191,14 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
         },
         preConfirm: () => {
             const tipo_doc = document.getElementById('tipo-doc').value;
-            const numero_documento = document.getElementById('numero-doc').value;
+            const documento = document.getElementById('numero-doc').value;
             const nombre = document.getElementById('nombre').value;
             const apellidos = document.getElementById('apellidos').value;
             const direccion = document.getElementById('direccion').value;
             const correo = document.getElementById('correo').value;
             const celular = document.getElementById('celular').value;
             const discapacidad = document.getElementById('discapacidad-si').checked ? 'Sí' : 'No';
+            const tipo_discapacidad = document.getElementById('tipo-disc')?.value || '';
             const firma = document.getElementById('firma').toDataURL();
 
             if (!nombre || !correo) {
@@ -185,13 +208,14 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
 
             return {
                 tipo_documento: tipo_doc,
-                numero_documento,
+                documento,
                 nombre,
                 apellidos,
                 direccion,
-                correo_electronico: correo,
+                correo: correo,
                 celular,
                 discapacidad,
+                tipo_discapacidad,
                 firma
             };
         }
@@ -285,6 +309,10 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     box-sizing: border-box !important;
     margin: 0 !important;
     transition: border-color 0.3s ease !important;
+}
+
+:global(#detalle-discapacidad){
+    margin-top: 20px;
 }
 
 :global(.swal2-input:focus) {
