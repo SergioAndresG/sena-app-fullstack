@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import axios from "axios";
+import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
+import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
 
 // variable que guradara los aprendices
@@ -27,6 +29,8 @@ const cargando = ref(false)
 //Variables para el model de edición de aprendices
 const mostrarModal = ref(false)
 const aprendizSeleccionado = ref<Aprendiz | null>(null)
+
+const router = useRouter()
 
 // Función que cargara los aprendices de la ficha que reciba
 const cargarAprendicesFicha = async (codigoFicha: String, numDocumento: String) => {
@@ -62,7 +66,11 @@ const consultarFicha = async () => {
   if (ficha.value.trim() !== '' && documento.value.trim() !== '') {
     cargarAprendicesFicha(ficha.value, documento.value)
   } else {
-    alert('Ingrese una ficha')
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Por favor ingrese un número de ficha y de documento",
+    });
   }
 }
 
@@ -74,6 +82,7 @@ const volverABusqueda = () => {
   documento.value = '';
 }
 
+//Función para abrir el modal de edición 
 function abrirEdicion(aprendiz: Aprendiz) {
   console.log('Aprendiz seleccionado:', aprendiz)
   aprendizSeleccionado.value = { ...aprendiz }
@@ -88,11 +97,21 @@ function actualizarDatos(nuevosDatos: Aprendiz) {
     aprendices.value[index] = nuevosDatos
   }
 }
+
+//Redireccionar al panel de instructor
+function irAInstructor(){
+  router.push('/instructor')
+}
 </script>
 
 <template>
   <Header></Header>
-
+  <div v-if="!mostrarResultados">
+    <button class="back-button" @click="irAInstructor">
+      <i class="fa-solid fa-arrow-left"></i>
+      Regresar
+    </button>
+  </div>
   <Transition name="fade-slide" mode="out-in">
     <!--Formualario de busqueda-->
     <section v-if="!mostrarResultados" class="container-if" key="search-form">
@@ -197,6 +216,26 @@ function actualizarDatos(nuevosDatos: Aprendiz) {
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.189);
   flex-direction: column;
+}
+
+.back-button {
+  margin-top: 20px;
+  margin-left: 50px;
+  background: transparent;
+  font-weight: 600;
+  background: linear-gradient(135deg, #10b981 0%, #208b69 100%);
+  color: white;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 10px 18px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0  4px 6px rgba(2, 30, 14, 0.25);
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(3, 57, 17, 0.35);
 }
 
 .title-if {
