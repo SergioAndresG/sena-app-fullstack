@@ -71,7 +71,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
   const archivo = fileList[0] // Tomamos el primer archivo de la lista 
   const formData = new FormData() // Creamos un objeto Forma Data para enviar archivos por HTTp
-  formData.append('archivos', archivo) // Agregamos el archivo al formData con la clave 'archivo'
+  formData.append('archivo', archivo) // Agregamos el archivo al formData con la clave 'archivo'
 
   let timerInterval: any = null
   let progress = 0
