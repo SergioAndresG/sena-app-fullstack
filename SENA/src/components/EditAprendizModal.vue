@@ -3,110 +3,182 @@
     <!-- Este componente no muestra nada directamente -->
 </template>
 
-<script setup>
-import { ref, watch } from 'vue'
+<script setup lang="ts">
+import {  ref, watch } from 'vue'
+import axios from 'axios';
 import Swal from 'sweetalert2'
 
-const props = defineProps({
-    aprendiz: Object,
-    mostrar: Boolean
-})
-const emit = defineEmits(['cerrar', 'actualizar'])
+interface Aprendiz {
+    tipo_documento: string;
+    documento: string;
+    nombre: string;
+    apellido: string;
+    direccion?: string;
+    correo: string;
+    celular: string;
+    discapacidad?: "Si" | "No";
+    tipo_discapacidad?: string;
+    firma?: string;
+}
+
+async function envioDatosAprendiz(aprendiz) {
+    try {
+        const response = await axios.patch(`http://127.0.0.1:8000/aprendices/${aprendiz.documento}`, {
+            tipo_documento: aprendiz.tipo_documento,
+            documento: aprendiz.documento,
+            nombre: aprendiz.nombre,
+            apellido: aprendiz.apellido,
+            direccion: aprendiz.direccion,
+            correo: aprendiz.correo,
+            celular: aprendiz.celular,
+            discapacidad: aprendiz.discapacidad,
+            tipo_discapacidad: aprendiz.tipo_discapacidad,
+            firma: aprendiz.firma
+        });
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Editado Correctamente',
+            timer: 1500,
+            showConfirmButton: false,
+        });
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al editar',
+            text: 'Intente nuevamente',
+            showConfirmButton: true
+        })
+    }
+}
+
+const props = defineProps<{
+    aprendiz: Aprendiz | null;
+    mostrar: boolean;
+}>()
+
+const emit = defineEmits<{
+    (e: 'cerrar'): void;
+    (e: 'actualizar', payload: Aprendiz): void;
+}>()
 
 watch(() => props.aprendiz, async (nuevoAprendiz) => {
-
     if (!nuevoAprendiz) return;
 
     const { value: formData } = await Swal.fire({
         title: 'Editar Aprendiz',
-        html: `<div class="form-container">
-          <div class="form-group">
-            <label class="form-label">Documento</label>
-            <div class="documento-container">
-              <select id="tipo-doc" class="tipo-documento">
-                <option value="CC" ${nuevoAprendiz.tipo_documento === 'CC' ? 'selected' : ''}>CC</option>
-                <option value="TI" ${nuevoAprendiz.tipo_documento === 'TI' ? 'selected' : ''}>TI</option>
-                <option value="CE" ${nuevoAprendiz.tipo_documento === 'CE' ? 'selected' : ''}>CE</option>
-                <option value="NUIP" ${nuevoAprendiz.tipo_documento === 'NUIP' ? 'selected' : ''}>NUIP</option>
-              </select>
-              <input id="numero-doc" class="numero-documento" placeholder="Número de documento" value="${nuevoAprendiz.documento}">
+        html: `
+        <div class="custom-modal-content">
+          <div class="form-grid">
+            <!-- Documento -->
+            <div class="form-field full-width">
+              <label class="field-label">Documento</label>
+              <div class="document-input-group">
+                <select id="tipo-doc" class="document-type-select">
+                  <option value="CC" ${nuevoAprendiz.tipo_documento === 'CC' ? 'selected' : ''}>CC</option>
+                  <option value="TI" ${nuevoAprendiz.tipo_documento === 'TI' ? 'selected' : ''}>TI</option>
+                  <option value="CE" ${nuevoAprendiz.tipo_documento === 'CE' ? 'selected' : ''}>CE</option>
+                  <option value="NUIP" ${nuevoAprendiz.tipo_documento === 'NUIP' ? 'selected' : ''}>NUIP</option>
+                </select>
+                <input id="numero-doc" class="document-number-input" placeholder="Número de documento" value="${nuevoAprendiz.documento}">
+              </div>
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Nombre</label>
-            <input id="nombre" class="swal2-input" placeholder="Ingrese el nombre" value="${nuevoAprendiz.nombre}">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Apellidos</label>
-            <input id="apellidos" class="swal2-input" placeholder="Ingrese los apellidos" value="${nuevoAprendiz.apellido}">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Dirección</label>
-            <input id="direccion" class="swal2-input" placeholder="Ingrese la dirección" value="${nuevoAprendiz.direccion || ''}">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Correo Electrónico</label>
-            <input id="correo" class="swal2-input" placeholder="correo@ejemplo.com" value="${nuevoAprendiz.correo}">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Celular</label>
-            <input id="celular" class="swal2-input" placeholder="Número de celular" value="${nuevoAprendiz.celular}">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">¿Tiene alguna discapacidad?</label>
-            <div class="checkbox-group">
-                <div class="checkbox-item">
-                    <input type="checkbox" id="discapacidad-si" ${nuevoAprendiz.discapacidad === 'Sí' ? 'checked' : ''}> 
-                    <label for="discapacidad-si">Sí</label>
-                    
-                    
-                </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="discapacidad-no" ${nuevoAprendiz.discapacidad === 'No' ? 'checked' : ''}> 
-                <label for="discapacidad-no">No</label>
+            
+            <!-- Nombre y Apellidos -->
+            <div class="form-field">
+              <label class="field-label">Nombre</label>
+              <input id="nombre" class="form-input" placeholder="Ingrese el nombre" value="${nuevoAprendiz.nombre}">
+            </div>
+            
+            <div class="form-field">
+              <label class="field-label">Apellidos</label>
+              <input id="apellidos" class="form-input" placeholder="Ingrese los apellidos" value="${nuevoAprendiz.apellido}">
+            </div>
+            
+            <!-- Dirección -->
+            <div class="form-field full-width">
+              <label class="field-label">Dirección</label>
+              <input id="direccion" class="form-input" placeholder="Ingrese la dirección" value="${nuevoAprendiz.direccion || ''}">
+            </div>
+            
+            <!-- Correo y Celular -->
+            <div class="form-field">
+              <label class="field-label">Correo Electrónico</label>
+              <input id="correo" class="form-input" type="email" placeholder="correo@ejemplo.com" value="${nuevoAprendiz.correo}">
+            </div>
+            
+            <div class="form-field">
+              <label class="field-label">Celular</label>
+              <input id="celular" class="form-input" placeholder="Número de celular" value="${nuevoAprendiz.celular}">
+            </div>
+            
+            <!-- Discapacidad -->
+            <div class="form-field full-width">
+              <label class="field-label">¿Tiene alguna discapacidad?</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="discapacidad" id="discapacidad-si" value="Si" ${nuevoAprendiz.discapacidad === 'Si' ? 'checked' : ''}> 
+                  <span class="radio-label">Sí</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="discapacidad" id="discapacidad-no" value="No" ${nuevoAprendiz.discapacidad === 'No' ? 'checked' : ''}> 
+                  <span class="radio-label">No</span>
+                </label>
+              </div>
+              
+              <div id="detalle-discapacidad" class="disability-detail" style="display: ${nuevoAprendiz.discapacidad === 'Si' ? 'block' : 'none'}">
+                <label class="field-label">¿Cuál es la situación de discapacidad que presenta?</label>
+                <input id="tipo-disc" class="form-input" placeholder="Ingrese el tipo de discapacidad" value="${nuevoAprendiz.tipo_discapacidad || ''}">
+                <p class="help-text">Recuerde que debe anexar su certificado de discapacidad emitido por la EPS</p>
               </div>
             </div>
 
-             <!-- Este div se ocultará o mostrará dinámicamente -->
-            <div id="detalle-discapacidad" style="display: ${nuevoAprendiz.discapacidad === 'Sí' ? 'block' : 'none'}">
-                <div class="form-group">
-                    <label class="form-label">¿Cuál es la situación de discapacidad que presenta?</label>
-                    <input id="tipo-disc" class="swal2-input" placeholder="Ingrese el tipo de discapacidad" value="${nuevoAprendiz.tipo_discapacidad || ''}">
-                    <p>Recuerde que debe anexar su certificado de discapacidad emitido por la EPS</p>
-                </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Firma</label>
-            <div class="firma-container">
-              <canvas id="firma" width="380" height="150"></canvas>
-              <button type="button" id="limpiar-firma" class="btn-limpiar">Limpiar</button>
+            <!-- Firma -->
+            <div class="form-field full-width">
+              <label class="field-label">Firma</label>
+              <div class="signature-container">
+                <canvas id="firma" width="400" height="120"></canvas>
+                <button type="button" id="limpiar-firma" class="clear-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h3"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                  </svg>
+                  Limpiar firma
+                </button>
+              </div>
             </div>
           </div>
         </div>`,
         showCancelButton: true,
-        confirmButtonText: 'Guardar',
+        confirmButtonText: 'Guardar cambios',
         cancelButtonText: 'Cancelar',
-        width: 500,
+        width: 600,
+        customClass: {
+            popup: 'custom-swal-popup',
+            title: 'custom-swal-title',
+            htmlContainer: 'custom-swal-content',
+            confirmButton: 'custom-confirm-btn',
+            cancelButton: 'custom-cancel-btn'
+        },
         didOpen: () => {
-            const canvas = document.getElementById('firma');
+            const canvas = document.getElementById('firma') as HTMLCanvasElement | null;
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
-            const limpiarBtn = document.getElementById('limpiar-firma');
+            const limpiarBtn = document.getElementById('limpiar-firma') as HTMLButtonElement | null;
+            if (!ctx || !limpiarBtn) return;
             let isDrawing = false;
 
-            // Configurar canvas con fondo blanco
+            // Configurar canvas
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
 
-            // Función para limpiar canvas
+            // Limpiar canvas
             const limpiarCanvas = () => {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -114,29 +186,23 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
 
             limpiarBtn.addEventListener('click', limpiarCanvas);
 
-            // Manejar checkboxes exclusivos
-            const checkboxSi = document.getElementById('discapacidad-si');
-            const checkboxNo = document.getElementById('discapacidad-no');
-
+            // Manejar radio buttons de discapacidad
+            const radioSi = document.getElementById('discapacidad-si') as HTMLInputElement;
+            const radioNo = document.getElementById('discapacidad-no') as HTMLInputElement;
             const detalleDiscapacidad = document.getElementById('detalle-discapacidad');
 
-            checkboxSi.addEventListener('change', () => {
-                if (checkboxSi.checked) {
-                    checkboxNo.checked = false;
+            const toggleDiscapacidadDetail = () => {
+                if (radioSi.checked) {
                     detalleDiscapacidad.style.display = 'block';
                 } else {
                     detalleDiscapacidad.style.display = 'none';
                 }
-            });
+            };
 
-            checkboxNo.addEventListener('change', () => {
-                if (checkboxNo.checked) {
-                    checkboxSi.checked = false;
-                    detalleDiscapacidad.style.display = 'none';
-                }
-            });
+            radioSi.addEventListener('change', toggleDiscapacidadDetail);
+            radioNo.addEventListener('change', toggleDiscapacidadDetail);
 
-            // Función para obtener posición del mouse/touch
+            // Funciones de dibujo
             const getPosition = (e) => {
                 const rect = canvas.getBoundingClientRect();
                 const clientX = e.clientX || (e.touches && e.touches[0].clientX);
@@ -147,7 +213,6 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
                 };
             };
 
-            // Función para iniciar dibujo
             const startDrawing = (e) => {
                 e.preventDefault();
                 isDrawing = true;
@@ -156,67 +221,66 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
                 ctx.moveTo(pos.x, pos.y);
             };
 
-            // Función para dibujar
             const draw = (e) => {
                 e.preventDefault();
                 if (!isDrawing) return;
-
                 const pos = getPosition(e);
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#000000';
                 ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
                 ctx.beginPath();
                 ctx.moveTo(pos.x, pos.y);
             };
 
-            // Función para terminar dibujo
             const stopDrawing = (e) => {
                 e.preventDefault();
                 isDrawing = false;
             };
 
-            // Eventos para mouse
+            // Event listeners para canvas
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
             canvas.addEventListener('mouseout', stopDrawing);
-
-            // Eventos para touch (móvil)
             canvas.addEventListener('touchstart', startDrawing);
             canvas.addEventListener('touchmove', draw);
             canvas.addEventListener('touchend', stopDrawing);
             canvas.addEventListener('touchcancel', stopDrawing);
         },
         preConfirm: () => {
-            const tipo_doc = document.getElementById('tipo-doc').value;
-            const documento = document.getElementById('numero-doc').value;
-            const nombre = document.getElementById('nombre').value;
-            const apellidos = document.getElementById('apellidos').value;
-            const direccion = document.getElementById('direccion').value;
-            const correo = document.getElementById('correo').value;
-            const celular = document.getElementById('celular').value;
-            const discapacidad = document.getElementById('discapacidad-si').checked ? 'Sí' : 'No';
-            const tipo_discapacidad = document.getElementById('tipo-disc')?.value || '';
-            const firma = document.getElementById('firma').toDataURL();
+            const tipo_doc = document.getElementById('tipo-doc') as HTMLSelectElement;
+            const documento = document.getElementById('numero-doc') as HTMLInputElement;
+            const nombre = document.getElementById('nombre') as HTMLInputElement;
+            const apellido = document.getElementById('apellidos') as HTMLInputElement;
+            const direccion = document.getElementById('direccion') as HTMLInputElement;
+            const correo = document.getElementById('correo') as HTMLInputElement;
+            const celular = document.getElementById('celular') as HTMLInputElement;
+            const discapacidadSi = document.getElementById('discapacidad-si') as HTMLInputElement;
+            const discapacidad = discapacidadSi.checked ? 'Si' : 'No';
+            const tipo_discapacidad = document.getElementById('tipo-disc') as HTMLInputElement;
+            const firma = document.getElementById('firma') as HTMLCanvasElement;
+            const firmaData = firma.toDataURL();
 
-            if (!nombre || !correo) {
+            if (!nombre.value.trim() || !correo.value.trim()) {
                 Swal.showValidationMessage('Nombre y correo son obligatorios');
                 return false;
             }
 
+            if (discapacidad === 'Si' && !tipo_discapacidad.value.trim()) {
+                Swal.showValidationMessage('Debe especificar el tipo de discapacidad');
+                return false;
+            }
+
             return {
-                tipo_documento: tipo_doc,
-                documento,
-                nombre,
-                apellidos,
-                direccion,
-                correo: correo,
-                celular,
-                discapacidad,
-                tipo_discapacidad,
-                firma
+                tipo_documento: tipo_doc.value,
+                documento: documento.value,
+                nombre: nombre.value.trim(),
+                apellido: apellido.value.trim(),
+                direccion: direccion.value.trim(),
+                correo: correo.value.trim(),
+                celular: celular.value.trim(),
+                discapacidad: discapacidad,
+                tipo_discapacidad: discapacidad === 'Si' ? tipo_discapacidad.value.trim() : null,
+                firma: firmaData
             };
         }
     });
@@ -225,160 +289,290 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
 
     if (formData) {
         emit('actualizar', formData);
-        Swal.fire('¡Actualizado!', 'Los datos han sido guardados.', 'success');
+        envioDatosAprendiz(formData);
     }
 });
 </script>
 
 <style scoped>
-:global(.swal2-popup) {
-    border-radius: 8px !important;
-    font-family: 'Inter', sans-serif;
+/* Estilos globales para el modal */
+:global(.custom-swal-popup) {
+    border-radius: 12px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    padding: 0 !important;
 }
 
-:global(.swal2-title) {
-    font-size: 20px !important;
+:global(.custom-swal-title) {
+    font-size: 24px !important;
     font-weight: 600 !important;
-    color: #333 !important;
+    color: #1f2937 !important;
+    margin-bottom: 24px !important;
+    padding: 24px 24px 0 24px !important;
 }
 
-:global(.form-container) {
-    text-align: left;
-    padding: 20px 10px;
+:global(.custom-swal-content) {
+    padding: 0 24px 24px 24px !important;
+    margin: 0 !important;
 }
 
-:global(.form-group) {
-    margin-bottom: 25px;
+/* Contenedor principal del formulario */
+:global(.custom-modal-content) {
+    width: 100%;
+    max-width: none;
 }
 
-:global(.form-label) {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
+/* Grid del formulario */
+:global(.form-grid) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
 }
 
-:global(.documento-container) {
-    position: relative;
+:global(.form-field) {
     display: flex;
-    align-items: stretch;
+    flex-direction: column;
 }
 
-:global(.tipo-documento) {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 10;
-    width: 80px !important;
-    height: 42px !important;
-    padding: 8px 6px !important;
-    border: 1px solid #ddd !important;
-    border-radius: 4px 0 0 4px !important;
-    background-color: #f8f9fa !important;
-    font-size: 12px !important;
+:global(.form-field.full-width) {
+    grid-column: 1 / -1;
+}
+
+/* Etiquetas */
+:global(.field-label) {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Inputs generales */
+:global(.form-input) {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    transition: all 0.2s ease !important;
+    background-color: #ffffff !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+:global(.form-input:focus) {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+:global(.form-input:hover) {
+    border-color: #d1d5db !important;
+}
+
+/* Grupo de documento */
+:global(.document-input-group) {
+    display: flex;
+    position: relative;
+    width: 100%;
+}
+
+:global(.document-type-select) {
+    width: 90px !important;
+    padding: 12px 8px !important;
+    border: 2px solid #e5e7eb !important;
+    border-right: none !important;
+    border-radius: 8px 0 0 8px !important;
+    background-color: #f9fafb !important;
+    font-size: 13px !important;
     font-weight: 500 !important;
-    color: #495057 !important;
+    color: #374151 !important;
+    cursor: pointer !important;
     appearance: none !important;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
-    background-position: right 4px center !important;
+    background-position: right 8px center !important;
     background-repeat: no-repeat !important;
-    background-size: 12px !important;
-    cursor: pointer !important;
+    background-size: 14px !important;
     margin: 0 !important;
 }
 
-:global(.numero-documento) {
-    width: 100% !important;
-    padding: 8px 12px 8px 90px !important;
-    border: 1px solid #ddd !important;
-    border-radius: 4px !important;
+:global(.document-number-input) {
+    flex: 1 !important;
+    padding: 12px 16px !important;
+    border: 2px solid #e5e7eb !important;
+    border-left: none !important;
+    border-radius: 0 8px 8px 0 !important;
     font-size: 14px !important;
-    height: 42px !important;
-    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
     margin: 0 !important;
 }
 
-:global(.swal2-input) {
-    width: 100% !important;
-    padding: 12px 15px !important;
-    border: 1px solid #ddd !important;
-    border-radius: 4px !important;
-    font-size: 14px !important;
-    height: 42px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    transition: border-color 0.3s ease !important;
+:global(.document-input-group:focus-within .document-type-select) {
+    border-color: #3b82f6 !important;
 }
 
-:global(#detalle-discapacidad){
-    margin-top: 20px;
+:global(.document-input-group:focus-within .document-number-input) {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
-:global(.swal2-input:focus) {
-    outline: none !important;
-    border-color: #007bff !important;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
-}
-
-:global(.checkbox-group) {
+/* Radio buttons para discapacidad */
+:global(.radio-group) {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     margin-top: 8px;
 }
 
-:global(.checkbox-item) {
+:global(.radio-option) {
     display: flex;
     align-items: center;
     gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
 }
 
-:global(.checkbox-item input[type="checkbox"]) {
+:global(.radio-option input[type="radio"]) {
     width: 18px !important;
     height: 18px !important;
     margin: 0 !important;
     cursor: pointer !important;
+    accent-color: #3b82f6 !important;
 }
 
-:global(.checkbox-item label) {
-    font-size: 14px !important;
-    color: #333 !important;
-    cursor: pointer !important;
-    margin: 0 !important;
-    font-weight: normal !important;
+:global(.radio-label) {
+    cursor: pointer;
+    user-select: none;
 }
 
-:global(.firma-container) {
-    position: relative;
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    background-color: #fafafa;
+/* Detalle de discapacidad */
+:global(.disability-detail) {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    animation: slideDown 0.3s ease;
+}
+
+:global(.help-text) {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+/* Contenedor de firma */
+:global(.signature-container) {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 20px;
+    background-color: #f9fafb;
     text-align: center;
+    position: relative;
 }
 
 :global(#firma) {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #ffffff;
     cursor: crosshair;
     display: block;
-    margin: 0 auto;
+    margin: 0 auto 16px auto;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-:global(.btn-limpiar) {
-    margin-top: 10px;
-    padding: 6px 12px;
-    background-color: #dc3545;
-    color: white;
+:global(.clear-btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #ef4444;
+    color: #ffffff;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.3s ease;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-:global(.btn-limpiar:hover) {
-    background-color: #c82333;
+:global(.clear-btn:hover) {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
-</style>
+
+:global(.clear-btn svg) {
+    width: 14px;
+    height: 14px;
+}
+
+/* Botones del modal */
+:global(.custom-confirm-btn) {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+:global(.custom-confirm-btn:hover) {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+:global(.custom-cancel-btn) {
+    background-color: #6b7280 !important;
+    border-color: #6b7280 !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+:global(.custom-cancel-btn:hover) {
+    background-color: #4b5563 !important;
+    border-color: #4b5563 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Animación para el detalle de discapacidad */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    :global(.form-grid) {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    :global(.custom-swal-popup) {
+        width: 95% !important;
+        margin: 20px !important;
+    }
+    
+    :global(.radio-group) {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    :global(#firma) {
+        width: 100%;
+        max-width: 350px;
+    }
+}</style>
