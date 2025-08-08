@@ -1,7 +1,13 @@
 <template>
-  <Header/>
-  
-  <div class="forms-container">  
+  <Header />
+  <div class="tooltip">
+    <button class="btn-logout">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+    <span class="tooltip-text">Cerrar sesión</span>
+  </div>
+
+  <div class="forms-container">
     <!-- Primera columna - Formato Grupal -->
     <div class="column">
       <div class="card">
@@ -12,31 +18,18 @@
           <h2 class="card-titulo">
             Aquí puede generar y editar el formato F-165 grupal
           </h2>
-
-          <!-- BOTÓN GRUPAL 1 -->
           <button class="btn-consultar tooltip-container" @click="irAGrupal">
-            Generar y descargar
-            <span class="tooltip">Aquí puede generar, editar y descargar el formato F-165 grupal.</span>
+            Consultar
           </button>
-
-          <!-- Separador -->
-          <div class="separator">ó</div>
-
-          <!-- BOTÓN GRUPAL 2 -->
-          <button class="btn-consultar tooltip-container" @click="irAGrupal">
-            Buscar y descargar
-            <span class="tooltip">Busque y descargue un formato F-165 previamente generado.</span>
-          </button>
-
         </div>
       </div>
     </div>
-    
+
     <!-- Columna del divisor -->
     <div class="columna-divisor">
       <div class="divider"></div>
     </div>
-    
+
     <!-- Segunda columna - Formato Individual -->
     <div class="column">
       <div class="card">
@@ -48,16 +41,7 @@
             Aquí puede generar y editar el formato F-165 individual
           </h2>
           <button class="btn-consultar tooltip-container" @click="irAIndividual">
-            Generar y descargar
-            <span class="tooltip">Aquí puede generar, editar y descargar el formato F-165 individual.</span>
-          </button>
-
-          <!-- Separador -->
-          <div class="separator">ó</div>
-
-          <button class="btn-consultar tooltip-container" @click="irAIndividual">
-            Buscar y descargar
-            <span class="tooltip">Busque y descargue un formato F-165 previamente generado.</span>
+            Consultar
           </button>
         </div>
       </div>
@@ -73,12 +57,12 @@ import Header from '../components/Header.vue'
 const router = useRouter()
 
 //Redireccionar al formato grupal
-function irAGrupal(){
+function irAGrupal() {
   router.push('/groupformat')
 }
 
 //Redireccionar al formato individual
-function irAIndividual(){
+function irAIndividual() {
   router.push('/individualformat')
 }
 
@@ -92,10 +76,55 @@ function irAIndividual(){
   min-height: 500px;
   width: 100%;
   margin: 30px auto;
+  margin-top: 120px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.title-id{
+.tooltip {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  position: absolute; /* o 'fixed' si deseas que no se mueva al hacer scroll */
+  top: 120px;
+  right: 30px;
+  z-index: 100;
+}
+
+.btn-logout {
+  background-color: #208b69;
+  color: white;
+  font-size: 20px;
+  border: none;
+  padding: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.btn-logout:hover {
+  transform: scale(1.1);
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 110px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 8px;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.title-id {
   text-align: center;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -113,7 +142,7 @@ function irAIndividual(){
   width: 1px;
 }
 
-.icon-docs{
+.icon-docs {
   height: 15rem;
   width: 15rem;
 }
@@ -135,8 +164,8 @@ function irAIndividual(){
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 70%;
-  height: 700px;
+  width: 60%;
+  height: 600px;
 }
 
 .card:hover {
@@ -183,53 +212,11 @@ function irAIndividual(){
   transform: translateY(0);
 }
 
-.tooltip-container {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip {
-  visibility: hidden;
-  width: 250px;
-  background-color: #333;
-  color: #fff;
-  text-align: left;
-  border-radius: 5px;
-  padding: 8px 10px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%; /* Posición arriba del botón */
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.tooltip::after {
-  content: "";
-  position: absolute;
-  top: 100%; /* flechita hacia abajo */
-  left: 50%;
-  margin-left: -5px;
-  border-width: 6px;
-  border-style: solid;
-  border-color: #333 transparent transparent transparent;
-}
-
-.tooltip-container:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
 .separator {
   font-weight: bold;
   color: #555;
   text-align: center;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-
 
 /* Responsive design */
 @media (max-width: 800px) {
@@ -239,52 +226,52 @@ function irAIndividual(){
     gap: 20px;
   }
 
-  .icon-docs{
+  .icon-docs {
     height: 10rem;
     width: 10rem;
   }
-  
+
   .columna-divisor {
     width: 100%;
     height: 1px;
     order: 2;
   }
-  
+
   .divider {
     width: 200px;
     height: 1px;
   }
-  
+
   .columna:first-child {
     order: 1;
   }
-  
+
   .columna:last-child {
     order: 3;
   }
-  
+
   .card {
     padding: 30px 20px;
   }
-  
+
   .card-titulo {
     font-size: 16px;
   }
 
   .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.137);
-      text-align: center;
-      width: clamp(350px, 30vw, 500px);
-      height: clamp(350px, 30vw, 500px);
-      border: 1px solid #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 60%;
-      height: 500px;
-    }
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.137);
+    text-align: center;
+    width: clamp(350px, 30vw, 500px);
+    height: clamp(350px, 30vw, 500px);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    height: 450px;
+  }
 
   .btn-consultar {
     background-color: #10b981;
