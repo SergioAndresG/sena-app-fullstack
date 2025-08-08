@@ -71,7 +71,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
   const archivo = fileList[0] // Tomamos el primer archivo de la lista 
   const formData = new FormData() // Creamos un objeto Forma Data para enviar archivos por HTTp
-  formData.append('archivos', archivo) // Agregamos el archivo al formData con la clave 'archivo'
+  formData.append('archivo', archivo) // Agregamos el archivo al formData con la clave 'archivo'
 
   let timerInterval: any = null
   let progress = 0
@@ -120,6 +120,13 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 <template>
   <Header />
 
+  <div class="tooltip">
+    <button class="btn-logout">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+    <span class="tooltip-text">Cerrar sesión</span>
+  </div>
+
   <div class="container-section-docs">
     <section class="container-docs">
 
@@ -165,14 +172,59 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
         multiple
 
       />
-
-
     </section>
   </div>
 </template>
 
 
 <style scoped>
+
+/* Estilos botón cerrar sesión */
+
+.tooltip {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  position: absolute; /* o 'fixed' si deseas que no se mueva al hacer scroll */
+  top: 120px;
+  right: 30px;
+  z-index: 100;
+}
+
+.btn-logout {
+  background-color: #208b69;
+  color: white;
+  font-size: 20px;
+  border: none;
+  padding: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.btn-logout:hover {
+  transform: scale(1.1);
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 110px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 8px;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
 .container-section-docs{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -309,4 +361,3 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 }
 
 </style>
-
