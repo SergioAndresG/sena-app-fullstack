@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
+import IndividualInstructions from '../components/IndividualInstructions.vue'
 
 // variable que guradara los aprendices
 interface Aprendiz {
@@ -106,11 +107,37 @@ function irAInstructor(){
 
 <template>
   <Header></Header>
+
+  <div class="floating-buttons" v-if="!mostrarResultados">
+    <!-- Botón izquierdo -->
+    <div class="tooltip tooltip-left btn-left">
+      <button class="back-button" @click="irAInstructor">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <span class="tooltip-text">Regresar</span>
+    </div>
+
+    <!-- Contenedor de botones derechos -->
+    <div class="right-buttons">
+      <div class="tooltip">
+        <button class="back-button" @click="mostrarModal = true">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+        <span class="tooltip-text">Instrucciones</span>
+      </div>
+
+      <div class="tooltip">
+        <button class="back-button">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+        <span class="tooltip-text">Cerrar sesión</span>
+      </div>
+    </div>
+
+    <IndividualInstructions v-if="mostrarModal" @cerrar="mostrarModal = false" />
+  </div>
+
   <div v-if="!mostrarResultados">
-    <button class="back-button" @click="irAInstructor">
-      <i class="fa-solid fa-arrow-left"></i>
-      Regresar
-    </button>
   </div>
   <Transition name="fade-slide" mode="out-in">
     <!--Formualario de busqueda-->
@@ -212,15 +239,88 @@ function irAInstructor(){
   justify-content: center;
   text-align: center;
   margin: 0 auto;
-  margin-top: 50px;
+  margin-top: 120px;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.189);
   flex-direction: column;
 }
 
+.floating-buttons {
+  position: relative;
+  width: 98%;
+  height: 0;
+  z-index: 100;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Botón izquierdo */
+.btn-left {
+  position: absolute;
+  top: 30px;
+  left: 20px;
+}
+
+/* Contenedor de los botones derechos */
+.right-buttons {
+  position: absolute;
+  top: 30px;
+  right: 0px;
+  display: flex;
+  gap: 20px;
+  /* espacio entre los botones */
+}
+
 .back-button {
-  margin-top: 20px;
-  margin-left: 50px;
+  background-color: #208b69;
+  color: white;
+  font-size: 20px;
+  border: none;
+  padding: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.back-button:hover {
+  transform: scale(1.1);
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  /* Asegura que el hover solo cuente sobre el botón */
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 110px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 8px;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-left .tooltip-text {
+  top: 55px;
+  left: 60px;
+  transform: translateX(-50%);
+}
+
+.btn-inst {
+  margin-right: 40px;
+  margin-left: auto;
   background: transparent;
   font-weight: 600;
   background: linear-gradient(135deg, #10b981 0%, #208b69 100%);
@@ -230,10 +330,10 @@ function irAInstructor(){
   padding: 10px 18px;
   border-radius: 6px;
   transition: all 0.3s ease;
-  box-shadow: 0  4px 6px rgba(2, 30, 14, 0.25);
+  box-shadow: 0 4px 6px rgba(2, 30, 14, 0.25);
 }
 
-.back-button:hover {
+.btn-inst:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 15px rgba(3, 57, 17, 0.35);
 }
@@ -462,7 +562,7 @@ function irAInstructor(){
 /* Transiciones */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.05s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .fade-slide-enter-form {
@@ -503,6 +603,12 @@ function irAInstructor(){
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Salida: termina invisible y desplazado */
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(30px); /* puedes usar translateX(0) si no quieres movimiento */
 }
 
 /* ✅ Estilos responsive para pantallas menores a 768px */
