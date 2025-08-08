@@ -374,6 +374,15 @@ export default {
   box-sizing: border-box;
 }
 
+.form-input::placeholder {
+  color: #aaa;
+  /* No puedes posicionar con top/left, solo padding o text-indent */
+  padding-left: 1rem;
+  /* o */
+  text-indent: 0.5rem;
+}
+
+
 .form-input:focus {
   outline: none;
   border-color: #10b981;
