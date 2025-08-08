@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
+import GroupInstructions from '../components/GroupInstructions.vue'
 
 // Interfaces
 interface Aprendiz {
@@ -298,13 +299,34 @@ function irAInstructor(){
 
 <template>
   <Header></Header>
-  
-  <!-- Botón de regreso -->
-  <div v-if="!mostrarResultados" class="navigation-container">
-    <button class="back-button" @click="irAInstructor">
-      <i class="fa-solid fa-arrow-left"></i>
-      Regresar
-    </button>
+
+  <div class="floating-buttons" v-if="!mostrarResultados">
+    <!-- Botón izquierdo -->
+    <div class="tooltip tooltip-left btn-left">
+      <button class="back-buttons" @click="irAInstructor">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <span class="tooltip-text">Regresar</span>
+    </div>
+
+    <!-- Contenedor de botones derechos -->
+    <div class="right-buttons">
+      <div class="tooltip">
+        <button class="back-buttons" @click="mostrarModal = true">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+        <span class="tooltip-text">Instrucciones</span>
+      </div>
+
+      <div class="tooltip">
+        <button class="back-buttons">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+        <span class="tooltip-text">Cerrar sesión</span>
+      </div>
+    </div>
+
+    <GroupInstructions v-if="mostrarModal" @cerrar="mostrarModal = false" />
   </div>
   
   <Transition name="fade-slide" mode="out-in">
@@ -485,20 +507,81 @@ function irAInstructor(){
 </template>
 
 <style scoped>
-/* Variables CSS */
-:root {
-  --primary-color: #10b981;
-  --primary-dark: #059669;
-  --secondary-color: #6366f1;
-  --background-light: #f8fafc;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --border-color: #e2e8f0;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --border-radius: 8px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+/* Botones */
+.floating-buttons {
+  position: relative;
+  width: 98%;
+  height: 0;
+  z-index: 100;
+}
+
+/* Botón izquierdo */
+.btn-left {
+  position: absolute;
+  top: 30px;
+  left: 20px;
+}
+
+/* Contenedor de los botones derechos */
+.right-buttons {
+  position: absolute;
+  top: 30px;
+  right: 0px;
+  display: flex;
+  gap: 20px; /* espacio entre los botones */
+}
+
+.back-buttons {
+  background-color: #208b69;
+  color: white;
+  font-size: 20px;
+  border: none;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.back-buttons:hover {
+  transform: scale(1.1);
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block; /* Asegura que el hover solo cuente sobre el botón */
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 110px;
+  background-color: #1b1f1d;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 8px;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-left .tooltip-text {
+  top: 55px;
+  left: 60px;
+  transform: translateX(-50%);
 }
 
 /* Layout principal */
@@ -533,6 +616,8 @@ function irAInstructor(){
   align-items: center;
   min-height: 60vh;
   padding: 20px;
+  margin: 0 auto;
+  margin-top: 120px;
 }
 
 .search-card {
@@ -593,7 +678,9 @@ function irAInstructor(){
 .search-button {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: white;
+  width: 40%;
   font-size: 1.1rem;
+  margin: auto;
   font-weight: 600;
   padding: 16px 32px;
   border: none;
@@ -656,7 +743,7 @@ function irAInstructor(){
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, var(--secondary-color) 0%, #149653 100%);
   color: white;
   border: none;
   padding: 12px 20px;
@@ -788,8 +875,8 @@ function irAInstructor(){
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: #51d283;
-  color: #166534;
+  background: #239c52;
+  color: #fafafa;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -908,7 +995,7 @@ function irAInstructor(){
 /* Transiciones */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.02s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .fade-slide-enter-form {
@@ -949,6 +1036,12 @@ function irAInstructor(){
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Salida: termina invisible y desplazado */
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(30px); /* puedes usar translateX(0) si no quieres movimiento */
 }
 
 /* ✅ Estilos responsive para pantallas menores a 768px */
