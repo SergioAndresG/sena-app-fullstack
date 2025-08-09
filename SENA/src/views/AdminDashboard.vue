@@ -10,12 +10,12 @@ const inputFichas = ref<HTMLInputElement | null>(null)
 const inputMaestro = ref<HTMLInputElement | null>(null)
 
 function abrirExploradorFichas() {
-   console.log("Abriendo input de fichas")
+  console.log("Abriendo input de fichas")
   inputFichas.value?.click()
 }
 
 function abrirExploradorMaestro() {
-   console.log("Abriendo input de")
+  console.log("Abriendo input de")
   inputMaestro.value?.click()
 }
 
@@ -105,7 +105,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
     })
   } catch (error) {
     // mostramos este mensaje si algo ha fallado
-        console.error('Error al subir archivo:', error)
+    console.error('Error al subir archivo:', error)
 
     Swal.fire({
       icon: 'error',
@@ -135,19 +135,13 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
       </div>
 
       <article class="title-docs">
-          Seleccione el reporte PE-04
+        Seleccione el reporte PE-04
       </article>
 
       <button class="button-docs" @click="abrirExploradorMaestro">
-          Cargar Archivos
+        Cargar Archivos
       </button>
-      <input
-        type="file"
-        ref="inputMaestro"
-        style="display: none"
-        @change="subirArchivoMaestro"
-        accept=".xlsx, .xls"
-      />
+      <input type="file" ref="inputMaestro" style="display: none" @change="subirArchivoMaestro" accept=".xlsx, .xls" />
     </section>
 
     <section class="container-docs">
@@ -159,31 +153,22 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
         Seleccione los reportes de Fichas
       </article>
 
-      <button class="button-docs"  @click="abrirExploradorFichas">
-          Cargar Archivos
+      <button class="button-docs" @click="abrirExploradorFichas">
+        Cargar Archivos
       </button>
 
-        <input 
-        type="file"
-        ref="inputFichas"
-        style="display: none;"
-        @change="subirFichas"
-        accept=".xlsx, .xls"
-        multiple
-
-      />
+      <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
     </section>
   </div>
 </template>
 
-
 <style scoped>
-
 /* Estilos botón cerrar sesión */
 
 .tooltip {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  position: absolute; /* o 'fixed' si deseas que no se mueva al hacer scroll */
+  position: absolute;
+  /* o 'fixed' si deseas que no se mueva al hacer scroll */
   top: 120px;
   right: 30px;
   z-index: 100;
@@ -225,64 +210,127 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
   opacity: 1;
 }
 
-.container-section-docs{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  padding: 2rem;
-  justify-items: center;
+.container-section-docs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 12.5rem;
+    max-width: 1150px;
+    margin: 0 auto;
+    margin-top: 80px;
+    padding: 2rem 0;
 }
 
 .container-docs {
-  width: 80%;
-  height: 450px;
-  background-color: rgb(255, 255, 255);
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  height: 380px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   text-align: center;
-  margin: 0 auto;
-  margin-top: 80px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.137);
-  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.container-docs::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 .container-docs:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-  transform: translateY(-5px);
+  transform: translateY(-10px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.12),
+    0 8px 16px rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
-.icon-docs{
-  height: 13rem;
-  width: 13rem;
+.container-docs:hover::before {
+  transform: scaleX(1);
+}
+
+.icon-container {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.icon-docs {
+  height: 15rem;
+  width: 15rem;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.2));
+}
+
+.container-docs:hover .icon-docs {
+  transform: scale(1.05);
 }
 
 .title-docs {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.5rem;
-  margin-top: 35px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+.description-docs {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  max-width: 280px;
 }
 
 .button-docs {
-  width: 35%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   font-size: 1rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
   font-weight: 500;
+  padding: 0.875rem 2.5rem;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  animation: slideUp 0.6s ease-out;
-  margin: 0 auto;
-  margin-top: 30px;
+  position: relative;
+  overflow: hidden;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  margin-top: auto;
+}
+
+.button-docs::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
 }
 
 .button-docs:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(8, 106, 73, 0.382);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.button-docs:hover::before {
+  left: 100%;
 }
 
 /* ✅ Estilos responsive para pantallas menores a 768px */
@@ -294,7 +342,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
     padding: 1rem;
   }
 
-  .icon-docs{
+  .icon-docs {
     height: 8rem;
     width: 8rem;
   }
@@ -311,12 +359,53 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
   }
 }
 
+@media (max-width: 768px) {
+  .container-section-docs {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1rem;
+  }
+  
+  .container-docs {
+      padding: 2rem 1.5rem;
+  }
+
+  .title-docs {
+      font-size: 1.4rem;
+  }
+
+  .button-docs {
+      min-width: 160px;
+      padding: 0.75rem 2rem;
+  }
+}
+
+/* Animación de entrada */
+.container-docs {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.container-docs:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (max-width: 800px) {
   .container-section-docs {
     grid-template-columns: 1fr;
   }
 
-  .container-docs{
+  .container-docs {
     width: 70%;
   }
 
@@ -336,7 +425,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
     padding: 1rem;
   }
 
-  .icon-docs{
+  .icon-docs {
     height: 5rem;
     width: 5rem;
   }
@@ -359,5 +448,4 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
   }
 }
-
 </style>

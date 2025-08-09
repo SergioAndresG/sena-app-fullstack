@@ -72,12 +72,11 @@ function irAIndividual() {
 .forms-container {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  gap: 0;
-  min-height: 500px;
-  width: 100%;
-  margin: 30px auto;
-  margin-top: 120px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  gap: 7.5rem;
+  max-width: 1150px;
+  margin: 0 auto;
+  margin-top: 80px;
+  padding: 2rem 0;
 }
 
 .tooltip {
@@ -142,9 +141,20 @@ function irAIndividual() {
   width: 1px;
 }
 
+.icon-container {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
 .icon-docs {
   height: 15rem;
   width: 15rem;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.2));
+}
+
+.card:hover .icon-docs {
+  transform: scale(1.05);
 }
 
 .divider {
@@ -154,23 +164,45 @@ function irAIndividual() {
 }
 
 .card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.137);
-  text-align: center;
-  width: clamp(350px, 30vw, 500px);
-  height: clamp(350px, 30vw, 500px);
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  height: 430px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 60%;
-  height: 600px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-  transform: translateY(-5px);
+  transform: translateY(-10px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.12),
+    0 8px 16px rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.card:hover::before {
+  transform: scaleX(1);
 }
 
 .card-content {
@@ -190,26 +222,41 @@ function irAIndividual() {
 }
 
 .btn-consultar {
-  background-color: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  border: none;
-  padding: 10px 20px;
   font-size: 1rem;
   font-weight: 500;
-  border-radius: 8px;
+  padding: 0.875rem 2.5rem;
+  border-radius: 12px;
+  border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 120px;
+  position: relative;
+  overflow: hidden;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  margin-top: auto;
+}
+
+.btn-consultar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
 }
 
 .btn-consultar:hover {
-  background-color: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
 
-.btn-consultar:active {
-  transform: translateY(0);
+.btn-consultar:hover::before {
+  left: 100%;
 }
 
 .separator {
@@ -291,5 +338,46 @@ function irAIndividual() {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   }
+}
+
+@media (max-width: 768px) {
+  .container-section-docs {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1rem;
+  }
+  
+  .container-docs {
+      padding: 2rem 1.5rem;
+  }
+
+  .title-docs {
+      font-size: 1.4rem;
+  }
+
+  .button-docs {
+      min-width: 160px;
+      padding: 0.75rem 2rem;
+  }
+}
+
+/* Animación de entrada */
+.container-docs {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.container-docs:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
