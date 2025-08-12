@@ -164,7 +164,6 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
 <style scoped>
 /* Estilos botón cerrar sesión */
-
 .tooltip {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   position: absolute;
@@ -175,7 +174,7 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 }
 
 .btn-logout {
-  background-color: #208b69;
+  background: linear-gradient(145deg, #2dd4bf, #0d9488);
   color: white;
   font-size: 20px;
   border: none;
@@ -190,24 +189,63 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
   transform: scale(1.1);
 }
 
-.tooltip-text {
-  visibility: hidden;
-  width: 110px;
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 6px 8px;
+/* Tooltips mejorados */
+.tooltip {
   position: absolute;
-  top: 55px;
-  right: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
+  top: 120px;
+  right: 30px; 
+}
+
+.tooltip-text {
+    visibility: hidden;
+    background: rgba(26, 32, 44, 0.95);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: absolute;
+    top: 65px;
+    right: 50%;
+    transform: translateX(50%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+}
+
+.tooltip-text::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(26, 32, 44, 0.95) transparent;
 }
 
 .tooltip:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(50%) translateY(-5px);
+}
+
+.tooltip-left .tooltip-text {
+    top: 65px;
+    right: auto;
+    transform: translateX(0);
+}
+
+.tooltip-left .tooltip-text::before {
+    left: 25px;
+}
+
+.tooltip-left:hover .tooltip-text {
+    transform: translateY(-5px);
 }
 
 .container-section-docs {

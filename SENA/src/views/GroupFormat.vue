@@ -507,7 +507,6 @@ function irAInstructor(){
 </template>
 
 <style scoped>
-
 /* Botones */
 .floating-buttons {
   position: relative;
@@ -520,7 +519,7 @@ function irAInstructor(){
 .btn-left {
   position: absolute;
   top: 30px;
-  left: 20px;
+  left: 40px;
 }
 
 /* Contenedor de los botones derechos */
@@ -533,7 +532,7 @@ function irAInstructor(){
 }
 
 .back-buttons {
-  background-color: #208b69;
+  background: linear-gradient(145deg, #2dd4bf, #0d9488);
   color: white;
   font-size: 20px;
   border: none;
@@ -553,35 +552,62 @@ function irAInstructor(){
   transform: scale(1.1);
 }
 
+/* Tooltips mejorados */
 .tooltip {
-  position: relative;
-  display: inline-block; /* Asegura que el hover solo cuente sobre el botón */
+    position: relative;
+    display: inline-block;
 }
 
 .tooltip-text {
-  visibility: hidden;
-  width: 110px;
-  background-color: #1b1f1d;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 6px 8px;
-  position: absolute;
-  top: 55px;
-  right: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
+    visibility: hidden;
+    background: rgba(26, 32, 44, 0.95);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: absolute;
+    top: 65px;
+    right: 50%;
+    transform: translateX(50%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+}
+
+.tooltip-text::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(26, 32, 44, 0.95) transparent;
 }
 
 .tooltip:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(50%) translateY(-5px);
 }
 
 .tooltip-left .tooltip-text {
-  top: 55px;
-  left: 60px;
-  transform: translateX(-50%);
+    top: 65px;
+    right: auto;
+    transform: translateX(0);
+}
+
+.tooltip-left .tooltip-text::before {
+    left: 25px;
+}
+
+.tooltip-left:hover .tooltip-text {
+    transform: translateY(-5px);
 }
 
 /* Layout principal */

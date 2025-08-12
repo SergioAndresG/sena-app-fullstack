@@ -111,7 +111,7 @@ function irAInstructor(){
   <div class="floating-buttons" v-if="!mostrarResultados">
     <!-- Botón izquierdo -->
     <div class="tooltip tooltip-left btn-left">
-      <button class="back-button" @click="irAInstructor">
+      <button class="back-buttons" @click="irAInstructor">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <span class="tooltip-text">Regresar</span>
@@ -120,14 +120,14 @@ function irAInstructor(){
     <!-- Contenedor de botones derechos -->
     <div class="right-buttons">
       <div class="tooltip">
-        <button class="back-button" @click="mostrarModal = true">
+        <button class="back-buttons" @click="mostrarModal = true">
           <i class="fa-solid fa-circle-info"></i>
         </button>
         <span class="tooltip-text">Instrucciones</span>
       </div>
 
       <div class="tooltip">
-        <button class="back-button">
+        <button class="back-buttons">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
         <span class="tooltip-text">Cerrar sesión</span>
@@ -245,19 +245,19 @@ function irAInstructor(){
   flex-direction: column;
 }
 
+/* Botones */
 .floating-buttons {
   position: relative;
   width: 98%;
   height: 0;
   z-index: 100;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Botón izquierdo */
 .btn-left {
   position: absolute;
   top: 30px;
-  left: 20px;
+  left: 40px;
 }
 
 /* Contenedor de los botones derechos */
@@ -266,76 +266,86 @@ function irAInstructor(){
   top: 30px;
   right: 0px;
   display: flex;
-  gap: 20px;
-  /* espacio entre los botones */
+  gap: 20px; /* espacio entre los botones */
 }
 
-.back-button {
-  background-color: #208b69;
+.back-buttons {
+  background: linear-gradient(145deg, #2dd4bf, #0d9488);
   color: white;
   font-size: 20px;
   border: none;
-  padding: 14px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.2s ease;
 }
 
-.back-button:hover {
+.back-buttons:hover {
   transform: scale(1.1);
 }
 
+/* Tooltips mejorados */
 .tooltip {
-  position: relative;
-  display: inline-block;
-  /* Asegura que el hover solo cuente sobre el botón */
+    position: relative;
+    display: inline-block;
 }
 
 .tooltip-text {
-  visibility: hidden;
-  width: 110px;
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 6px 8px;
-  position: absolute;
-  top: 55px;
-  right: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
+    visibility: hidden;
+    background: rgba(26, 32, 44, 0.95);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: absolute;
+    top: 65px;
+    right: 50%;
+    transform: translateX(50%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+}
+
+.tooltip-text::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(26, 32, 44, 0.95) transparent;
 }
 
 .tooltip:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(50%) translateY(-5px);
 }
 
 .tooltip-left .tooltip-text {
-  top: 55px;
-  left: 60px;
-  transform: translateX(-50%);
+    top: 65px;
+    right: auto;
+    transform: translateX(0);
 }
 
-.btn-inst {
-  margin-right: 40px;
-  margin-left: auto;
-  background: transparent;
-  font-weight: 600;
-  background: linear-gradient(135deg, #10b981 0%, #208b69 100%);
-  color: white;
-  cursor: pointer;
-  border: 1px solid rgba(0, 0, 0, 0.07);
-  padding: 10px 18px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(2, 30, 14, 0.25);
+.tooltip-left .tooltip-text::before {
+    left: 25px;
 }
 
-.btn-inst:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(3, 57, 17, 0.35);
+.tooltip-left:hover .tooltip-text {
+    transform: translateY(-5px);
 }
 
 .title-if {

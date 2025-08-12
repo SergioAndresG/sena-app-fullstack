@@ -372,6 +372,7 @@ export default {
   font-size: 1rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  text-indent: 1.5rem;
 }
 
 .form-input::placeholder {
