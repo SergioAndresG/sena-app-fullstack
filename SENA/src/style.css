@@ -19,3 +19,18 @@ body {
   --border-radius: 8px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Prevenir shift global para todas las instancias de SweetAlert2 */
+body {
+  /* Asegurar que no haya desplazamiento horizontal */
+  overflow-x: hidden;
+}
+
+.swal2-container {
+    padding-right: 0 !important;
+}
+
+body.swal2-shown {
+    padding-right: 0 !important;
+    overflow-y: auto !important;
+}
