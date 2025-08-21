@@ -4,6 +4,7 @@ import Header from '../components/Header.vue';
 import Swal from "sweetalert2";
 import { ref } from 'vue';
 import axios from 'axios';
+import router from '../router';
 
 
 const inputFichas = ref<HTMLInputElement | null>(null)
@@ -114,6 +115,9 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
     });
   }
 }
+function irAHistorial() {
+  router.push('/historialReportesGenerados')
+}
 </script>
 
 
@@ -159,7 +163,26 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
       <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
     </section>
+
+    <section class="container-docs">
+      <div>
+        <img class="icon-docs" src="../assets/reporte_aprendices.png" alt="">
+      </div>
+
+      <article class="title-docs">
+        Ver historial de reportes Desacargados
+      </article>
+
+      <button class="button-docs" @click="irAHistorial()">
+        Ver Historial
+      </button>
+
+      <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
+    </section>
+
   </div>
+  
+  
 </template>
 
 <style scoped>
@@ -250,19 +273,17 @@ async function subirArchivoMaestro(event: Event) { // Recibe un evento como para
 
 .container-section-docs {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 12.5rem;
+    grid-template-columns: repeat(2, 1fr); /* siempre 2 columnas */
+    gap: 2rem; /* separación entre columnas/filas */
     max-width: 1150px;
     margin: 0 auto;
     margin-top: 80px;
     padding: 2rem 0;
 }
-
 .container-docs {
   background: #ffffff;
   border-radius: 20px;
   padding: 3rem 2rem;
-  height: 380px;
   display: flex;
   flex-direction: column;
   align-items: center;
