@@ -5,6 +5,7 @@ import AdminDashboard from '../views/AdminDashboard.vue'
 import InstructorDashboard from '../views/InstructorDashboard.vue'
 import IndividualFormat from '../views/IndividualFormat.vue'
 import GroupFormat from '../views/GroupFormat.vue'
+import ViewHistorialReports from '../views/ViewHistorialReports.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     path: '/groupformat',
     name: 'GroupFormat',
     component: GroupFormat
+  },
+  {
+    path: '/historialReportesGenerados',
+    name: 'HistorialReportesGenerados',
+    component: ViewHistorialReports
   }
 ]
 

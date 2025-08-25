@@ -1,4 +1,3 @@
-<!-- components/EditarAprendizModal.vue -->
 <template>
     <!-- Este componente no muestra nada directamente -->
 </template>
@@ -45,6 +44,14 @@ async function envioDatosAprendiz(aprendiz) {
             title: 'Editado Correctamente',
             timer: 1500,
             showConfirmButton: false,
+            // SOLUCIÓN: Configuraciones para prevenir el desplazamiento
+            scrollbarPadding: false,
+            heightAuto: false,
+            didOpen: () => {
+                // Restaurar el estado normal del body
+                document.body.style.paddingRight = '';
+                document.body.style.overflow = '';
+            }
         });
 
     } catch (error) {
@@ -52,7 +59,14 @@ async function envioDatosAprendiz(aprendiz) {
             icon: 'error',
             title: 'Error al editar',
             text: 'Intente nuevamente',
-            showConfirmButton: true
+            showConfirmButton: true,
+            // SOLUCIÓN: Aplicar la misma configuración
+            scrollbarPadding: false,
+            heightAuto: false,
+            didOpen: () => {
+                document.body.style.paddingRight = '';
+                document.body.style.overflow = '';
+            }
         })
     }
 }
@@ -76,36 +90,36 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
         title: 'Editar Aprendiz',
         html: `
         <div class="custom-modal-content">
-          <div class="form-grid">
+        <div class="form-grid">
             <!-- Documento -->
             <div class="form-field full-width">
-              <label class="field-label">Documento</label>
-              <div class="document-input-group">
+            <label class="field-label">Documento</label>
+            <div class="document-input-group">
                 <select id="tipo-doc" class="document-type-select">
-                  <option value="CC" ${nuevoAprendiz.tipo_documento === 'CC' ? 'selected' : ''}>CC</option>
-                  <option value="TI" ${nuevoAprendiz.tipo_documento === 'TI' ? 'selected' : ''}>TI</option>
-                  <option value="CE" ${nuevoAprendiz.tipo_documento === 'CE' ? 'selected' : ''}>CE</option>
-                  <option value="NUIP" ${nuevoAprendiz.tipo_documento === 'NUIP' ? 'selected' : ''}>NUIP</option>
+                <option value="CC" ${nuevoAprendiz.tipo_documento === 'CC' ? 'selected' : ''}>CC</option>
+                <option value="TI" ${nuevoAprendiz.tipo_documento === 'TI' ? 'selected' : ''}>TI</option>
+                <option value="CE" ${nuevoAprendiz.tipo_documento === 'CE' ? 'selected' : ''}>CE</option>
+                <option value="NUIP" ${nuevoAprendiz.tipo_documento === 'NUIP' ? 'selected' : ''}>NUIP</option>
                 </select>
                 <input id="numero-doc" class="document-number-input" placeholder="Número de documento" value="${nuevoAprendiz.documento}">
-              </div>
+            </div>
             </div>
             
             <!-- Nombre y Apellidos -->
             <div class="form-field">
-              <label class="field-label">Nombre</label>
-              <input id="nombre" class="form-input" placeholder="Ingrese el nombre" value="${nuevoAprendiz.nombre}">
+            <label class="field-label">Nombre</label>
+            <input id="nombre" class="form-input" placeholder="Ingrese el nombre" value="${nuevoAprendiz.nombre}">
             </div>
             
             <div class="form-field">
-              <label class="field-label">Apellidos</label>
-              <input id="apellidos" class="form-input" placeholder="Ingrese los apellidos" value="${nuevoAprendiz.apellido}">
+            <label class="field-label">Apellidos</label>
+            <input id="apellidos" class="form-input" placeholder="Ingrese los apellidos" value="${nuevoAprendiz.apellido}">
             </div>
             
             <!-- Dirección -->
             <div class="form-field full-width">
-              <label class="field-label">Dirección</label>
-              <input id="direccion" class="form-input" placeholder="Ingrese la dirección" value="${nuevoAprendiz.direccion || ''}">
+            <label class="field-label">Dirección</label>
+            <input id="direccion" class="form-input" placeholder="Ingrese la dirección" value="${nuevoAprendiz.direccion || ''}">
             </div>
 
             <!-- Inputs que solo aparecen si es modalidad individual -->
@@ -121,65 +135,85 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
 
             <!-- Correo y Celular -->
             <div class="form-field">
-              <label class="field-label">Correo Electrónico</label>
-              <input id="correo" class="form-input" type="email" placeholder="correo@ejemplo.com" value="${nuevoAprendiz.correo}">
+            <label class="field-label">Correo Electrónico</label>
+            <input id="correo" class="form-input" type="email" placeholder="correo@ejemplo.com" value="${nuevoAprendiz.correo}">
             </div>
             
             <div class="form-field">
-              <label class="field-label">Celular</label>
-              <input id="celular" class="form-input" placeholder="Número de celular" value="${nuevoAprendiz.celular}">
+            <label class="field-label">Celular</label>
+            <input id="celular" class="form-input" placeholder="Número de celular" value="${nuevoAprendiz.celular}">
             </div>
             
             <!-- Discapacidad -->
             <div class="form-field full-width">
-              <label class="field-label">¿Tiene alguna discapacidad?</label>
-              <div class="radio-group">
+            <label class="field-label">¿Tiene alguna discapacidad?</label>
+            <div class="radio-group">
                 <label class="radio-option">
-                  <input type="radio" name="discapacidad" id="discapacidad-si" value="Si" ${nuevoAprendiz.discapacidad === 'Si' ? 'checked' : ''}> 
-                  <span class="radio-label">Sí</span>
+                <input type="radio" name="discapacidad" id="discapacidad-si" value="Si" ${nuevoAprendiz.discapacidad === 'Si' ? 'checked' : ''}> 
+                <span class="radio-label">Sí</span>
                 </label>
                 <label class="radio-option">
-                  <input type="radio" name="discapacidad" id="discapacidad-no" value="No" ${nuevoAprendiz.discapacidad === 'No' ? 'checked' : ''}> 
-                  <span class="radio-label">No</span>
+                <input type="radio" name="discapacidad" id="discapacidad-no" value="No" ${nuevoAprendiz.discapacidad === 'No' ? 'checked' : ''}> 
+                <span class="radio-label">No</span>
                 </label>
-              </div>
-              
-              <div id="detalle-discapacidad" class="disability-detail" style="display: ${nuevoAprendiz.discapacidad === 'Si' ? 'block' : 'none'}">
+            </div>
+            
+            <div id="detalle-discapacidad" class="disability-detail" style="display: ${nuevoAprendiz.discapacidad === 'Si' ? 'block' : 'none'}">
                 <label class="field-label">¿Cuál es la situación de discapacidad que presenta?</label>
                 <input id="tipo-disc" class="form-input" placeholder="Ingrese el tipo de discapacidad" value="${nuevoAprendiz.tipo_discapacidad || ''}">
                 <p class="help-text">Recuerde que debe anexar su certificado de discapacidad emitido por la EPS</p>
-              </div>
+            </div>
             </div>
 
             <!-- Firma -->
             <div class="form-field full-width">
-              <label class="field-label">Firma</label>
-              <div class="signature-container">
+            <label class="field-label">Firma</label>
+            <div class="signature-container">
                 <canvas id="firma" width="400" height="120"></canvas>
                 <button type="button" id="limpiar-firma" class="clear-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h3"/>
                     <line x1="10" y1="11" x2="10" y2="17"/>
                     <line x1="14" y1="11" x2="14" y2="17"/>
-                  </svg>
-                  Limpiar firma
+                </svg>
+                Limpiar firma
                 </button>
-              </div>
             </div>
-          </div>
+            </div>
+        </div>
         </div>`,
         showCancelButton: true,
         confirmButtonText: 'Guardar cambios',
         cancelButtonText: 'Cancelar',
         width: 600,
+        
+        // *** SOLUCIÓN PRINCIPAL ***
+        // Estas configuraciones previenen el desplazamiento del contenido
+        scrollbarPadding: false,  // No ajustar padding por scrollbar
+        heightAuto: false,        // No ajustar altura automáticamente
+        allowOutsideClick: true,  // Permitir click fuera del modal
+        
         customClass: {
             popup: 'custom-swal-popup',
             title: 'custom-swal-title',
             htmlContainer: 'custom-swal-content',
             confirmButton: 'custom-confirm-btn',
-            cancelButton: 'custom-cancel-btn'
+            cancelButton: 'custom-cancel-btn',
+            container: 'no-shift-container'  // Nueva clase CSS
         },
+        
+        willOpen: () => {
+            // Guardar estado original del body
+            const originalOverflow = document.body.style.overflow;
+            const originalPaddingRight = document.body.style.paddingRight;
+            
+            // Aplicar inmediatamente para prevenir shift
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        },
+        
         didOpen: () => {
+            // *** CÓDIGO DE TU CANVAS Y FUNCIONALIDAD ***
             const canvas = document.getElementById('firma') as HTMLCanvasElement | null;
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -262,7 +296,19 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             canvas.addEventListener('touchmove', draw);
             canvas.addEventListener('touchend', stopDrawing);
             canvas.addEventListener('touchcancel', stopDrawing);
+
+            // *** SOLUCIÓN: RESTAURAR ESTADO DEL BODY ***
+            document.body.style.paddingRight = '';
+            document.body.style.overflow = '';
         },
+        
+        didClose: () => {
+            // Asegurar que el body vuelva a la normalidad
+            document.body.style.paddingRight = '';
+            document.body.style.overflow = '';
+            document.body.classList.remove('swal2-shown');
+        },
+        
         preConfirm: () => {
             const tipo_doc = document.getElementById('tipo-doc') as HTMLSelectElement;
             const documento = document.getElementById('numero-doc') as HTMLInputElement;
@@ -317,14 +363,31 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     }
 });
 </script>
-
 <style scoped>
+
+/* ✅ PREVENCIÓN DEL DESPLAZAMIENTO LATERAL */
+:global(body.swal2-shown) {
+    padding-right: 0 !important;
+    overflow-x: hidden !important;
+}
+
+:global(.swal2-container) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+:global(.swal2-popup) {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
 /* Estilos globales para el modal */
 :global(.custom-swal-popup) {
     border-radius: 12px !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
     padding: 0 !important;
+
 }
 
 :global(.custom-swal-title) {
@@ -338,25 +401,32 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
 :global(.custom-swal-content) {
     padding: 0 24px 24px 24px !important;
     margin: 0 !important;
+    overflow-x: hidden !important;
 }
 
 /* Contenedor principal del formulario */
 :global(.custom-modal-content) {
     width: 100%;
     max-width: none;
+    box-sizing: border-box !important;
 }
 
-/* Grid del formulario */
+/* Grid del formulario - OPTIMIZADO */
 :global(.form-grid) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     align-items: start;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 :global(.form-field) {
     display: flex;
     flex-direction: column;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 
 :global(.form-field.full-width) {
@@ -372,7 +442,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     display: block;
 }
 
-/* Inputs generales */
+/* Inputs generales - OPTIMIZADOS */
 :global(.form-input) {
     width: 100% !important;
     padding: 12px 16px !important;
@@ -384,6 +454,9 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     background-color: #ffffff !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    /* ✅ Prevenir overflow en inputs */
+    min-width: 0 !important;
+    max-width: 100% !important;
 }
 
 :global(.form-input:focus) {
@@ -396,15 +469,19 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     border-color: #d1d5db !important;
 }
 
-/* Grupo de documento */
+/* Grupo de documento - MEJORADO */
 :global(.document-input-group) {
     display: flex;
     position: relative;
     width: 100%;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 :global(.document-type-select) {
     width: 90px !important;
+    min-width: 80px !important;
+    max-width: 100px !important;
     padding: 12px 8px !important;
     border: 2px solid #e5e7eb !important;
     border-right: none !important;
@@ -416,14 +493,17 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     cursor: pointer !important;
     appearance: none !important;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
-    background-position: right 8px center !important;
+    background-position: right 6px center !important;
     background-repeat: no-repeat !important;
-    background-size: 14px !important;
+    background-size: 12px !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
 }
 
 :global(.document-number-input) {
     flex: 1 !important;
+    /* ✅ Asegurar que no cause overflow */
+    min-width: 0 !important;
     padding: 12px 16px !important;
     border: 2px solid #e5e7eb !important;
     border-left: none !important;
@@ -431,6 +511,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     font-size: 14px !important;
     transition: all 0.2s ease !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
 }
 
 :global(.document-input-group:focus-within .document-type-select) {
@@ -447,6 +528,8 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     display: flex;
     gap: 24px;
     margin-top: 8px;
+    /* ✅ Hacer flexible en pantallas pequeñas */
+    flex-wrap: wrap !important;
 }
 
 :global(.radio-option) {
@@ -457,6 +540,8 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     font-size: 14px;
     color: #374151;
     font-weight: 500;
+    /* ✅ Prevenir que se rompan */
+    flex-shrink: 0 !important;
 }
 
 :global(.radio-option input[type="radio"]) {
@@ -465,11 +550,13 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     margin: 0 !important;
     cursor: pointer !important;
     accent-color: #3b82f6 !important;
+    flex-shrink: 0 !important;
 }
 
 :global(.radio-label) {
     cursor: pointer;
     user-select: none;
+    white-space: nowrap;
 }
 
 /* Detalle de discapacidad */
@@ -486,9 +573,12 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     margin-top: 8px;
     margin-bottom: 0;
     font-style: italic;
+    /* ✅ Permitir que el texto se ajuste */
+    word-wrap: break-word !important;
+    line-height: 1.4 !important;
 }
 
-/* Contenedor de firma */
+/* Contenedor de firma - OPTIMIZADO */
 :global(.signature-container) {
     border: 2px dashed #d1d5db;
     border-radius: 12px;
@@ -496,6 +586,9 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     background-color: #f9fafb;
     text-align: center;
     position: relative;
+    /* ✅ Asegurar que no cause overflow */
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 :global(#firma) {
@@ -506,6 +599,9 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     display: block;
     margin: 0 auto 16px auto;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* ✅ Hacer el canvas responsivo */
+    max-width: 100% !important;
+    height: auto !important;
 }
 
 :global(.clear-btn) {
@@ -578,25 +674,82 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     }
 }
 
-/* Responsive */
+/* Responsive - MEJORADO */
 @media (max-width: 640px) {
-    :global(.form-grid) {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-    
     :global(.custom-swal-popup) {
         width: 95% !important;
-        margin: 20px !important;
+        max-width: 95% !important;
+        margin: 10px !important;
+        /* ✅ Asegurar centrado en móvil */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+    
+    :global(.custom-swal-title) {
+        font-size: 20px !important;
+        padding: 20px 16px 0 16px !important;
+    }
+    
+    :global(.custom-swal-content) {
+        padding: 0 16px 20px 16px !important;
+    }
+    
+    :global(.form-grid) {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
     }
     
     :global(.radio-group) {
-        flex-direction: column;
-        gap: 12px;
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: flex-start !important;
+    }
+    
+    :global(.signature-container) {
+        padding: 16px !important;
     }
     
     :global(#firma) {
-        width: 100%;
-        max-width: 350px;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100px !important;
     }
-}</style>
+    
+    :global(.document-type-select) {
+        width: 70px !important;
+        min-width: 60px !important;
+        font-size: 11px !important;
+        padding: 12px 4px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    :global(.custom-swal-popup) {
+        width: 98% !important;
+        max-width: 98% !important;
+        margin: 5px !important;
+    }
+    
+    :global(.form-input) {
+        font-size: 16px !important; /* ✅ Prevenir zoom en iOS */
+    }
+    
+    :global(.document-number-input) {
+        font-size: 16px !important; /* ✅ Prevenir zoom en iOS */
+    }
+    
+    :global(.help-text) {
+        font-size: 11px !important;
+    }
+}
+
+/* ✅ ESTILOS ADICIONALES PARA PREVENIR SCROLL HORIZONTAL */
+:global(.swal2-container.swal2-backdrop-show) {
+    overflow-x: hidden !important;
+}
+
+:global(.swal2-html-container) {
+    overflow-x: hidden !important;
+    word-wrap: break-word !important;
+}
+</style>

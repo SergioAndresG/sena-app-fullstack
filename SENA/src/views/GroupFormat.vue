@@ -1,12 +1,10 @@
-
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import axios from "axios";
 import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
-import GroupInstructions from '../components/GroupInstructions.vue'
 
 // Interfaces
 interface Aprendiz {
@@ -141,10 +139,19 @@ const volverABusqueda = () => {
   ficha.value = '';
 }
 
+const bloquearScroll = () => {
+  document.body.style.overflow = 'hidden'
+}
+
+const desbloquearScroll = () => {
+  document.body.style.overflow = ''
+}
+
 function abrirModal(aprendiz: Aprendiz) {
   console.log('Aprendiz seleccionado:', aprendiz)
   aprendizSeleccionado.value = { ...aprendiz }
   mostrarModal.value = true
+  bloquearScroll()
 }
 
 function actualizarAprendiz(datosEditados) {
@@ -288,9 +295,21 @@ function exportarAprendices() {
   });
 }
 
+
 function cerrarModal() {
   mostrarModal.value = false
+  desbloquearScroll()
 }
+
+// Watcher para detectar cambios en mostrarModal
+watch(mostrarModal, (nuevoValor) => {
+  if (nuevoValor) {
+    bloquearScroll()
+  } else {
+    desbloquearScroll()
+  }
+})
+
 
 function irAInstructor(){
   router.push('/instructor')
@@ -299,34 +318,13 @@ function irAInstructor(){
 
 <template>
   <Header></Header>
-
-  <div class="floating-buttons" v-if="!mostrarResultados">
-    <!-- Botón izquierdo -->
-    <div class="tooltip tooltip-left btn-left">
-      <button class="back-buttons" @click="irAInstructor">
-        <i class="fa-solid fa-arrow-left"></i>
-      </button>
-      <span class="tooltip-text">Regresar</span>
-    </div>
-
-    <!-- Contenedor de botones derechos -->
-    <div class="right-buttons">
-      <div class="tooltip">
-        <button class="back-buttons" @click="mostrarModal = true">
-          <i class="fa-solid fa-circle-info"></i>
-        </button>
-        <span class="tooltip-text">Instrucciones</span>
-      </div>
-
-      <div class="tooltip">
-        <button class="back-buttons">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
-        <span class="tooltip-text">Cerrar sesión</span>
-      </div>
-    </div>
-
-    <GroupInstructions v-if="mostrarModal" @cerrar="mostrarModal = false" />
+  
+  <!-- Botón de regreso -->
+  <div v-if="!mostrarResultados" class="navigation-container">
+    <button class="back-button" @click="irAInstructor">
+      <i class="fa-solid fa-arrow-left"></i>
+      Regresar
+    </button>
   </div>
   
   <Transition name="fade-slide" mode="out-in">
@@ -507,107 +505,24 @@ function irAInstructor(){
 </template>
 
 <style scoped>
-/* Botones */
-.floating-buttons {
-  position: relative;
-  width: 98%;
-  height: 0;
-  z-index: 100;
+/* Variables CSS */
+:root {
+  --primary-color: #10b981;
+  --primary-dark: #059669;
+  --secondary-color: #6366f1;
+  --background-light: #f8fafc;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Botón izquierdo */
-.btn-left {
-  position: absolute;
-  top: 30px;
-  left: 40px;
-}
-
-/* Contenedor de los botones derechos */
-.right-buttons {
-  position: absolute;
-  top: 30px;
-  right: 0px;
-  display: flex;
-  gap: 20px; /* espacio entre los botones */
-}
-
-.back-buttons {
-  background: linear-gradient(145deg, #2dd4bf, #0d9488);
-  color: white;
-  font-size: 20px;
-  border: none;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.back-buttons:hover {
-  transform: scale(1.1);
-}
-
-/* Tooltips mejorados */
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip-text {
-    visibility: hidden;
-    background: rgba(26, 32, 44, 0.95);
-    backdrop-filter: blur(10px);
-    color: #fff;
-    text-align: center;
-    border-radius: 8px;
-    padding: 8px 12px;
-    position: absolute;
-    top: 65px;
-    right: 50%;
-    transform: translateX(50%);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 1000;
-}
-
-.tooltip-text::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent rgba(26, 32, 44, 0.95) transparent;
-}
-
-.tooltip:hover .tooltip-text {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(50%) translateY(-5px);
-}
-
-.tooltip-left .tooltip-text {
-    top: 65px;
-    right: auto;
-    transform: translateX(0);
-}
-
-.tooltip-left .tooltip-text::before {
-    left: 25px;
-}
-
-.tooltip-left:hover .tooltip-text {
-    transform: translateY(-5px);
+body {
+  overflow-x: hidden; /* Previene scroll horizontal */
 }
 
 /* Layout principal */
@@ -642,8 +557,6 @@ function irAInstructor(){
   align-items: center;
   min-height: 60vh;
   padding: 20px;
-  margin: 0 auto;
-  margin-top: 120px;
 }
 
 .search-card {
@@ -704,9 +617,7 @@ function irAInstructor(){
 .search-button {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: white;
-  width: 40%;
   font-size: 1.1rem;
-  margin: auto;
   font-weight: 600;
   padding: 16px 32px;
   border: none;
@@ -769,7 +680,7 @@ function irAInstructor(){
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #149653 100%);
+  background: var(--secondary-color);
   color: white;
   border: none;
   padding: 12px 20px;
@@ -785,135 +696,135 @@ function irAInstructor(){
   box-shadow: var(--shadow-lg);
 }
 
-/* Tabla optimizada */
-.table-wrapper {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-}
+  /* Tabla optimizada */
+  .table-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
 
-.table-container {
-  overflow-x: auto;
-  /* Prevenir el scroll horizontal innecesario */
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
-}
+  .table-container {
+    overflow-x: auto;
+    /* Prevenir el scroll horizontal innecesario */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
 
-.table-container::-webkit-scrollbar {
-  height: 6px;
-}
+  .table-container::-webkit-scrollbar {
+    height: 6px;
+  }
 
-.table-container::-webkit-scrollbar-track {
-  background: transparent;
-}
+  .table-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-.table-container::-webkit-scrollbar-thumb {
-  background-color: var(--border-color);
-  border-radius: 3px;
-}
+  .table-container::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 3px;
+  }
 
-.modern-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  background: white;
-}
+  .modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    background: white;
+  }
 
-/* Cabecera de la tabla */
-.table-header {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-}
+  /* Cabecera de la tabla */
+  .table-header {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  }
 
-.modern-table th {
-  padding: 16px 12px;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--border-color);
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  background: inherit;
-  z-index: 10;
-}
+  .modern-table th {
+    padding: 16px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 10;
+  }
 
-/* Celdas de la tabla */
-.modern-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--border-color);
-  transition: background-color 0.2s ease;
-}
+  /* Celdas de la tabla */
+  .modern-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+  }
 
-/* Filas de la tabla */
-.table-row {
-  animation: slideInRow 0.4s ease-out both;
-  transition: background-color 0.2s ease;
-}
+  /* Filas de la tabla */
+  .table-row {
+    animation: slideInRow 0.4s ease-out both;
+    transition: background-color 0.2s ease;
+  }
 
-.table-row:hover {
-  background-color: #f8fafc;
-}
+  .table-row:hover {
+    background-color: #f8fafc;
+  }
 
-/* Columnas específicas */
-.td-number {
-  font-weight: 600;
-  color: var(--text-secondary);
-  width: 60px;
-  text-align: center;
-}
+  /* Columnas específicas */
+  .td-number {
+    font-weight: 600;
+    color: var(--text-secondary);
+    width: 60px;
+    text-align: center;
+  }
 
-.document-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  background: var(--primary-color);
-  color: white;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
+  .document-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
 
-.status-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
+  .status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
 
-.status-badge.activo {
-  background: #dcfce7;
-  color: #166534;
-}
+  .status-badge.activo {
+    background: #dcfce7;
+    color: #166534;
+  }
 
-.status-badge.inactivo {
-  background: #fee2e2;
-  color: #991b1b;
-}
+  .status-badge.inactivo {
+    background: #fee2e2;
+    color: #991b1b;
+  }
 
-.edit-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: #239c52;
-  color: #fafafa;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: ease-in-out 0.2s;
-  font-size: 0.9rem;
-}
+  .edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+  }
 
-.edit-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
+  .edit-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
 
 /* Formulario del generador */
 .user-generator-form {
@@ -995,6 +906,7 @@ function irAInstructor(){
   box-shadow: var(--shadow-lg);
 }
 
+/* Sin resultados */
 .no-results {
   display: flex;
   justify-content: center;
@@ -1006,27 +918,57 @@ function irAInstructor(){
 .no-results-content {
   text-align: center;
   background: white;
-  padding: 40px;
+  padding: 48px;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   max-width: 400px;
 }
 
-.no-results-subtitle {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin-top: 8px;
+.no-results-icon {
+  font-size: 3rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.no-results-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.no-results-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Animaciones */
+@keyframes slideInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Transiciones */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.02s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.fade-slide-enter-form {
+.fade-slide-enter-from {
   opacity: 0;
   transform: translateX(-30px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 
 .table-fade-enter-active {
@@ -1036,22 +978,6 @@ function irAInstructor(){
 .table-fade-enter-from {
   opacity: 0;
   transform: translateY(20px);
-}
-
-.table-row {
-  animation: slideInUp 0.6s ease-out both;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .fade-enter-active,
@@ -1064,83 +990,140 @@ function irAInstructor(){
   opacity: 0;
 }
 
-/* Salida: termina invisible y desplazado */
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(30px); /* puedes usar translateX(0) si no quieres movimiento */
-}
-
-/* ✅ Estilos responsive para pantallas menores a 768px */
-@media (max-width: 1400px) {
-  .container-gf {
-    width: 60%;
-    height: 300px;
-    margin-top: 50px;
-    padding: 1rem;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .results-section {
+    padding: 15px;
   }
-
-  .icon-gf {
-    height: 8rem;
-    width: 8rem;
+  
+  .modern-table {
+    font-size: 0.85rem;
   }
-
-  .title-gf {
-    font-size: 1.5rem;
-    text-align: center;
-  }
-
-  .button-gf {
-    width: 40%;
-    font-size: 1.1rem;
-    padding: 0.8rem;
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 10px 8px;
   }
 }
 
-@media (max-width: 600px) {
-  .container-gf {
-    width: 60%;
-    height: 320px;
-    margin: 0 auto;
-    margin-top: 80px;
-    padding: 1rem;
+@media (max-width: 768px) {
+  .navigation-container {
+    padding: 20px 20px 0;
   }
-
-  .icon-gf {
-    height: 5rem;
-    width: 5rem;
+  
+  .search-card {
+    padding: 40px 24px;
+    margin: 20px;
   }
-
-  .title-gf {
-    font-size: 1.3rem;
-    text-align: center;
+  
+  .search-title {
+    font-size: 1.25rem;
   }
-
-  .button-gf {
-    width: 50%;
-    font-size: 1.1rem;
-    padding: 0.8rem;
-  }
-
+  
   .results-header {
     flex-direction: column;
-    gap: 15px;
+    gap: 16px;
     text-align: center;
+    padding: 20px;
   }
-
+  
   .results-title {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
-
-  .button-back {
+  
+  .back-to-search-button {
     width: 100%;
     justify-content: center;
   }
-}
-
-@media (max-width: 600px) {
-  .button-gf {
-    font-size: 0.9rem;
-
+  
+  .table-container {
+    border-radius: 8px;
+    margin: 0 -10px;
+  }
+  
+  .modern-table {
+    font-size: 0.8rem;
+  }
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 8px 6px;
+  }
+  
+  .user-generator-form {
+    margin: 20px -10px 0;
+    padding: 24px 16px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .export-button {
+    width: 100%;
+    max-width: none;
   }
 }
-</style>  
+
+@media (max-width: 480px) {
+  .search-card {
+    margin: 10px;
+    padding: 32px 20px;
+  }
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+  
+  /* Ocultar columnas menos importantes en móvil */
+  .th-direccion,
+  .td-direccion,
+  .th-celular,
+  .td-celular {
+    display: none;
+  }
+}
+
+
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .table-row,
+  .search-button,
+  .edit-button,
+  .export-button,
+  .back-button {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Focus visible para accesibilidad */
+.search-input:focus-visible,
+.form-input:focus-visible,
+.form-select:focus-visible,
+.search-button:focus-visible,  
+.edit-button:focus-visible,
+.export-button:focus-visible,
+.back-button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Indicador de carga mejorado */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
