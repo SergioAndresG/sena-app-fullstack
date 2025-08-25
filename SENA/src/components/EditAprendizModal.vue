@@ -14,6 +14,8 @@ interface Aprendiz {
     nombre: string;
     apellido: string;
     direccion?: string;
+    departamento?: string;
+    municipio?: string,
     correo: string;
     celular: string;
     discapacidad?: "Si" | "No";
@@ -29,6 +31,8 @@ async function envioDatosAprendiz(aprendiz) {
             nombre: aprendiz.nombre,
             apellido: aprendiz.apellido,
             direccion: aprendiz.direccion,
+            departamento: aprendiz.departamento,
+            municipio: aprendiz.municipio,
             correo: aprendiz.correo,
             celular: aprendiz.celular,
             discapacidad: aprendiz.discapacidad,
@@ -66,6 +70,8 @@ const emit = defineEmits<{
 watch(() => props.aprendiz, async (nuevoAprendiz) => {
     if (!nuevoAprendiz) return;
 
+    const esIndividual = (nuevoAprendiz as any).modalidad === 'individual';
+
     const { value: formData } = await Swal.fire({
         title: 'Editar Aprendiz',
         html: `
@@ -101,7 +107,18 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
               <label class="field-label">Dirección</label>
               <input id="direccion" class="form-input" placeholder="Ingrese la dirección" value="${nuevoAprendiz.direccion || ''}">
             </div>
-            
+
+            <!-- Inputs que solo aparecen si es modalidad individual -->
+            <div class="form-field" style="display: ${esIndividual ? 'block' : 'none'}">
+                <label class="field-label">Departamento</label>
+                <input id="departamento" class="form-input" placeholder="Ingrese el departamento" value="${nuevoAprendiz.departamento || ''}">
+            </div>
+
+            <div class="form-field" style="display: ${esIndividual ? 'block' : 'none'}">
+                <label class="field-label">Municipio</label>
+                <input id="municipio" class="form-input" placeholder="Ingrese el municipio" value="${nuevoAprendiz.municipio || ''}">
+            </div>
+
             <!-- Correo y Celular -->
             <div class="form-field">
               <label class="field-label">Correo Electrónico</label>
@@ -252,6 +269,9 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             const nombre = document.getElementById('nombre') as HTMLInputElement;
             const apellido = document.getElementById('apellidos') as HTMLInputElement;
             const direccion = document.getElementById('direccion') as HTMLInputElement;
+            // Solo leemos depto/municipio si es individual; si no, los dejamos vacíos
+            const departamentoEl = esIndividual ? document.getElementById('departamento') as HTMLInputElement : null;
+            const municipioEl = esIndividual ? document.getElementById('municipio') as HTMLInputElement : null;
             const correo = document.getElementById('correo') as HTMLInputElement;
             const celular = document.getElementById('celular') as HTMLInputElement;
             const discapacidadSi = document.getElementById('discapacidad-si') as HTMLInputElement;
@@ -276,12 +296,16 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
                 nombre: nombre.value.trim(),
                 apellido: apellido.value.trim(),
                 direccion: direccion.value.trim(),
+                // si no es individual, mandamos vacío
+                departamento: esIndividual ? (departamentoEl?.value.trim() || '') : '',
+                municipio: esIndividual ? (municipioEl?.value.trim() || '') : '',
                 correo: correo.value.trim(),
                 celular: celular.value.trim(),
                 discapacidad: discapacidad,
                 tipo_discapacidad: discapacidad === 'Si' ? tipo_discapacidad.value.trim() : null,
                 firma: firmaData
             };
+
         }
     });
 
