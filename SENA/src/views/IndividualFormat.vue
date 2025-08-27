@@ -76,7 +76,7 @@ const cargarAprendicesFicha = async (codigoFicha, doc_aprendiz) => {
       `http://127.0.0.1:8000/individual/${codigoFicha}/${doc_aprendiz}`
     );
 
-    if (respuesta.data.archivo_individual) {
+    if (respuesta.data.archivo_existente) {
       Swal.fire({
         icon: "info",
         title: "Archivo ya generado",
@@ -148,6 +148,7 @@ const volverABusqueda = () => {
   busquedaRealizada.value = false;
   aprendices.value = [];
   ficha.value = '';
+  documento_ap.value = '';
 }
 
 function abrirModal(aprendiz: Aprendiz) {
@@ -367,7 +368,7 @@ function irAInstructor(){
           <div class="input-group">
             <label for="ficha" class="input-label">No. de documento</label>
             <input 
-              id="ficha"
+              id="documento"
               v-model="documento_ap" 
               class="search-input" 
               type="text" 
@@ -391,6 +392,9 @@ function irAInstructor(){
       <div class="results-header">
         <h2 class="results-title">
           Resultados para la ficha: <span class="ficha-number">{{ ficha }}</span>
+        </h2>
+        <h2 class="results-title">
+          Documento: <span class="ficha-number">{{ documento_ap }}</span>
         </h2>
         <button @click="volverABusqueda" class="back-to-search-button">
           <i class="fa-solid fa-arrow-left"></i>
@@ -533,108 +537,6 @@ function irAInstructor(){
 </template>
 
 <style scoped>
-/* Botones */
-.floating-buttons {
-  position: relative;
-  width: 98%;
-  height: 0;
-  z-index: 100;
-}
-
-/* Botón izquierdo */
-.btn-left {
-  position: absolute;
-  top: 30px;
-  left: 40px;
-}
-
-/* Contenedor de los botones derechos */
-.right-buttons {
-  position: absolute;
-  top: 30px;
-  right: 0px;
-  display: flex;
-  gap: 20px; /* espacio entre los botones */
-}
-
-.back-buttons {
-  background: linear-gradient(145deg, #2dd4bf, #0d9488);
-  color: white;
-  font-size: 20px;
-  border: none;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.back-buttons:hover {
-  transform: scale(1.1);
-}
-
-/* Tooltips mejorados */
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip-text {
-    visibility: hidden;
-    background: rgba(26, 32, 44, 0.95);
-    backdrop-filter: blur(10px);
-    color: #fff;
-    text-align: center;
-    border-radius: 8px;
-    padding: 8px 12px;
-    position: absolute;
-    top: 65px;
-    right: 50%;
-    transform: translateX(50%);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 1000;
-}
-
-.tooltip-text::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent rgba(26, 32, 44, 0.95) transparent;
-}
-
-.tooltip:hover .tooltip-text {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(50%) translateY(-5px);
-}
-
-.tooltip-left .tooltip-text {
-    top: 65px;
-    right: auto;
-    transform: translateX(0);
-}
-
-.tooltip-left .tooltip-text::before {
-    left: 25px;
-}
-
-.tooltip-left:hover .tooltip-text {
-    transform: translateY(-5px);
-}
 
 /* Layout principal */
 .navigation-container {

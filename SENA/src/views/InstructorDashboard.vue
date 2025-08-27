@@ -1,10 +1,13 @@
 <template>
   <Header />
-  <div class="tooltip">
-    <button class="btn-logout">
-      <i class="fa-solid fa-right-from-bracket"></i>
-    </button>
-    <span class="tooltip-text">Cerrar sesión</span>
+  <!-- Botón de logout fijo -->
+  <div class="right-button-dashboard">
+    <div class="tooltip-dashboard">
+      <button class="back-buttons">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+      <span class="tooltip-text-dashboard">Cerrar sesión</span>
+    </div>
   </div>
 
   <div class="forms-container">
@@ -77,81 +80,6 @@ function irAIndividual() {
   margin: 0 auto;
   margin-top: 80px;
   padding: 2rem 0;
-}
-
-.btn-logout {
-  background: linear-gradient(145deg, #2dd4bf, #0d9488);
-  color: white;
-  font-size: 20px;
-  border: none;
-  padding: 14px;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
-}
-
-.btn-logout:hover {
-  transform: scale(1.1);
-}
-
-/* Tooltips mejorados */
-.tooltip {
-  position: absolute;
-  top: 120px;
-  right: 30px; 
-}
-
-.tooltip-text {
-    visibility: hidden;
-    background: rgba(26, 32, 44, 0.95);
-    backdrop-filter: blur(10px);
-    color: #fff;
-    text-align: center;
-    border-radius: 8px;
-    padding: 8px 12px;
-    position: absolute;
-    top: 65px;
-    right: 50%;
-    transform: translateX(50%);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 1000;
-}
-
-.tooltip-text::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent rgba(26, 32, 44, 0.95) transparent;
-}
-
-.tooltip:hover .tooltip-text {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(50%) translateY(-5px);
-}
-
-.tooltip-left .tooltip-text {
-    top: 65px;
-    right: auto;
-    transform: translateX(0);
-}
-
-.tooltip-left .tooltip-text::before {
-    left: 25px;
-}
-
-.tooltip-left:hover .tooltip-text {
-    transform: translateY(-5px);
 }
 
 .title-id {
