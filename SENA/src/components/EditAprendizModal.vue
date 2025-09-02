@@ -5,7 +5,10 @@
 <script setup lang="ts">
 import {  ref, watch } from 'vue'
 import axios from 'axios';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
+import SignaturePad from "signature_pad";
+
+let signaturePad: SignaturePad;
 
 interface Aprendiz {
     tipo_documento: string;
@@ -169,7 +172,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             <div class="form-field full-width">
             <label class="field-label">Firma</label>
             <div class="signature-container">
-                <canvas id="firma" width="400" height="120"></canvas>
+                <canvas id="firma"></canvas>
                 <button type="button" id="limpiar-firma" class="clear-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h3"/>
@@ -213,95 +216,151 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
         },
         
         didOpen: () => {
-            // *** CÓDIGO DE TU CANVAS Y FUNCIONALIDAD ***
-            const canvas = document.getElementById('firma') as HTMLCanvasElement | null;
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('firma') as HTMLCanvasElement;
             const limpiarBtn = document.getElementById('limpiar-firma') as HTMLButtonElement | null;
-            if (!ctx || !limpiarBtn) return;
-            let isDrawing = false;
 
-            // Configurar canvas
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
+            if (!canvas || !limpiarBtn) return;
 
-            // Limpiar canvas
-            const limpiarCanvas = () => {
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            };
+            function resizeCanvas() {
+                // Usar devicePixelRatio más alto para mejor calidad
+                const ratio = Math.max(window.devicePixelRatio || 1, 2); // Mínimo 2x
+                const rect = canvas.getBoundingClientRect();
+                
+                // Dimensiones base más grandes para mejor resolución final
+                const baseWidth = Math.max(rect.width, 400); // Ancho mínimo de 400px
+                const baseHeight = Math.max(150, 200); // Alto mínimo de 200px
+                
+                canvas.width = baseWidth * ratio;
+                canvas.height = baseHeight * ratio;
+                
+                // Aplicar el escalado al contexto
+                const ctx = canvas.getContext("2d");
+                if (ctx) {
+                    ctx.scale(ratio, ratio);
+                    // Mejorar la calidad del renderizado
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                }
+                
+                // Mantener el tamaño visual del canvas
+                canvas.style.width = baseWidth + 'px';
+                canvas.style.height = baseHeight + 'px';
+            }
 
-            limpiarBtn.addEventListener('click', limpiarCanvas);
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
 
-            // Manejar radio buttons de discapacidad
+            signaturePad = new SignaturePad(canvas, {
+                penColor: "black",
+                backgroundColor: "white",
+                minWidth: 0.8,  // Líneas más finas para mejor definición
+                maxWidth: 3.5,  // Máximo un poco más alto
+                throttle: 0,    // Sin throttle para capturar más puntos
+                minDistance: 0.3, // Distancia mínima reducida para más suavidad
+                velocityFilterWeight: 0.1, // Filtro de velocidad para líneas más suaves
+                dotSize: 1.5    // Tamaño de puntos para mejor definición
+            });
+
+            // 🔘 Manejo radio buttons (sin cambios)
             const radioSi = document.getElementById('discapacidad-si') as HTMLInputElement;
             const radioNo = document.getElementById('discapacidad-no') as HTMLInputElement;
             const detalleDiscapacidad = document.getElementById('detalle-discapacidad');
 
             const toggleDiscapacidadDetail = () => {
-                if (radioSi.checked) {
-                    detalleDiscapacidad.style.display = 'block';
-                } else {
-                    detalleDiscapacidad.style.display = 'none';
-                }
+                detalleDiscapacidad.style.display = radioSi.checked ? 'block' : 'none';
             };
 
             radioSi.addEventListener('change', toggleDiscapacidadDetail);
             radioNo.addEventListener('change', toggleDiscapacidadDetail);
 
-            // Funciones de dibujo
-            const getPosition = (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                return {
-                    x: clientX - rect.left,
-                    y: clientY - rect.top
-                };
+            limpiarBtn.addEventListener("click", () => {
+                signaturePad.clear();
+            });
+
+            // 🔥 Función mejorada para exportar firma en ultra alta calidad
+            (window as any).exportFirma = () => {
+                if (signaturePad.isEmpty()) return null;
+                
+                // Escala muy alta para PDF de calidad profesional
+                const exportScale = 10; // Escala 10x para máxima calidad
+                const originalCanvas = canvas;
+                
+                // Crear canvas temporal de alta resolución
+                const tempCanvas = document.createElement("canvas");
+                const tempCtx = tempCanvas.getContext("2d")!;
+                
+                // Dimensiones finales muy altas
+                tempCanvas.width = originalCanvas.width * exportScale;
+                tempCanvas.height = originalCanvas.height * exportScale;
+                
+                // Configurar contexto para máxima calidad
+                tempCtx.imageSmoothingEnabled = true;
+                tempCtx.imageSmoothingQuality = "high";
+                tempCtx.scale(exportScale, exportScale);
+                
+                // Fondo blanco para mejor contraste en PDF
+                tempCtx.fillStyle = "white";
+                tempCtx.fillRect(0, 0, originalCanvas.width, originalCanvas.height);
+                
+                // Dibujar la firma escalada
+                tempCtx.drawImage(originalCanvas, 0, 0);
+                
+                // Exportar como PNG de alta calidad
+                return tempCanvas.toDataURL("image/png", 1.0); // Calidad máxima
             };
 
-            const startDrawing = (e) => {
-                e.preventDefault();
-                isDrawing = true;
-                const pos = getPosition(e);
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
+            // 🎯 Función alternativa para exportar como SVG (vectorial)
+            (window as any).exportFirmaSVG = () => {
+                if (signaturePad.isEmpty()) return null;
+                
+                // Obtener los datos de la firma como puntos
+                const data = signaturePad.toData();
+                
+                // Crear SVG vectorial
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("width", canvas.width.toString());
+                svg.setAttribute("height", canvas.height.toString());
+                svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
+                
+                // Fondo blanco
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("width", "100%");
+                rect.setAttribute("height", "100%");
+                rect.setAttribute("fill", "white");
+                svg.appendChild(rect);
+                
+                // Convertir cada trazo a path SVG
+                data.forEach(stroke => {
+                    if (stroke.length > 1) {
+                        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        let pathData = `M ${stroke[0].x} ${stroke[0].y}`;
+                        
+                        for (let i = 1; i < stroke.length; i++) {
+                            pathData += ` L ${stroke[i].x} ${stroke[i].y}`;
+                        }
+                        
+                        path.setAttribute("d", pathData);
+                        path.setAttribute("stroke", "black");
+                        path.setAttribute("stroke-width", "2");
+                        path.setAttribute("stroke-linecap", "round");
+                        path.setAttribute("stroke-linejoin", "round");
+                        path.setAttribute("fill", "none");
+                        
+                        svg.appendChild(path);
+                    }
+                });
+                
+                // Convertir SVG a string
+                const serializer = new XMLSerializer();
+                const svgString = serializer.serializeToString(svg);
+                
+                // Retornar como data URL
+                return `data:image/svg+xml;base64,${btoa(svgString)}`;
             };
-
-            const draw = (e) => {
-                e.preventDefault();
-                if (!isDrawing) return;
-                const pos = getPosition(e);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-            };
-
-            const stopDrawing = (e) => {
-                e.preventDefault();
-                isDrawing = false;
-            };
-
-            // Event listeners para canvas
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-            canvas.addEventListener('touchstart', startDrawing);
-            canvas.addEventListener('touchmove', draw);
-            canvas.addEventListener('touchend', stopDrawing);
-            canvas.addEventListener('touchcancel', stopDrawing);
-
-            // *** SOLUCIÓN: RESTAURAR ESTADO DEL BODY ***
-            document.body.style.paddingRight = '';
-            document.body.style.overflow = '';
         },
-        
+
         didClose: () => {
             // Asegurar que el body vuelva a la normalidad
             document.body.style.paddingRight = '';
@@ -323,8 +382,10 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             const discapacidadSi = document.getElementById('discapacidad-si') as HTMLInputElement;
             const discapacidad = discapacidadSi.checked ? 'Si' : 'No';
             const tipo_discapacidad = document.getElementById('tipo-disc') as HTMLInputElement;
-            const firma = document.getElementById('firma') as HTMLCanvasElement;
-            const firmaData = firma.toDataURL();
+            // 📋 Uso mejorado al obtener los datos
+            const firmaData = signaturePad.isEmpty()
+                ? null
+                : (window as any).exportFirma(); // Para PNG de alta calidad
 
             if (!nombre.value.trim() || !correo.value.trim()) {
                 Swal.showValidationMessage('Nombre y correo son obligatorios');
@@ -600,8 +661,8 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     margin: 0 auto 16px auto;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     /* ✅ Hacer el canvas responsivo */
-    max-width: 100% !important;
-    height: auto !important;
+    width: 100%;     /* ocupa todo el ancho del contenedor */
+    height: 150px;
 }
 
 :global(.clear-btn) {
