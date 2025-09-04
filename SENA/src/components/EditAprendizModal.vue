@@ -310,55 +310,6 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
                 // Exportar como PNG de alta calidad
                 return tempCanvas.toDataURL("image/png", 1.0); // Calidad máxima
             };
-
-            // 🎯 Función alternativa para exportar como SVG (vectorial)
-            (window as any).exportFirmaSVG = () => {
-                if (signaturePad.isEmpty()) return null;
-                
-                // Obtener los datos de la firma como puntos
-                const data = signaturePad.toData();
-                
-                // Crear SVG vectorial
-                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                svg.setAttribute("width", canvas.width.toString());
-                svg.setAttribute("height", canvas.height.toString());
-                svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
-                
-                // Fondo blanco
-                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                rect.setAttribute("width", "100%");
-                rect.setAttribute("height", "100%");
-                rect.setAttribute("fill", "white");
-                svg.appendChild(rect);
-                
-                // Convertir cada trazo a path SVG
-                data.forEach(stroke => {
-                    if (stroke.length > 1) {
-                        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        let pathData = `M ${stroke[0].x} ${stroke[0].y}`;
-                        
-                        for (let i = 1; i < stroke.length; i++) {
-                            pathData += ` L ${stroke[i].x} ${stroke[i].y}`;
-                        }
-                        
-                        path.setAttribute("d", pathData);
-                        path.setAttribute("stroke", "black");
-                        path.setAttribute("stroke-width", "2");
-                        path.setAttribute("stroke-linecap", "round");
-                        path.setAttribute("stroke-linejoin", "round");
-                        path.setAttribute("fill", "none");
-                        
-                        svg.appendChild(path);
-                    }
-                });
-                
-                // Convertir SVG a string
-                const serializer = new XMLSerializer();
-                const svgString = serializer.serializeToString(svg);
-                
-                // Retornar como data URL
-                return `data:image/svg+xml;base64,${btoa(svgString)}`;
-            };
         },
 
         didClose: () => {
