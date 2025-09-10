@@ -1,4 +1,4 @@
-<script setup lang="ts">
+ <script setup lang="ts">
 import { ref } from 'vue';
 import axios from "axios";
 import Swal from 'sweetalert2';
@@ -308,7 +308,7 @@ function cerrarModal() {
 }
 
 function irAInstructor(){
-  router.push('/instructor')
+  router.back()
 }
 </script>
 

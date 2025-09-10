@@ -199,7 +199,7 @@ const blockTimeRemaining = ref(0)
 let blockTimer: number | null = null
 
 // API Configuration
-const API_BASE_URL = 'http://localhost:8000'  // Ajusta según tu configuración
+const API_BASE_URL = 'http://localhost:8000'  
 
 // Configure axios with interceptors for security
 axios.defaults.timeout = 10000 // 10 second timeout

@@ -6,6 +6,8 @@ import InstructorDashboard from '../views/InstructorDashboard.vue'
 import IndividualFormat from '../views/IndividualFormat.vue'
 import GroupFormat from '../views/GroupFormat.vue'
 import ViewHistorialReports from '../views/ViewHistorialReports.vue'
+import DashboardUsers from '../views/DashboardUsers.vue'
+import AddUsers from '../components/USERS/AddUsers.vue'
 
 const routes = [
   {
@@ -37,6 +39,16 @@ const routes = [
     path: '/historialReportesGenerados',
     name: 'HistorialReportesGenerados',
     component: ViewHistorialReports
+  },
+  {
+    path: '/user-dashboard',
+    name: 'UserDashboard',
+    component: DashboardUsers
+  },
+  {
+    path: '/addUser',
+    name: 'AddUser',
+    component: AddUsers
   }
 ]
 

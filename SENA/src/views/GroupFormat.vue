@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import axios from "axios";
 import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
+import { authService } from '../services/auth_service';
 
 // Interfaces
 interface Aprendiz {
@@ -18,12 +19,36 @@ interface Aprendiz {
   estado: string
 }
 
-interface UsuarioGenerador {
+interface Usuario {
   nombre: string;
   apellidos: string;
   correo: string;
   rol: string;
 }
+
+interface InformacionAdicional {
+  nivel_formacion: string;
+  modalidad_formacion: string;
+  trimestre: string;
+  fecha_inicio_etapa_productiva: string;
+  jornada: string;
+}
+
+interface UsuarioGenerador {
+    id?: number;
+  nombre: string;
+  apellidos: string;
+  correo: string;
+  rol: string;
+}
+
+const informacionAdicional = ref<InformacionAdicional>({
+  nivel_formacion: '',
+  modalidad_formacion: '',
+  trimestre: '',
+  fecha_inicio_etapa_productiva: '',
+  jornada: '',
+});
 
 interface AprendizParaExportar {
   tipo_documento: string;
@@ -40,11 +65,13 @@ interface AprendizParaExportar {
 }
 
 const usuarioGenerador = ref<UsuarioGenerador>({
+    id: 0,
   nombre: '',
   apellidos: '',
   correo: '',
   rol: ''
 });
+
 
 const aprendices = ref<Aprendiz[]>([])
 let ficha = ref<string>('');
@@ -59,6 +86,90 @@ const aprendizSeleccionado = ref<Aprendiz | null>(null)
 const aprendicesExportar = ref<AprendizParaExportar[]>([]);
 const modalidad = 'grupal'
 const router = useRouter()
+
+
+const currentUser = ref<Usuario | null>(null)
+
+const isFormReadonly = ref(true) // Para hacer los campos de solo lectura inicialmente
+
+// Función para obtener los datos del usuario logueado
+const getCurrentUser = (): Usuario | null => {
+  try {
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      return JSON.parse(userStr)
+    }
+    return null
+  } catch (error) {
+    console.error('Error al obtener datos del usuario:', error)
+    return null
+  }
+}
+
+// Función para verificar si el token es válido
+const isTokenValid = (): boolean => {
+  const token = localStorage.getItem('access_token')
+  if (!token) return false
+  
+  try {
+    // Decodificar el JWT para verificar si no ha expirado
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const currentTime = Date.now() / 1000
+    
+    return payload.exp > currentTime
+  } catch (error) {
+    console.error('Error al verificar token:', error)
+    return false
+  }
+}
+
+// Función para cargar los datos del usuario automáticamente
+const loadUserData = () => {
+  // Verificar si hay un token válido
+  if (!isTokenValid()) {
+    // Redirigir al login si no hay token válido
+    router.push('/')
+    return
+  }
+  
+  // Obtener datos del usuario
+  const user = getCurrentUser()
+  
+  if (user) {
+    currentUser.value = user
+    
+    // Autocompletar el formulario con los datos del usuario
+    usuarioGenerador.value = {
+      id: user.id || 0,
+      nombre: user.nombre,
+      apellidos: user.apellidos,
+      correo: user.correo,
+      rol: user.rol
+    }
+    
+    console.log('Datos del usuario cargados automáticamente:', user)
+  } else {
+    // Si no hay datos de usuario, redirigir al login
+    router.push('/')
+  }
+}
+
+// Función para permitir editar los campos (opcional)
+const toggleEditMode = () => {
+  isFormReadonly.value = !isFormReadonly.value
+}
+
+// Función para resetear a los datos originales del usuario
+const resetToUserData = () => {
+  if (currentUser.value) {
+    usuarioGenerador.value = {
+      nombre: currentUser.value.nombre,
+      apellidos: currentUser.value.apellidos,
+      correo: currentUser.value.correo,
+      rol: currentUser.value.rol
+    }
+  }
+}
 
 // Función para cargar aprendices
 const cargarAprendicesFicha = async (codigoFicha: String) => {
@@ -88,15 +199,53 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
         didClose: () => {
           document.body.style.paddingRight = '';
         }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.open(`http://127.0.0.1:8000/descargar-archivo?ruta=${encodeURIComponent(respuesta.data.ruta_archivo)}`, '_blank');
-        } else if (result.isDenied) {
-          aprendices.value = respuesta.data.aprendices;
-          busquedaRealizada.value = true;
-          mostrarResultados.value = true;
+      }).then(async (result) => {
+  if (result.isConfirmed) {
+    try {
+      // Mostrar loading
+      Swal.fire({
+        title: 'Descargando...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
         }
       });
+
+      const response = await axios.get(
+        `http://127.0.0.1:8000/descargar-archivo?ruta=${encodeURIComponent(respuesta.data.ruta_archivo)}`,
+        {
+          responseType: 'blob', // Importante para archivos
+        }
+      );
+
+      // Crear un blob y descargarlo
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `formato_F165_ficha_${codigoFicha}.xlsx`; // Nombre del archivo
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      Swal.close();
+      Swal.fire('¡Éxito!', 'Archivo descargado correctamente', 'success');
+
+    } catch (error) {
+      Swal.close();
+      Swal.fire('Error', 'No se pudo descargar el archivo', 'error');
+      console.error('Error descargando:', error);
+    }
+  } else if (result.isDenied) {
+    aprendices.value = respuesta.data.aprendices;
+    busquedaRealizada.value = true;
+    mostrarResultados.value = true;
+  }
+});
       return;
     }
 
@@ -235,10 +384,18 @@ function exportarAprendices() {
       firma: ap.firma || '', 
     })),
     usuario_generator: {
+      id: usuarioGenerador.value.id || 0,
       nombre: usuarioGenerador.value.nombre,
       apellidos: usuarioGenerador.value.apellidos,
       correo: usuarioGenerador.value.correo,
       rol: usuarioGenerador.value.rol.toUpperCase() 
+    },
+    informacion_adicional: {
+      nivel_formacion: informacionAdicional.value?.nivel_formacion || '',
+      modalidad_formacion: informacionAdicional.value?.modalidad_formacion || '',
+      trimestre: informacionAdicional.value?.trimestre || '',
+      fecha_inicio_etapa_productiva: informacionAdicional.value?.fecha_inicio_etapa_productiva || '',
+      jornada: informacionAdicional.value?.jornada || ''
     }
   };
 
@@ -248,7 +405,7 @@ function exportarAprendices() {
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'formato_F165.xlsx');
+    link.setAttribute('download', `formato_F165_ficha_${ficha.value}.xlsx`);
     document.body.appendChild(link);
     link.click();
     
@@ -310,10 +467,13 @@ watch(mostrarModal, (nuevoValor) => {
   }
 })
 
-
 function irAInstructor(){
-  router.push('/instructor')
+  router.back()
 }
+
+onMounted(() => {
+  loadUserData();
+});
 </script>
 
 <template>
@@ -428,10 +588,35 @@ function irAInstructor(){
 
           <!-- Formulario del generador -->
           <div class="user-generator-form">
-            <h3 class="form-title">
-              <i class="fa-solid fa-user-gear"></i>
-              Información del generador del reporte
-            </h3>
+            <div class="form-header">
+              <h3 class="form-title">
+                <i class="fa-solid fa-user-gear"></i>
+                Información del generador del reporte
+              </h3>
+              
+              <!-- Botones de control (opcional) -->
+              <div class="form-controls">
+                <button 
+                  @click="toggleEditMode" 
+                  class="btn-edit"
+                  type="button"
+                >
+                  <i class="fa-solid" :class="isFormReadonly ? 'fa-edit' : 'fa-lock'"></i>
+                  {{ isFormReadonly ? 'Editar' : 'Bloquear' }}
+                </button>
+                
+                <button 
+                  @click="resetToUserData" 
+                  class="btn-reset"
+                  type="button"
+                  v-if="!isFormReadonly"
+                >
+                  <i class="fa-solid fa-refresh"></i>
+                  Restaurar
+                </button>
+              </div>
+            </div>
+            
             
             <div class="form-grid">
               <div class="form-group">
@@ -440,6 +625,8 @@ function irAInstructor(){
                   v-model="usuarioGenerador.nombre" 
                   placeholder="Ingrese su nombre" 
                   class="form-input"
+                  :readonly="isFormReadonly"
+                  :class="{ 'readonly': isFormReadonly }"
                 >
               </div>
               
@@ -449,6 +636,8 @@ function irAInstructor(){
                   v-model="usuarioGenerador.apellidos" 
                   placeholder="Ingrese sus apellidos" 
                   class="form-input"
+                  :readonly="isFormReadonly"
+                  :class="{ 'readonly': isFormReadonly }"
                 >
               </div>
               
@@ -459,25 +648,55 @@ function irAInstructor(){
                   placeholder="correo@ejemplo.com" 
                   class="form-input"
                   type="email"
+                  :readonly="isFormReadonly"
+                  :class="{ 'readonly': isFormReadonly }"
                 >
               </div>
               
               <div class="form-group">
                 <label class="form-label">Rol</label>
-                <select v-model="usuarioGenerador.rol" class="form-select">
+                <select 
+                  v-model="usuarioGenerador.rol" 
+                  class="form-select"
+                  :disabled="isFormReadonly"
+                  :class="{ 'readonly': isFormReadonly }"
+                >
                   <option value="">Seleccionar rol</option>
                   <option value="INSTRUCTOR">Instructor</option>
+                  <option value="ADMINISTRADOR">Administrador</option>
                   <option value="coordinador">Coordinador</option>
                 </select>
               </div>
             </div>
+
+            <h3 class="form-title">
+              <i class="fa-solid  fa-file-lines"></i>
+              Información Adicional Requerida
+            </h3>
+ 
+            <label class="form-label">Nivel de formación</label>
+              <input v-model="informacionAdicional.nivel_formacion" class="form-input" type="text">
+
+            <label class="form-label">Modalidad de formación</label>
+              <input v-model="informacionAdicional.modalidad_formacion" class="form-input" type="text">
+              
+            <label class="form-label">Trimestre</label>
+              <input v-model="informacionAdicional.trimestre" class="form-input" type="text">
+
+            <label class="form-label">Fecha de inicio de etapa productiva</label>
+              <input v-model="informacionAdicional.fecha_inicio_etapa_productiva" class="form-input" type="date">
+
+            <label class="form-label">Jornada</label>
+              <input v-model="informacionAdicional.jornada" class="form-input" type="text">
+            </div>
+
+
             
             <button @click="exportarAprendices" class="export-button">
               <i class="fa-solid fa-download"></i>
               Generar y Descargar Reporte
             </button>
           </div>
-        </div>
       </Transition>
 
       <!-- Mensaje sin resultados -->
@@ -523,6 +742,72 @@ function irAInstructor(){
 
 body {
   overflow-x: hidden; /* Previene scroll horizontal */
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit, .btn-reset {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #2563eb;
+}
+
+.btn-reset {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-reset:hover {
+  background-color: #4b5563;
+}
+
+.user-info-banner {
+  background-color: #dbeafe;
+  border: 1px solid #3b82f6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #1e40af;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-input.readonly,
+.form-select.readonly {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.form-input:read-only {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
 }
 
 /* Layout principal */

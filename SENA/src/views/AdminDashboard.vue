@@ -20,6 +20,20 @@ function abrirExploradorMaestro() {
   inputMaestro.value?.click()
 }
 
+//Redireccionar al formato grupal
+function irAGrupal() {
+  router.push('/groupformat')
+}
+
+//Redireccionar al formato individual
+function irAIndividual() {
+  router.push('/individualformat')
+}
+
+function irAUsuarios() {
+  router.push('/user-dashboard')
+}
+
 async function subirFichas(event: Event) {
   const files = (event.target as HTMLInputElement).files
   if (!files || files.length === 0) return
@@ -166,7 +180,7 @@ function irAHistorial() {
 
     <section class="container-docs">
       <div>
-        <img class="icon-docs" src="../assets/reporte_aprendices.png" alt="">
+        <img class="icon-docs" src="../assets/reportes_descargas_img.png" alt="" style="width: 19rem;">
       </div>
 
       <article class="title-docs">
@@ -175,6 +189,57 @@ function irAHistorial() {
 
       <button class="button-docs" @click="irAHistorial()">
         Ver Historial
+      </button>
+
+      <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
+    </section>
+
+    <section class="container-docs">
+      <div>
+        <img class="icon-docs" src="../assets/user_admin.png" alt="" style="width: 18rem;">
+      </div>
+
+      <article class="title-docs">
+        Administración de usuarios
+      </article>
+
+      <button class="button-docs" @click="irAUsuarios()">
+        Ver Usuarios
+      </button>
+
+      <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
+    </section>
+
+
+    
+    <section class="container-docs">
+      <div>
+        <img class="icon-docs" src="../assets/group.png" alt="">
+      </div>
+
+      <article class="title-docs">
+        Generar Reporte Grupal
+      </article>
+
+      <button class="button-docs" @click="irAGrupal">
+        Generar Reporte
+      </button>
+
+      <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
+    </section>
+
+    
+    <section class="container-docs">
+      <div>
+        <img class="icon-docs" src="../assets/individual.png" alt="">
+      </div>
+
+      <article class="title-docs">
+       Generar Reporte Individual
+      </article>
+
+      <button class="button-docs" @click="irAIndividual">
+        Generar Reporte
       </button>
 
       <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
@@ -328,7 +393,7 @@ function irAHistorial() {
 
 .icon-docs {
   height: 15rem;
-  width: 15rem;
+  width: 16rem;
   transition: transform 0.3s ease;
   filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.2));
 }
