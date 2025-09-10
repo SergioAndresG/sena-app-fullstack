@@ -5,7 +5,11 @@ import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
+<<<<<<< HEAD
 import { authService } from '../services/auth_service';
+=======
+import GroupInstructions from '../components/GroupInstructions.vue'
+>>>>>>> ca60b1d4283dad79a550d5162d2e3994b7bedb73
 
 // Interfaces
 interface Aprendiz {
@@ -479,12 +483,33 @@ onMounted(() => {
 <template>
   <Header></Header>
   
-  <!-- Botón de regreso -->
-  <div v-if="!mostrarResultados" class="navigation-container">
-    <button class="back-button" @click="irAInstructor">
-      <i class="fa-solid fa-arrow-left"></i>
-      Regresar
-    </button>
+  <div class="floating-buttons" v-if="!mostrarResultados">
+    <!-- Botón izquierdo -->
+    <div class="tooltip tooltip-left btn-left">
+      <button class="back-buttons" @click="irAInstructor">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <span class="tooltip-text">Regresar</span>
+    </div>
+
+    <!-- Contenedor de botones derechos -->
+    <div class="right-buttons">
+      <div class="tooltip">
+        <button class="back-buttons" @click="mostrarModal = true">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+        <span class="tooltip-text">Instrucciones</span>
+      </div>
+
+      <div class="tooltip">
+        <button class="back-buttons">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+        <span class="tooltip-text">Cerrar sesión</span>
+      </div>
+    </div>
+
+    <GroupInstructions v-if="mostrarModal" @cerrar="mostrarModal = false" />
   </div>
   
   <Transition name="fade-slide" mode="out-in">
@@ -839,6 +864,7 @@ body {
 .search-container {
   display: flex;
   justify-content: center;
+  margin-top: 110px;
   align-items: center;
   min-height: 60vh;
   padding: 20px;

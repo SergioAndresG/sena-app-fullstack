@@ -1,4 +1,27 @@
 <template>
+  <Header />
+  <div class="floating-buttons">
+    <!-- Botón izquierdo -->
+    <div class="tooltip tooltip-left btn-left">
+      <button class="back-buttons" @click="irAAdmin">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <span class="tooltip-text">Regresar</span>
+    </div>
+
+    <!-- Contenedor de botones derechos -->
+    <div class="right-buttons">
+
+      <div class="tooltip">
+        <button class="back-buttons">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+        <span class="tooltip-text">Cerrar sesión</span>
+      </div>
+    </div>
+
+  </div>
+
   <div class="historial-container">
     <!-- Header con filtros -->
     <div class="header-section">
@@ -186,6 +209,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, type Ref } from 'vue'
 import axios, { type AxiosResponse } from 'axios'
+import { useRouter } from 'vue-router';
+import Header from '../components/Header.vue'
 
 // Interfaces
 interface ArchivoExcel {
@@ -211,6 +236,8 @@ const archivos: Ref<ArchivoExcel[]> = ref([])
 const loading: Ref<boolean> = ref(true)
 const showModal: Ref<boolean> = ref(false)
 const archivoSeleccionado: Ref<ArchivoExcel | null> = ref(null)
+
+const router = useRouter()
 
 const filtros: Ref<Filtros> = ref({
   busqueda: '',
@@ -333,6 +360,10 @@ const tiempoTranscurrido = (fecha: string): string => {
 onMounted(() => {
   obtenerHistorial()
 })
+
+function irAAdmin(){
+  router.push('/admin')
+}
 </script>
 
 <style scoped>
@@ -361,6 +392,7 @@ onMounted(() => {
   margin: 0 auto;
   padding: 1rem;
   min-height: 100vh;
+  margin-top: 70px;
 }
 
 /* Header */
@@ -413,6 +445,7 @@ onMounted(() => {
   font-size: 1rem;
   transition: var(--transition);
   background: var(--bg-primary);
+  border-radius: 10px;
 }
 
 .search-input:focus {
@@ -429,6 +462,7 @@ onMounted(() => {
   font-size: 1rem;
   cursor: pointer;
   transition: var(--transition);
+  border-radius: 10px;
 }
 
 .filter-select:focus {
@@ -766,10 +800,7 @@ onMounted(() => {
 .btn-secondary:hover {
   background: rgb(211, 65, 65);
   transform: translateY(-2px) scale(1.01);
-
-  
 }
-
 
 /* Transiciones */
 .archivo-item-enter-active,
