@@ -5,11 +5,7 @@ import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
-<<<<<<< HEAD
 import { authService } from '../services/auth_service';
-=======
-import GroupInstructions from '../components/GroupInstructions.vue'
->>>>>>> ca60b1d4283dad79a550d5162d2e3994b7bedb73
 
 // Interfaces
 interface Aprendiz {

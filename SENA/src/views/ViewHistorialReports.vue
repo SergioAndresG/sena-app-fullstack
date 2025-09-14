@@ -11,7 +11,6 @@
 
     <!-- Contenedor de botones derechos -->
     <div class="right-buttons">
-
       <div class="tooltip">
         <button class="back-buttons">
           <i class="fa-solid fa-right-from-bracket"></i>
@@ -19,7 +18,6 @@
         <span class="tooltip-text">Cerrar sesión</span>
       </div>
     </div>
-
   </div>
 
   <div class="historial-container">
@@ -831,8 +829,14 @@ function irAAdmin(){
 
 /* Responsive */
 @media (max-width: 768px) {
+
+  .right-buttons{
+    margin-right: 20px;
+  }
+
   .historial-container {
     padding: 1rem;
+    margin-top: 100px;
   }
   
   .page-title {

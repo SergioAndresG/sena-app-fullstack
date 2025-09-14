@@ -204,8 +204,6 @@ const closeModal = () => {
   }
 };
 
-
-
 const guardarInstructor = async () => {
   try {
     if (!instructor.value.nombre || !instructor.value.apellidos || !instructor.value.correo || !instructor.value.rol) {
@@ -320,7 +318,6 @@ watch(() => props.modelValue, (newValue) => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
 }
 
 .modal-container {
@@ -328,9 +325,10 @@ watch(() => props.modelValue, (newValue) => {
   border-radius: 1.5rem;
   width: 100%;
   max-width: 600px;
-  max-height: 90vh;
+  max-height: auto;
   overflow-y: auto;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  margin: 1rem;
 }
 
 /* Modal Header */
@@ -352,7 +350,6 @@ watch(() => props.modelValue, (newValue) => {
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
-  margin: 0;
 }
 
 .title-icon {
@@ -403,24 +400,6 @@ watch(() => props.modelValue, (newValue) => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-}
-
-@media (max-width: 640px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .modal-header {
-    padding: 1rem 1.5rem;
-  }
-  
-  .modal-content {
-    padding: 1.5rem;
-  }
-  
-  .modal-title {
-    font-size: 1.25rem;
-  }
 }
 
 .input-group {
@@ -498,16 +477,20 @@ watch(() => props.modelValue, (newValue) => {
 
 /* Botones */
 .button-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  display: flex;              /* coloca los botones en fila */
+  flex-direction: row;        /* explícitamente en fila */
+  justify-content: end;    /* centrados horizontalmente */
+  align-items: center;
+  align-items: stretch; 
+  gap: 20px;
 }
 
-@media (max-width: 480px) {
-  .button-group {
-    flex-direction: column-reverse;
-  }
+.button-group button {
+  flex: 1;                   /* 🔑 hace que ambos ocupen el mismo ancho */
+  min-width: 120px;          /* ancho mínimo para no colapsar */
+  padding: 0.75rem 1rem;     /* espacio interno */
+  white-space: normal;       /* permite saltos de línea */
+  text-align: center;        /* centra el texto si se parte */
 }
 
 .cancel-button {
@@ -636,4 +619,49 @@ watch(() => props.modelValue, (newValue) => {
   color: #374151;
   font-weight: 600;
 }
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-container {
+    height: 600px;
+  }
+
+  .modal-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .modal-content {
+    padding: 1.5rem;
+  }
+  
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .button-group {
+    gap: 0.5rem; /* menos espacio entre botones */
+  }
+
+  .button-group button {
+    flex: 1;     /* cada botón ocupa la mitad del ancho */
+  }
+}
+
+@media (max-width: 480px) {
+  .button-group {
+    gap: 0.5rem;
+  }
+
+  .button-group button {
+    flex: 1;     
+  }
+
+  .submit-button{
+    font-size: 12px;
+  }
+}
+
 </style>

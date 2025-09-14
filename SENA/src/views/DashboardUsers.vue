@@ -39,12 +39,12 @@ const openAddModal = () => {
   showModal.value = true;
 };
 const cargarUsuarios = async () => {
-    try {
-        const respuesta = await axios.get('http://127.0.0.1:8000/usuarios/');
-        users.value = respuesta.data;
-    } catch (error) {
-        console.error(error);
-    }
+  try {
+    const respuesta = await axios.get('http://127.0.0.1:8000/usuarios/');
+    users.value = respuesta.data;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 const handleInstructorAdded = (newInstructor) => {
@@ -65,76 +65,82 @@ const handleInstructorDeleted = (userId: number) => {
   console.log('Usuario eliminado:');
   // Recargar la lista de usuarios
   cargarUsuarios();
-  
-  
+
+
   // Reset selections
   selectedUserId.value = null;
   selectedUser.value = null;
 };
 
 const editUser = (user: User) => {
-  selectedUser.value = {...user};
+  selectedUser.value = { ...user };
   showModal.value = true;
 }
 
-const filtrarInstructores = computed (()=> {
-  if(!searchTerm.value.trim()) return users.value;
+const filtrarInstructores = computed(() => {
+  if (!searchTerm.value.trim()) return users.value;
 
   const term = searchTerm.value.toLowerCase().trim()
-  return users.value.filter(pro => 
+  return users.value.filter(pro =>
     pro.nombre.toLowerCase().includes(term)
   )
 });
 
-function volver(){
+function volver() {
   router.back()
 }
 
 onMounted(() => {
   cargarUsuarios();
 });
+
+function irAAdmin(){
+  router.push('/admin')
+}
 </script>
 
 <template>
   <div class="dashboard-container">
     <Header />
 
-        <!-- Botón izquierdo -->
-    <div class="tooltip tooltip-left btn-left">
-      <button class="back-buttons" @click="volver">
-        <i class="fa-solid fa-arrow-left"></i>
-      </button>
-      <span class="tooltip-text">Regresar</span>
+    <div class="floating-buttons">
+      <!-- Botón izquierdo -->
+      <div class="tooltip tooltip-left btn-left">
+        <button class="back-buttons" @click="irAAdmin">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="tooltip-text">Regresar</span>
+      </div>
+
+      <!-- Contenedor de botones derechos -->
+      <div class="right-buttons">
+        <div class="tooltip">
+          <button class="back-buttons">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+          <span class="tooltip-text">Cerrar sesión</span>
+        </div>
+      </div>
     </div>
-    
+
     <main class="main-content">
       <div class="dashboard-header">
         <h1>Gestión de Usuarios</h1>
       </div>
       <hr style="margin-bottom: 2rem;">
       <div class="actions">
-          <div class="search-box">
-            <input 
-              type="text" 
-              v-model="searchTerm" 
-              placeholder="Buscar usuarios..." 
-              class="search-input"
-              >
-              <i class="fas fa-search"></i>
-            
-          </div>
-          <button @click="openAddModal" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Nuevo Usuario
-          </button>
-          <AddUser
-            v-model="showModal" 
-            :selected-user="selectedUser"
-            @instructor-added="handleInstructorAdded"
-            @instructor-updated="handleInstructorUpdate"
-          />
+        <div class="search-box">
+          <input type="text" v-model="searchTerm" placeholder="Buscar usuarios..." class="search-input">
+          <i class="fas fa-search"></i>
+
+        </div>
+        <button @click="openAddModal" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Nuevo Usuario
+        </button>
+        <AddUser v-model="showModal" :selected-user="selectedUser" @instructor-added="handleInstructorAdded"
+          @instructor-updated="handleInstructorUpdate" />
       </div>
       <hr style="margin-bottom: 2rem;">
-
 
       <div class="users-grid">
         <div v-for="user in filtrarInstructores" :key="user.id" class="user-card">
@@ -147,16 +153,12 @@ onMounted(() => {
             <button @click="editUser(user)" class="btn btn-edit">
               <i class="fas fa-edit"></i>
             </button>
-            <button @click="openDeleteModal(user)" class="btn btn-delete" :disabled="isDeleting"  v-if="user.rol !== 'ADMINISTRADOR'">
+            <button @click="openDeleteModal(user)" class="btn btn-delete" :disabled="isDeleting"
+              v-if="user.rol !== 'ADMINISTRADOR'">
               <i class="fas fa-trash"></i>
             </button>
-            <DeleteUsers
-              v-model="showModalDelete" 
-              :user-id="selectedUserId"
-              :selected-user="selectedUser"
-              :require-password="true"
-              @instructor-deleted="handleInstructorDeleted"
-            />
+            <DeleteUsers v-model="showModalDelete" :user-id="selectedUserId" :selected-user="selectedUser"
+              :require-password="true" @instructor-deleted="handleInstructorDeleted" />
           </div>
         </div>
       </div>
@@ -165,119 +167,20 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Botones */
-.floating-buttons {
-  position: relative;
-  width: 98%;
-  height: 0;
-  z-index: 100;
-}
-
-/* Botón izquierdo */
-.btn-left {
-  position: absolute;
-  top: 30px;
-  left: 40px;
-}
-
-/* Contenedor de los botones derechos */
-.right-buttons {
-  position: absolute;
-  top: 30px;
-  right: 0px;
-  display: flex;
-  gap: 20px; /* espacio entre los botones */
-}
-
-.back-buttons {
-  background: linear-gradient(145deg, #2dd4bf, #0d9488);
-  color: white;
-  font-size: 20px;
-  border: none;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.back-buttons:hover {
-  transform: scale(1.1);
-}
-
-/* Tooltips mejorados */
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip-text {
-    visibility: hidden;
-    background: rgba(26, 32, 44, 0.95);
-    backdrop-filter: blur(10px);
-    color: #fff;
-    text-align: center;
-    border-radius: 8px;
-    padding: 8px 12px;
-    position: absolute;
-    top: 65px;
-    right: 50%;
-    transform: translateX(50%);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 1000;
-}
-
-.tooltip-text::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent rgba(26, 32, 44, 0.95) transparent;
-}
-
-.tooltip:hover .tooltip-text {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(50%) translateY(-5px);
-}
-
-.tooltip-left .tooltip-text {
-    top: 65px;
-    right: auto;
-    transform: translateX(0);
-}
-
-.tooltip-left .tooltip-text::before {
-    left: 25px;
-}
-
-.tooltip-left:hover .tooltip-text {
-    transform: translateY(-5px);
-}
-
-
 .dashboard-container {
   min-height: 100vh;
   background-color: #ffffff;
 }
 
+.right-buttons{
+    margin-right: 20px;
+  }
+
 .main-content {
   padding: 2rem;
   max-width: 1000px;
   margin: 0 auto;
+  margin-top: 80px;
 }
 
 .dashboard-header {
@@ -286,21 +189,24 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 2rem;
 }
-.dashboard-header h1{
+
+.dashboard-header h1 {
   margin: auto;
   font-size: 2.5rem;
 }
+
 .actions {
   display: flex;
-  gap: 1rem;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
-  
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .search-box {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
@@ -310,6 +216,14 @@ onMounted(() => {
   width: 400px;
   font-size: 0.9rem;
   margin: 10px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 8px;
+  color: #555;
+  font-size: 1rem;
+  pointer-events: none; /* que no bloquee clics */
 }
 
 .btn {
@@ -346,7 +260,7 @@ onMounted(() => {
   border-radius: 12px;
   border: solid 2px #e0e0e0;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
 }
 
@@ -382,20 +296,31 @@ onMounted(() => {
   color: white;
 }
 
-.btn-edit:hover, .btn-delete:hover {
+.btn-edit:hover,
+.btn-delete:hover {
   opacity: 0.9;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-header {
-    flex-direction: column;
     gap: 1rem;
+    text-align: center;
   }
 
-  .actions {
-    width: 100%;
-    flex-direction: column;
+ .actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .right-buttons{
+    margin-right: 20px;
+  }
+
+  
+
+  .btn {
+    flex-shrink: 0; /* El botón mantiene su tamaño */
   }
 
   .search-input {

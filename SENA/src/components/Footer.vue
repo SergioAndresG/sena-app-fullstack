@@ -33,11 +33,12 @@
   max-width: 1350px;
   margin: 0 auto;
   gap: 20px;
+  padding: 5px;
 }
 .logo-icon{
     width: 70px;
     height: 70px;
-    margin-left: 2rem;
+    margin-left: 20px;
 }
 /* Texto principal */
 .main-text {

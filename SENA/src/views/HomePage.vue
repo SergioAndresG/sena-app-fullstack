@@ -428,8 +428,6 @@ const handleLogin = async () => {
   }
 }
 
-
-
 // Lifecycle
 onMounted(() => {
   // Check if user is already logged in
@@ -681,7 +679,6 @@ onUnmounted(() => {
   /* o */
   text-indent: 0.5rem;
 }
-
 
 .form-input:focus {
   outline: none;
@@ -1009,9 +1006,6 @@ onUnmounted(() => {
 
 /* Responsive Design */
 @media (max-width: 640px) {
-  .login-container {
-    padding: 0.5rem;
-  }
 
   .right-panel {
     padding: 1.5rem;
@@ -1021,6 +1015,14 @@ onUnmounted(() => {
     font-size: 2rem;
   }
 
+  .avatar-container{
+    height: 230px;
+    width: 230px;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+  }
   .form-title {
     font-size: 1.5rem;
   }
@@ -1031,4 +1033,5 @@ onUnmounted(() => {
     align-items: flex-start;
   }
 }
+
 </style>

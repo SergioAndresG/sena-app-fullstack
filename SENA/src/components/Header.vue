@@ -55,8 +55,7 @@
 /* ✅ Responsive para pantallas pequeñas */
 @media (max-width: 600px) {
   .main-header {
-    height: auto;
-    padding: 1rem;
+    height: 150px;
   }
 
   .logo-container {
