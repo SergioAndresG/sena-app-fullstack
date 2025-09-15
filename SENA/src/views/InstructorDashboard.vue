@@ -75,10 +75,9 @@ function irAIndividual() {
 .forms-container {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  gap: 7.5rem;
+  gap: 6rem;
   max-width: 1150px;
-  margin: 0 auto;
-  margin-top: 80px;
+  margin: 120px auto 0;
   padding: 2rem 0;
 }
 
@@ -106,8 +105,8 @@ function irAIndividual() {
 }
 
 .icon-docs {
-  height: 15rem;
-  width: 15rem;
+  height: clamp(8rem, 15vw, 15rem);
+  width: clamp(8rem, 15vw, 15rem);
   transition: transform 0.3s ease;
   filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.2));
 }
@@ -118,15 +117,16 @@ function irAIndividual() {
 
 .divider {
   width: 1px;
-  height: clamp(400px, 35vw, 600px);
+  height: 100%;
+  min-height: 300px;
   background-color: #d1d5db;
 }
 
 .card {
   background: #ffffff;
   border-radius: 20px;
-  padding: 3rem 2rem;
-  height: 430px;
+  padding: 2.5rem 2rem;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -135,9 +135,8 @@ function irAIndividual() {
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 1px solid rgba(16, 185, 129, 0.1);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
 }
 
 .card::before {
@@ -185,16 +184,13 @@ function irAIndividual() {
   color: white;
   font-size: 1rem;
   font-weight: 500;
-  padding: 0.875rem 2.5rem;
+  padding: 0.875rem 2rem;
   border-radius: 12px;
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  min-width: 180px;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   margin-top: auto;
+  min-width: 160px;
 }
 
 .btn-consultar::before {
@@ -210,7 +206,7 @@ function irAIndividual() {
 
 .btn-consultar:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
 
@@ -224,99 +220,50 @@ function irAIndividual() {
   text-align: center;
 }
 
-/* Responsive design */
-@media (max-width: 800px) {
+/* Responsive */
+@media (max-width: 1240px) {
   .forms-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    gap: 20px;
-  }
-
-  .icon-docs {
-    height: 10rem;
-    width: 10rem;
-  }
-
-  .columna-divisor {
-    width: 100%;
-    height: 1px;
-    order: 2;
-  }
-
-  .divider {
-    width: 200px;
-    height: 1px;
-  }
-
-  .columna:first-child {
-    order: 1;
-  }
-
-  .columna:last-child {
-    order: 3;
+    gap: 3rem;
+    padding: 1.5rem;
   }
 
   .card {
-    padding: 30px 20px;
-  }
-
-  .card-titulo {
-    font-size: 16px;
-  }
-
-  .card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.137);
-    text-align: center;
-    width: clamp(350px, 30vw, 500px);
-    height: clamp(350px, 30vw, 500px);
-    border: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50%;
-    height: 450px;
-  }
-
-  .btn-consultar {
-    background-color: #10b981;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 120px;
-  }
-
-  .btn-consultar:hover {
-    background-color: #059669;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    min-height: 380px;
+    padding: 2rem;
   }
 }
 
 @media (max-width: 768px) {
-  .container-section-docs {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-      padding: 1rem;
-  }
-  
-  .container-docs {
-      padding: 2rem 1.5rem;
+
+  .forms-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 120px;
   }
 
-  .title-docs {
-      font-size: 1.4rem;
+  .columna-divisor {
+    display: none; /* Ocultamos divisor en móvil */
   }
 
-  .button-docs {
-      min-width: 160px;
-      padding: 0.75rem 2rem;
+  .card {
+    width: 100%;
+    min-height: auto; /* que crezca con contenido */
+  }
+
+  .btn-consultar {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 600px){
+  .right-button-dashboard{
+    margin-top: 40px;
+  }
+
+  .forms-container {
+    margin-top: 100px;
   }
 }
 

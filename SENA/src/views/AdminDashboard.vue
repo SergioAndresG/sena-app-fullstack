@@ -134,7 +134,6 @@ function irAHistorial() {
 }
 </script>
 
-
 <template>
   <Header />
 
@@ -465,6 +464,7 @@ function irAHistorial() {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 1rem;
+    margin-top: 100px;
   }
 
   .container-docs {

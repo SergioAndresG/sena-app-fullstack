@@ -1,4 +1,4 @@
- <script setup lang="ts">
+<script setup lang="ts">
 import { ref } from 'vue';
 import axios from "axios";
 import Swal from 'sweetalert2';
@@ -89,6 +89,9 @@ const cargarAprendicesFicha = async (codigoFicha, doc_aprendiz) => {
         denyButtonColor: "#3085d6",
         cancelButtonText: "Cancelar",
         cancelButtonColor: "#d33",
+        customClass: {
+          popup: 'mi-alerta'
+        },
         willOpen: () => {
           document.body.style.paddingRight = '0px';
         },
@@ -133,6 +136,9 @@ const consultarFicha = async () => {
       icon: "error",
       title: "Oops...",
       text: "Por favor ingrese un número de ficha y documento",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -187,7 +193,7 @@ function actualizarAprendiz(datosEditados) {
     };
 
     const existente = aprendicesExportar.value.findIndex(a => a.documento === datosEditados.documento)
-    if (existente == -1 ) {
+    if (existente == -1) {
       aprendicesExportar.value.push(datosParaExportar)
     } else {
       aprendicesExportar.value[existente] = datosParaExportar
@@ -201,6 +207,9 @@ function exportarAprendices() {
       icon: "info",
       title: "Sin aprendices seleccionados",
       text: "Debes editar al menos un aprendiz antes de generar el formato.",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -216,6 +225,9 @@ function exportarAprendices() {
       icon: "warning",
       title: "Información incompleta",
       text: "Por favor, completa la información del generador del reporte.",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -239,15 +251,15 @@ function exportarAprendices() {
       municipio: ap.municipio || '',
       correo: ap.correo,
       celular: ap.celular,
-      discapacidad: ap.discapacidad || 'No', 
-      tipo_discapacidad: ap.tipo_discapacidad || 'N/A', 
-      firma: ap.firma || '', 
+      discapacidad: ap.discapacidad || 'No',
+      tipo_discapacidad: ap.tipo_discapacidad || 'N/A',
+      firma: ap.firma || '',
     })),
     usuario_generator: {
       nombre: usuarioGenerador.value.nombre,
       apellidos: usuarioGenerador.value.apellidos,
       correo: usuarioGenerador.value.correo,
-      rol: usuarioGenerador.value.rol.toUpperCase() 
+      rol: usuarioGenerador.value.rol.toUpperCase()
     }
   };
 
@@ -260,11 +272,14 @@ function exportarAprendices() {
     link.setAttribute('download', 'formato_F165.xlsx');
     document.body.appendChild(link);
     link.click();
-    
+
     Swal.fire({
       icon: "success",
       title: "Éxito",
       text: "El archivo se ha generado correctamente.",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -274,9 +289,9 @@ function exportarAprendices() {
     });
   }).catch(async (err) => {
     console.error("Error al exportar:", err);
-    
+
     let errorMessage = "Ocurrió un error inesperado.";
-    
+
     if (err.response && err.response.data instanceof Blob) {
       try {
         const errorText = await err.response.data.text();
@@ -289,11 +304,14 @@ function exportarAprendices() {
     } else if (err.response?.data?.detail) {
       errorMessage = err.response.data.detail;
     }
-    
+
     Swal.fire({
       icon: "error",
       title: "Error al exportar",
       text: errorMessage,
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -308,7 +326,7 @@ function cerrarModal() {
   mostrarModal.value = false
 }
 
-function irAInstructor(){
+function irAInstructor() {
   router.back()
 }
 </script>
@@ -344,7 +362,7 @@ function irAInstructor(){
 
     <IndividualInstructions v-if="mostrarModal" @cerrar="mostrarModal = false" />
   </div>
-  
+
   <Transition name="fade-slide" mode="out-in">
     <!-- Formulario de búsqueda -->
     <section v-if="!mostrarResultados" class="search-container" key="search-form">
@@ -356,24 +374,14 @@ function irAInstructor(){
         <form @submit.prevent="consultarFicha" class="search-form">
           <div class="input-group">
             <label for="ficha" class="input-label">No. Ficha 🖱️</label>
-            <input 
-              id="ficha"
-              v-model="ficha" 
-              class="search-input" 
-              type="text" 
-              placeholder="Ingresa el número de la ficha"
-            >
+            <input id="ficha" v-model="ficha" class="search-input" type="text"
+              placeholder="Ingresa el número de la ficha">
           </div>
 
           <div class="input-group">
             <label for="ficha" class="input-label">No. de documento</label>
-            <input 
-              id="documento"
-              v-model="documento_ap" 
-              class="search-input" 
-              type="text" 
-              placeholder="Ingresa el número de documento"
-            >
+            <input id="documento" v-model="documento_ap" class="search-input" type="text"
+              placeholder="Ingresa el número de documento">
           </div>
 
           <button class="search-button" type="submit" :disabled="cargando">
@@ -401,7 +409,7 @@ function irAInstructor(){
           Volver a buscar
         </button>
       </div>
-      
+
       <!-- Tabla optimizada -->
       <Transition name="table-fade">
         <div v-if="aprendices.length > 0" class="table-wrapper">
@@ -421,12 +429,8 @@ function irAInstructor(){
                 </tr>
               </thead>
               <tbody>
-                <tr 
-                  v-for="(item, index) in aprendices" 
-                  :key="item.documento" 
-                  class="table-row"
-                  :style="{ 'animation-delay': `${index * 0.05}s` }"
-                >
+                <tr v-for="(item, index) in aprendices" :key="item.documento" class="table-row"
+                  :style="{ 'animation-delay': `${index * 0.05}s` }">
                   <td class="td-number">{{ index + 1 }}</td>
                   <td class="td-documento">
                     <span class="document-badge">{{ item.tipo_documento }}</span>
@@ -437,19 +441,12 @@ function irAInstructor(){
                   <td class="td-celular">{{ item.celular }}</td>
                   <td class="td-correo">{{ item.correo }}</td>
                   <td class="td-estado">
-                    <span 
-                      class="status-badge" 
-                      :class="[item.estado.toLowerCase()]"
-                    >
+                    <span class="status-badge" :class="[item.estado.toLowerCase()]">
                       {{ item.estado }}
                     </span>
                   </td>
                   <td class="td-accion">
-                    <button 
-                      class="edit-button" 
-                      @click="abrirModal(item)"
-                      :title="`Editar ${item.nombre}`"
-                    >
+                    <button class="edit-button" @click="abrirModal(item)" :title="`Editar ${item.nombre}`">
                       <i class="fa-solid fa-edit"></i>
                     </button>
                   </td>
@@ -464,36 +461,24 @@ function irAInstructor(){
               <i class="fa-solid fa-user-gear"></i>
               Información del generador del reporte
             </h3>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label">Nombre</label>
-                <input 
-                  v-model="usuarioGenerador.nombre" 
-                  placeholder="Ingrese su nombre" 
-                  class="form-input"
-                >
+                <input v-model="usuarioGenerador.nombre" placeholder="Ingrese su nombre" class="form-input">
               </div>
-              
+
               <div class="form-group">
                 <label class="form-label">Apellidos</label>
-                <input 
-                  v-model="usuarioGenerador.apellidos" 
-                  placeholder="Ingrese sus apellidos" 
-                  class="form-input"
-                >
+                <input v-model="usuarioGenerador.apellidos" placeholder="Ingrese sus apellidos" class="form-input">
               </div>
-              
+
               <div class="form-group">
                 <label class="form-label">Correo electrónico</label>
-                <input 
-                  v-model="usuarioGenerador.correo" 
-                  placeholder="correo@ejemplo.com" 
-                  class="form-input"
-                  type="email"
-                >
+                <input v-model="usuarioGenerador.correo" placeholder="correo@ejemplo.com" class="form-input"
+                  type="email">
               </div>
-              
+
               <div class="form-group">
                 <label class="form-label">Rol</label>
                 <select v-model="usuarioGenerador.rol" class="form-select">
@@ -503,7 +488,7 @@ function irAInstructor(){
                 </select>
               </div>
             </div>
-            
+
             <button @click="exportarAprendices" class="export-button">
               <i class="fa-solid fa-download"></i>
               Generar y Descargar Reporte
@@ -528,16 +513,11 @@ function irAInstructor(){
   </Transition>
 
   <!-- Modal de edición -->
-  <EditAprendizModal 
-    :aprendiz="aprendizSeleccionado" 
-    :mostrar="mostrarModal" 
-    @cerrar="cerrarModal"
-    @actualizar="actualizarAprendiz" 
-  />
+  <EditAprendizModal :aprendiz="aprendizSeleccionado" :mostrar="mostrarModal" @cerrar="cerrarModal"
+    @actualizar="actualizarAprendiz" />
 </template>
 
 <style scoped>
-
 /* Layout principal */
 .navigation-container {
   padding: 20px 50px 0;
@@ -660,6 +640,12 @@ function irAInstructor(){
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.mi-alerta {
+  max-width: 500px !important;  /* límite para pantallas grandes */
+  width: 90% !important;        /* ocupa el 90% en móviles */
+  margin: 0 auto !important;        /* bordes más suaves */
 }
 
 /* Sección de resultados */
@@ -995,11 +981,16 @@ function irAInstructor(){
 /* Salida: termina invisible y desplazado */
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateX(30px); /* puedes usar translateX(0) si no quieres movimiento */
+  transform: translateX(30px);
+  /* puedes usar translateX(0) si no quieres movimiento */
 }
 
 /* ✅ Estilos responsive para pantallas menores a 768px */
 @media (max-width: 1400px) {
+  .right-buttons {
+    margin-right: 40px;
+  }
+
   .container-gf {
     width: 60%;
     height: 300px;
@@ -1063,12 +1054,59 @@ function irAInstructor(){
     width: 100%;
     justify-content: center;
   }
-}
 
-@media (max-width: 600px) {
-  .button-gf {
-    font-size: 0.9rem;
-
+  .mi-alerta {
+    max-width: 95% !important;
+    margin: 0.5rem !important;
+    padding: 1rem !important;
+  }
+  
+  .mi-alerta .swal2-title {
+    font-size: 1.2rem !important;
+  }
+  
+  .mi-alerta .swal2-content {
+    font-size: 0.9rem !important;
+  }
+  
+  .mi-alerta .swal2-actions {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .mi-alerta .swal2-styled {
+    width: 100% !important;
+    margin: 0.2rem 0 !important;
   }
 }
-</style>  
+
+@media (max-width: 479px) {
+  .search-title {
+    font-size: 1.2rem;
+  }
+
+  .input-label {
+    font-size: 1rem;
+  }
+
+  .search-input::placeholder {
+    font-size: 0.85rem;
+  }
+
+  .search-button {
+    font-size: 0.8rem;
+    width: 50%;
+  }
+}
+
+@media (max-width: 361px) {
+  .search-input::placeholder {
+    font-size: 0.65rem;
+  }
+
+  .search-button {
+    font-size: 0.6rem;
+    width: 65%;
+  }
+}
+</style>

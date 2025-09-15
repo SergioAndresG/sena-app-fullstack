@@ -202,7 +202,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             htmlContainer: 'custom-swal-content',
             confirmButton: 'custom-confirm-btn',
             cancelButton: 'custom-cancel-btn',
-            container: 'no-shift-container'  // Nueva clase CSS
+            container: 'no-shift-container',
         },
         
         willOpen: () => {
@@ -375,6 +375,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     }
 });
 </script>
+
 <style scoped>
 
 /* ✅ PREVENCIÓN DEL DESPLAZAMIENTO LATERAL */
@@ -686,15 +687,27 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     }
 }
 
+@media (max-width: 1400px) {
+    :global(.signature-container) {
+        padding: 16px !important;
+    }
+    
+    :global(#firma) {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 200px !important;
+    }
+}
+
 /* Responsive - MEJORADO */
 @media (max-width: 640px) {
     :global(.custom-swal-popup) {
         width: 95% !important;
         max-width: 95% !important;
-        margin: 10px !important;
-        /* ✅ Asegurar centrado en móvil */
-        left: 50% !important;
-        transform: translateX(-50%) !important;
+        margin: 10px auto !important; /* centrado automático */
+        left: auto !important;        /* resetea el left */
+        right: auto !important;       /* resetea el right */
+        transform: none !important;   /* elimina el desplazamiento */
     }
     
     :global(.custom-swal-title) {
@@ -724,7 +737,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     :global(#firma) {
         width: 100% !important;
         max-width: 100% !important;
-        height: 100px !important;
+        height: 200px !important;
     }
     
     :global(.document-type-select) {
