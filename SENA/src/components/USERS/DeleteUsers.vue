@@ -8,7 +8,9 @@
           <div class="modal-header">
             <h2 class="modal-title">
               <svg class="title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z">
+                </path>
               </svg>
               Confirmar Eliminación
             </h2>
@@ -24,10 +26,12 @@
             <div class="warning-section">
               <div class="warning-icon">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m0 0v.008h.008V12.75H12zm0 2.25h.008v.008H12v-.008zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v3.75m0 0v.008h.008V12.75H12zm0 2.25h.008v.008H12v-.008zM21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                  </path>
                 </svg>
               </div>
-              
+
               <div class="warning-content">
                 <h3>¿Estás seguro de eliminar este usuario?</h3>
                 <p v-if="selectedUser">
@@ -45,45 +49,32 @@
                 <label class="input-label" for="admin-password">
                   Confirma tu contraseña de administrador *
                   <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3a1 1 0 011-1l2.879-2.879A6 6 0 0112 5zm5 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3a1 1 0 011-1l2.879-2.879A6 6 0 0112 5zm5 2a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
                   </svg>
                 </label>
-                <input 
-                  id="admin-password"
-                  v-model="contraseña_admin" 
-                  type="password" 
-                  class="form-input"
-                  placeholder="Ingresa tu contraseña"
-                  :disabled="isLoading"
-                  autocomplete="current-password"
-                >
+                <input id="admin-password" v-model="contraseña_admin" type="password" class="form-input"
+                  placeholder="Ingresa tu contraseña" :disabled="isLoading" autocomplete="current-password">
               </div>
             </div>
 
             <!-- Botones de acción -->
             <div class="button-group">
-              <button 
-                type="button"
-                @click="closeModal"
-                class="cancel-button"
-                :disabled="isLoading"
-              >
+              <button type="button" @click="closeModal" class="cancel-button" :disabled="isLoading">
                 <svg class="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
                 Cancelar
               </button>
-              
-              <button 
-                type="button"
-                @click="eliminarInstructor"
-                class="delete-button"
-                :disabled="isLoading || (requirePassword && !contraseña_admin)"
-                :class="{ 'loading': isLoading }"
-              >
+
+              <button type="button" @click="eliminarInstructor" class="delete-button"
+                :disabled="isLoading || (requirePassword && !contraseña_admin)" :class="{ 'loading': isLoading }">
                 <div v-if="isLoading" class="loading-spinner"></div>
                 <svg v-else class="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                  </path>
                 </svg>
                 {{ isLoading ? 'Eliminando...' : 'Eliminar Usuario' }}
               </button>
@@ -144,7 +135,7 @@ const canDelete = computed(() => {
 
 // Métodos
 const closeModal = () => {
-    emit('update:modelValue', false);
+  emit('update:modelValue', false);
 };
 
 const eliminarInstructor = async () => {
@@ -168,7 +159,7 @@ const eliminarInstructor = async () => {
     }
 
     const respuesta = await axios.post(`http://127.0.0.1:8000/usuarios/${props.userId}`, {
-        contraseña_admin: contraseña_admin.value
+      contraseña_admin: contraseña_admin.value
     });
 
     // Éxito
@@ -181,10 +172,6 @@ const eliminarInstructor = async () => {
       timerProgressBar: true
     });
 
-
-
-
-
     // Emitir eventos
     emit('instructor-deleted', props.userId);
     if (props.selectedUser) {
@@ -196,9 +183,9 @@ const eliminarInstructor = async () => {
 
   } catch (error: any) {
     console.error('Error al eliminar el instructor:', error);
-    
+
     let errorMessage = 'Hubo un problema al eliminar el usuario.';
-    
+
     if (error.response?.status === 403) {
       errorMessage = 'No tienes permisos para eliminar este usuario.';
     } else if (error.response?.status === 404) {
@@ -255,7 +242,6 @@ watch(() => props.modelValue, (newValue) => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
   /* AÑADIDO: will-change para optimizar animaciones */
   will-change: opacity;
 }
@@ -264,7 +250,7 @@ watch(() => props.modelValue, (newValue) => {
   background: white;
   border-radius: 1.5rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
   /* OPTIMIZADO: box-shadow simplificado */
@@ -273,6 +259,7 @@ watch(() => props.modelValue, (newValue) => {
   will-change: transform, opacity;
   /* AÑADIDO: transform3d para activar aceleración de hardware */
   transform: translate3d(0, 0, 0);
+  margin: 1rem;
 }
 
 .delete-modal {
@@ -338,17 +325,18 @@ watch(() => props.modelValue, (newValue) => {
 /* Modal Content */
 .modal-content {
   padding: 2rem;
+  text-align: center;
 }
 
 /* Warning Section */
 .warning-section {
   display: flex;
-  gap: 1rem;
   margin-bottom: 2rem;
-  padding: 1.5rem;
+  padding: 0.8rem;
   background: #fef3c7;
   border: 1px solid #f59e0b;
   border-radius: 0.75rem;
+  
 }
 
 .warning-icon {
@@ -441,20 +429,10 @@ watch(() => props.modelValue, (newValue) => {
   justify-content: center;
 }
 
-@media (max-width: 480px) {
-  .button-group {
-    flex-direction: column-reverse;
-  }
-  
-  .warning-section {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
 .cancel-button {
   display: flex;
   align-items: center;
+  text-align: center;
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
   border: 2px solid #e5e7eb;
@@ -545,7 +523,8 @@ watch(() => props.modelValue, (newValue) => {
   transition: transform 0.2s ease-in;
 }
 
-.modal-enter-from, .modal-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
 }
 
@@ -564,10 +543,59 @@ watch(() => props.modelValue, (newValue) => {
 
 /* AÑADIDO: Mejora para dispositivos táctiles */
 @media (hover: none) {
+
   .cancel-button:hover,
   .delete-button:hover,
   .close-button:hover {
     transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .modal-container {
+    width: 95%;   /* casi toda la pantalla */
+    height: auto;
+    max-height: 85vh;
+  }
+  .modal-title{
+    font-size: 16px;
+  }
+  
+  .label-icon {
+    width: 3rem;
+    height: 3rem;
+    color: #6b7280;
+  }
+
+  .button-group {
+    gap: 0.5rem;
+    text-align: center;
+    flex-direction: column;
+  }
+
+  .button-group button {
+    flex: 1;
+    font-size: 12px;
+  }
+
+  .form-input::placeholder {
+    font-size: 0.75rem; /* más pequeño en móviles */
+  }
+
+  .cancel-button{
+    text-align: center;
+  }
+
+  .warning-section h3{
+    font-size: 15px;
+  }
+
+  .warning-section {
+    flex-direction: column;
+    text-align: center;
+    font-size: 14px;
+    width: 90%;
   }
 }
 </style>

@@ -205,6 +205,9 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
         denyButtonColor: "#3085d6",
         cancelButtonText: "Cancelar",
         cancelButtonColor: "#d33",
+        customClass: {
+          popup: 'mi-alerta'
+        },
         // Solución para evitar el padding en el body
         willOpen: () => {
           document.body.style.paddingRight = '0px';
@@ -219,6 +222,9 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
       Swal.fire({
         title: 'Descargando...',
         allowOutsideClick: false,
+        customClass: {
+          popup: 'mi-alerta'
+        },
         didOpen: () => {
           Swal.showLoading();
         }
@@ -290,6 +296,9 @@ const consultarFicha = async () => {
       icon: "error",
       title: "Oops...",
       text: "Por favor ingrese un número de ficha",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -385,6 +394,9 @@ function exportarAprendices() {
       icon: "info",
       title: "Sin aprendices seleccionados",
       text: "Debes editar al menos un aprendiz antes de generar el formato.",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -400,6 +412,9 @@ function exportarAprendices() {
       icon: "warning",
       title: "Información incompleta",
       text: "Por favor, completa la información del generador del reporte.",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -455,6 +470,9 @@ function exportarAprendices() {
       icon: "success",
       title: "Éxito",
       text: "El archivo se ha generado correctamente.",
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },
@@ -484,6 +502,9 @@ function exportarAprendices() {
       icon: "error",
       title: "Error al exportar",
       text: errorMessage,
+      customClass: {
+        popup: 'mi-alerta'
+      },
       willOpen: () => {
         document.body.style.paddingRight = '0px';
       },

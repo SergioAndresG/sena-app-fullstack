@@ -134,7 +134,6 @@ function irAHistorial() {
 }
 </script>
 
-
 <template>
   <Header />
 
@@ -199,7 +198,7 @@ function irAHistorial() {
 
     <section class="container-docs">
       <div>
-        <img class="icon-docs" src="../assets/user_admin.png" alt="" style="width: 18rem;">
+        <img class="icon-docs" src="../assets/user_admin.png" alt="">
       </div>
 
       <article class="title-docs">
@@ -214,7 +213,6 @@ function irAHistorial() {
     </section>
 
 
-    
     <section class="container-docs">
       <div>
         <img class="icon-docs" src="../assets/group.png" alt="">
@@ -231,14 +229,14 @@ function irAHistorial() {
       <input type="file" ref="inputFichas" style="display: none;" @change="subirFichas" accept=".xlsx, .xls" multiple />
     </section>
 
-    
+
     <section class="container-docs">
       <div>
         <img class="icon-docs" src="../assets/individual.png" alt="">
       </div>
 
       <article class="title-docs">
-       Generar Reporte Individual
+        Generar Reporte Individual
       </article>
 
       <button class="button-docs" @click="irAIndividual">
@@ -249,20 +247,21 @@ function irAHistorial() {
     </section>
 
   </div>
-  
+
 </template>
 
 <style scoped>
-
 .container-section-docs {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* siempre 2 columnas */
-    gap: 2rem; /* separación entre columnas/filas */
-    max-width: 1150px;
-    margin: 0 auto;
-    margin-top: 80px;
-    padding: 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 1150px;
+  margin: 0 auto;
+  margin-top: 80px;
+  padding: 2rem 0;
+  overflow: hidden;
 }
+
 .container-docs {
   background: #ffffff;
   border-radius: 20px;
@@ -375,18 +374,40 @@ function irAHistorial() {
   left: 100%;
 }
 
-/* ✅ Estilos responsive para pantallas menores a 768px */
+
+
+/* RESPONSIVE STYLES - Cada breakpoint mantiene TODOS los efectos */
+
 @media (max-width: 1400px) {
+  .container-section-docs {
+    margin-right: 15px;
+    padding: 10px;
+  }
+
   .container-docs {
     width: 90%;
-    height: 300px;
+    height: 350px;
     margin-top: 50px;
     padding: 1rem;
+    margin-left: 10px;
+    margin-right: 15px;
+  }
+
+  .container-docs:hover {
+    transform: translateY(-8px) !important;
+    box-shadow:
+      0 18px 35px rgba(0, 0, 0, 0.12),
+      0 6px 14px rgba(16, 185, 129, 0.2) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+  }
+
+  .container-docs:hover::before {
+    transform: scaleX(1) !important;
   }
 
   .icon-docs {
-    height: 8rem;
-    width: 8rem;
+    height: 12rem;
+    width: 12rem;
   }
 
   .title-docs {
@@ -401,24 +422,122 @@ function irAHistorial() {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 800px) {
   .container-section-docs {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-      padding: 1rem;
-  }
-  
-  .container-docs {
-      padding: 2rem 1.5rem;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    padding: 0 1rem;
+    margin: 0 auto;
+    overflow-x: hidden;
+    margin-top: 70px;
   }
 
-  .title-docs {
-      font-size: 1.4rem;
+  .container-docs {
+    width: 90%;
+    max-width: 400px;
+    margin: 20px auto;
+    height: auto;
+  }
+
+  .container-docs:hover {
+    transform: translateY(-6px) !important;
+    box-shadow:
+      0 16px 30px rgba(0, 0, 0, 0.12),
+      0 5px 12px rgba(16, 185, 129, 0.2) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+  }
+
+  .container-docs:hover::before {
+    transform: scaleX(1) !important;
   }
 
   .button-docs {
-      min-width: 160px;
-      padding: 0.75rem 2rem;
+    width: 60%;
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
+}
+
+@media (max-width: 772px) {
+  .container-section-docs {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+    margin-top: 100px;
+  }
+
+  .container-docs {
+    padding: 2rem 1.5rem;
+  }
+
+  .container-docs:hover {
+    transform: translateY(-5px) !important;
+    box-shadow:
+      0 15px 28px rgba(0, 0, 0, 0.12),
+      0 4px 10px rgba(16, 185, 129, 0.2) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+  }
+
+  .container-docs:hover::before {
+    transform: scaleX(1) !important;
+  }
+
+  .title-docs {
+    font-size: 1.4rem;
+  }
+
+  .button-docs {
+    min-width: 160px;
+    padding: 0.75rem 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .container-section-docs {
+    grid-template-columns: 1fr;
+    justify-content: center;
+    padding-left: 15px;
+    overflow-x: hidden;
+    margin-top: 85px;
+  }
+
+  .right-button-dashboard{
+    margin-top: 40px;
+  }
+
+  .container-docs {
+    width: 75%;
+    height: 360px;
+    margin-top: 20 0px;
+  }
+
+  .container-docs:hover {
+    transform: translateY(-4px) !important;
+    box-shadow:
+      0 12px 25px rgba(0, 0, 0, 0.12),
+      0 3px 8px rgba(16, 185, 129, 0.2) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+  }
+
+  .container-docs:hover::before {
+    transform: scaleX(1) !important;
+  }
+
+  .icon-docs {
+    height: 12rem;
+    width: 12rem;
+  }
+
+  .title-docs {
+    font-size: 1.3rem;
+    text-align: center;
+    margin-top: 15px;
+  }
+
+  .button-docs {
+    width: 70%;
+    font-size: 1.1rem;
+    padding: 0.8rem;
   }
 }
 
@@ -432,62 +551,14 @@ function irAHistorial() {
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@media (max-width: 800px) {
-  .container-section-docs {
-    grid-template-columns: 1fr;
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
 
-  .container-docs {
-    width: 70%;
-  }
-
-  .button-docs {
-    width: 40%;
-    font-size: 1.1rem;
-    padding: 0.8rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .container-docs {
-    width: 70%;
-    height: 280px;
-    margin: 0 auto;
-    margin-top: 80px;
-    padding: 1rem;
-  }
-
-  .icon-docs {
-    height: 5rem;
-    width: 5rem;
-  }
-
-  .title-docs {
-    font-size: 1.3rem;
-    text-align: center;
-  }
-
-  .button-docs {
-    width: 70%;
-    font-size: 1.1rem;
-    padding: 0.8rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .button-docs {
-    font-size: 0.9rem;
-
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
