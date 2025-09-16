@@ -183,11 +183,7 @@ function irAHistorial() {
 
     <section class="container-docs">
       <div>
-<<<<<<< HEAD
         <img class="icon-docs" src="../assets/reportes_descargas_img.png" alt="" style="width: 19rem;">
-=======
-        <img class="icon-docs" src="../assets/historial-rep.png" alt="">
->>>>>>> ca60b1d4283dad79a550d5162d2e3994b7bedb73
       </div>
 
       <article class="title-docs">
