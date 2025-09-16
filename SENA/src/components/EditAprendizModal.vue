@@ -215,102 +215,144 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             document.body.style.paddingRight = '';
         },
         
-        didOpen: () => {
-            const canvas = document.getElementById('firma') as HTMLCanvasElement;
-            const limpiarBtn = document.getElementById('limpiar-firma') as HTMLButtonElement | null;
+       didOpen: () => {
+    const canvas = document.getElementById('firma') as HTMLCanvasElement;
+    const limpiarBtn = document.getElementById('limpiar-firma') as HTMLButtonElement | null;
 
-            if (!canvas || !limpiarBtn) return;
+    if (!canvas || !limpiarBtn) return;
 
-            function resizeCanvas() {
-                // Usar devicePixelRatio más alto para mejor calidad
-                const ratio = Math.max(window.devicePixelRatio || 1, 2); // Mínimo 2x
-                const rect = canvas.getBoundingClientRect();
-                
-                // Dimensiones base más grandes para mejor resolución final
-                const baseWidth = Math.max(rect.width, 400); // Ancho mínimo de 400px
-                const baseHeight = Math.max(150, 200); // Alto mínimo de 200px
-                
-                canvas.width = baseWidth * ratio;
-                canvas.height = baseHeight * ratio;
-                
-                // Aplicar el escalado al contexto
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 2);
+        const rect = canvas.getBoundingClientRect();
+        
+        const baseWidth = Math.max(rect.width, 400);
+        const baseHeight = Math.max(150, 200);
+        
+        canvas.width = baseWidth * ratio;
+        canvas.height = baseHeight * ratio;
+        
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+            ctx.scale(ratio, ratio);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+        }
+        
+        canvas.style.width = baseWidth + 'px';
+        canvas.style.height = baseHeight + 'px';
+
+        // 🔥 NUEVA FUNCIÓN: Recargar firma después de redimensionar
+        loadExistingSignature();
+    }
+
+    // 🔥 SOLUCIÓN: Función separada para cargar la firma existente
+    function loadExistingSignature() {
+        if (nuevoAprendiz.firma && signaturePad) {
+            const img = new Image();
+            img.src = nuevoAprendiz.firma;
+
+            img.onload = () => {
                 const ctx = canvas.getContext("2d");
-                if (ctx) {
-                    ctx.scale(ratio, ratio);
-                    // Mejorar la calidad del renderizado
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-                }
-                
-                // Mantener el tamaño visual del canvas
-                canvas.style.width = baseWidth + 'px';
-                canvas.style.height = baseHeight + 'px';
-            }
+                if (!ctx) return;
 
-            window.addEventListener("resize", resizeCanvas);
-            resizeCanvas();
+                // Limpiar el canvas manteniendo el fondo blanco
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transformaciones
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
 
-            signaturePad = new SignaturePad(canvas, {
-                penColor: "black",
-                backgroundColor: "white",
-                minWidth: 0.8,  // Líneas más finas para mejor definición
-                maxWidth: 3.5,  // Máximo un poco más alto
-                throttle: 0,    // Sin throttle para capturar más puntos
-                minDistance: 0.3, // Distancia mínima reducida para más suavidad
-                velocityFilterWeight: 0.1, // Filtro de velocidad para líneas más suaves
-                dotSize: 1.5    // Tamaño de puntos para mejor definición
-            });
+                // 🎯 CLAVE: Obtener las dimensiones visuales del canvas (sin escala)
+                const visualWidth = canvas.offsetWidth;
+                const visualHeight = canvas.offsetHeight;
 
-            // 🔘 Manejo radio buttons (sin cambios)
-            const radioSi = document.getElementById('discapacidad-si') as HTMLInputElement;
-            const radioNo = document.getElementById('discapacidad-no') as HTMLInputElement;
-            const detalleDiscapacidad = document.getElementById('detalle-discapacidad');
+                // Calcular escala para mantener proporción dentro del área visible
+                const scaleX = visualWidth / img.width;
+                const scaleY = visualHeight / img.height;
+                const scale = Math.min(scaleX, scaleY) * 0.9; // 0.9 para dejar un pequeño margen
 
-            const toggleDiscapacidadDetail = () => {
-                detalleDiscapacidad.style.display = radioSi.checked ? 'block' : 'none';
+                // Centrar la imagen en el área visual
+                const scaledWidth = img.width * scale;
+                const scaledHeight = img.height * scale;
+                const x = (visualWidth - scaledWidth) / 2;
+                const y = (visualHeight - scaledHeight) / 2;
+
+                // Dibujar la imagen con el tamaño correcto
+                ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+
+                // 📝 Importante: Marcar como "no vacío" para SignaturePad
+                // Esto previene que se considere vacío cuando se valide
+                (signaturePad as any)._isEmpty = false;
             };
 
-            radioSi.addEventListener('change', toggleDiscapacidadDetail);
-            radioNo.addEventListener('change', toggleDiscapacidadDetail);
-
-            limpiarBtn.addEventListener("click", () => {
-                signaturePad.clear();
-            });
-
-            // 🔥 Función mejorada para exportar firma en ultra alta calidad
-            (window as any).exportFirma = () => {
-                if (signaturePad.isEmpty()) return null;
-                
-                // Escala muy alta para PDF de calidad profesional
-                const exportScale = 10; // Escala 10x para máxima calidad
-                const originalCanvas = canvas;
-                
-                // Crear canvas temporal de alta resolución
-                const tempCanvas = document.createElement("canvas");
-                const tempCtx = tempCanvas.getContext("2d")!;
-                
-                // Dimensiones finales muy altas
-                tempCanvas.width = originalCanvas.width * exportScale;
-                tempCanvas.height = originalCanvas.height * exportScale;
-                
-                // Configurar contexto para máxima calidad
-                tempCtx.imageSmoothingEnabled = true;
-                tempCtx.imageSmoothingQuality = "high";
-                tempCtx.scale(exportScale, exportScale);
-                
-                // Fondo blanco para mejor contraste en PDF
-                tempCtx.fillStyle = "white";
-                tempCtx.fillRect(0, 0, originalCanvas.width, originalCanvas.height);
-                
-                // Dibujar la firma escalada
-                tempCtx.drawImage(originalCanvas, 0, 0);
-                
-                // Exportar como PNG de alta calidad
-                return tempCanvas.toDataURL("image/png", 1.0); // Calidad máxima
+            img.onerror = () => {
+                console.error('Error al cargar la firma existente');
             };
-        },
+        }
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    signaturePad = new SignaturePad(canvas, {
+        penColor: "black",
+        backgroundColor: "white",
+        minWidth: 0.8,
+        maxWidth: 3.5,
+        throttle: 0,
+        minDistance: 0.3,
+        velocityFilterWeight: 0.1,
+        dotSize: 1.5
+    });
+
+    // 🔥 LLAMAR A LA FUNCIÓN DESPUÉS DE INICIALIZAR SignaturePad
+    // Pequeño delay para asegurar que todo esté listo
+    setTimeout(loadExistingSignature, 100);
+
+    // Radio buttons (sin cambios)
+    const radioSi = document.getElementById('discapacidad-si') as HTMLInputElement;
+    const radioNo = document.getElementById('discapacidad-no') as HTMLInputElement;
+    const detalleDiscapacidad = document.getElementById('detalle-discapacidad');
+
+    const toggleDiscapacidadDetail = () => {
+        detalleDiscapacidad.style.display = radioSi.checked ? 'block' : 'none';
+    };
+
+    radioSi.addEventListener('change', toggleDiscapacidadDetail);
+    radioNo.addEventListener('change', toggleDiscapacidadDetail);
+
+    limpiarBtn.addEventListener("click", () => {
+        signaturePad.clear();
+    });
+
+    // Función exportar (sin cambios, ya está optimizada)
+    (window as any).exportFirma = () => {
+        if (signaturePad.isEmpty()) return null;
+        
+        const exportScale = 10;
+        const originalCanvas = canvas;
+        
+        const tempCanvas = document.createElement("canvas");
+        const tempCtx = tempCanvas.getContext("2d")!;
+        
+        tempCanvas.width = originalCanvas.width * exportScale;
+        tempCanvas.height = originalCanvas.height * exportScale;
+        
+        tempCtx.imageSmoothingEnabled = true;
+        tempCtx.imageSmoothingQuality = "high";
+        tempCtx.scale(exportScale, exportScale);
+        
+        tempCtx.fillStyle = "white";
+        tempCtx.fillRect(0, 0, originalCanvas.width, originalCanvas.height);
+        
+        tempCtx.drawImage(originalCanvas, 0, 0);
+        
+        return tempCanvas.toDataURL("image/png", 1.0);
+    };
+},
 
         didClose: () => {
             // Asegurar que el body vuelva a la normalidad
