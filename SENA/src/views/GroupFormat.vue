@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import axios from "axios";
 import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
-<<<<<<< HEAD
+import TablesAprendiz from '../components/GROUPFORMAT/TablesAprendiz.vue';
 import { authService } from '../services/auth_service';
-=======
-import GroupInstructions from '../components/GroupInstructions.vue'
->>>>>>> ca60b1d4283dad79a550d5162d2e3994b7bedb73
 
 // Interfaces
 interface Aprendiz {
@@ -21,6 +18,8 @@ interface Aprendiz {
   correo: string
   direccion: string
   estado: string
+  editado?: boolean
+  firma?: string
 }
 
 interface Usuario {
@@ -78,6 +77,7 @@ const usuarioGenerador = ref<UsuarioGenerador>({
 
 
 const aprendices = ref<Aprendiz[]>([])
+const aprendices_editados = ref<Aprendiz[]>([])
 let ficha = ref<string>('');
 const busquedaRealizada = ref(false);
 const mostrarResultados = ref(false);
@@ -95,6 +95,15 @@ const router = useRouter()
 const currentUser = ref<Usuario | null>(null)
 
 const isFormReadonly = ref(true) // Para hacer los campos de solo lectura inicialmente
+
+// Computed para separar aprendices editados y no editados
+const aprendicesNoEditados = computed(() => 
+  aprendices.value.filter(a => !a.editado)
+)
+
+const aprendicesEditados = computed(() => 
+  aprendices.value.filter(a => a.editado)
+)
 
 // Función para obtener los datos del usuario logueado
 const getCurrentUser = (): Usuario | null => {
@@ -181,7 +190,7 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
 
   try {
     await new Promise(resolve => setTimeout(resolve, 800));
-    const respuesta = await axios.get(`http://127.0.0.1:8000/ficha/${codigoFicha}/aprendices`);
+    const respuesta = await axios.get(`http://127.0.0.1:8000/ficha/${codigoFicha}/aprendices`);                                       
 
     if(respuesta.data.archivo_existente) {
       Swal.fire({
@@ -252,8 +261,9 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
 });
       return;
     }
-
     aprendices.value = respuesta.data.aprendices;
+
+    
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
 
@@ -266,6 +276,11 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
     cargando.value = false;
   }
 }
+
+watch(aprendices, (newVal) => {
+  aprendices_editados.value = newVal.filter(a => a.editado);
+}, { immediate: true });
+
 
 const consultarFicha = async () => {
   if (ficha.value.trim() !== '') {
@@ -292,19 +307,42 @@ const volverABusqueda = () => {
   ficha.value = '';
 }
 
+// Función para manejar la edición desde el componente tabla
+const manejarEdicionAprendiz = (aprendiz: Aprendiz) => {
+  console.log('Editando aprendiz desde', aprendiz.nombre)
+  aprendizSeleccionado.value = aprendiz
+  mostrarModal.value = true
+  bloquearScroll()
+}
+
+// Función para manejar errores de carga desde el componente tabla
+const manejarErrorCarga = (error: any) => {
+  console.error('Error desde tabla:', error)
+    Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: error,
+    scrollbarPadding: false,
+    heightAuto: false,
+    didOpen: () => {
+      document.body.style.paddingRight = '';
+      document.body.style.overflow = '';
+    }
+  });
+}
+
+// Función para manejar cuando se cierra el modal desde el componente tabla
+const manejarModalCerrado = () => {
+  console.log('Modal cerrado desde tabla')
+  cerrarModal()
+}
+
 const bloquearScroll = () => {
   document.body.style.overflow = 'hidden'
 }
 
 const desbloquearScroll = () => {
   document.body.style.overflow = ''
-}
-
-function abrirModal(aprendiz: Aprendiz) {
-  console.log('Aprendiz seleccionado:', aprendiz)
-  aprendizSeleccionado.value = { ...aprendiz }
-  mostrarModal.value = true
-  bloquearScroll()
 }
 
 function actualizarAprendiz(datosEditados) {
@@ -462,14 +500,6 @@ function cerrarModal() {
   desbloquearScroll()
 }
 
-// Watcher para detectar cambios en mostrarModal
-watch(mostrarModal, (nuevoValor) => {
-  if (nuevoValor) {
-    bloquearScroll()
-  } else {
-    desbloquearScroll()
-  }
-})
 
 function irAInstructor(){
   router.back()
@@ -555,174 +585,153 @@ onMounted(() => {
         </button>
       </div>
       
-      <!-- Tabla optimizada -->
-      <Transition name="table-fade">
-        <div v-if="aprendices.length > 0" class="table-wrapper">
-          <div class="table-container">
-            <table class="modern-table">
-              <thead>
-                <tr class="table-header">
-                  <th class="th-number">#</th>
-                  <th class="th-documento">Tipo Doc.</th>
-                  <th class="th-numero">Número</th>
-                  <th class="th-nombre">Nombre</th>
-                  <th class="th-apellidos">Apellidos</th>
-                  <th class="th-celular">Celular</th>
-                  <th class="th-correo">Correo</th>
-                  <th class="th-estado">Estado</th>
-                  <th class="th-accion">Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr 
-                  v-for="(item, index) in aprendices" 
-                  :key="item.documento" 
-                  class="table-row"
-                  :style="{ 'animation-delay': `${index * 0.05}s` }"
-                >
-                  <td class="td-number">{{ index + 1 }}</td>
-                  <td class="td-documento">
-                    <span class="document-badge">{{ item.tipo_documento }}</span>
-                  </td>
-                  <td class="td-numero">{{ item.documento }}</td>
-                  <td class="td-nombre">{{ item.nombre }}</td>
-                  <td class="td-apellidos">{{ item.apellido }}</td>
-                  <td class="td-celular">{{ item.celular }}</td>
-                  <td class="td-correo">{{ item.correo }}</td>
-                  <td class="td-estado">
-                    <span 
-                      class="status-badge" 
-                      :class="[item.estado.toLowerCase()]"
-                    >
-                      {{ item.estado }}
-                    </span>
-                  </td>
-                  <td class="td-accion">
-                    <button 
-                      class="edit-button" 
-                      @click="abrirModal(item)"
-                      :title="`Editar ${item.nombre}`"
-                    >
-                      <i class="fa-solid fa-edit"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <!-- TABLA DE APRENDICES NO EDITADOS - Usando componente reutilizable -->
+      <TablesAprendiz
+        v-if="aprendicesNoEditados.length > 0"
+        :aprendices="aprendicesNoEditados"
+        titulo="Aprendices disponibles"
+        @editar-aprendiz="manejarEdicionAprendiz"
+        @modal-cerrado="manejarModalCerrado"
+        @error-carga="manejarErrorCarga"
+      >
 
-          <!-- Formulario del generador -->
-          <div class="user-generator-form">
-            <div class="form-header">
-              <h3 class="form-title">
-                <i class="fa-solid fa-user-gear"></i>
-                Información del generador del reporte
-              </h3>
-              
-              <!-- Botones de control (opcional) -->
-              <div class="form-controls">
-                <button 
-                  @click="toggleEditMode" 
-                  class="btn-edit"
-                  type="button"
-                >
-                  <i class="fa-solid" :class="isFormReadonly ? 'fa-edit' : 'fa-lock'"></i>
-                  {{ isFormReadonly ? 'Editar' : 'Bloquear' }}
-                </button>
-                
-                <button 
-                  @click="resetToUserData" 
-                  class="btn-reset"
-                  type="button"
-                  v-if="!isFormReadonly"
-                >
-                  <i class="fa-solid fa-refresh"></i>
-                  Restaurar
-                </button>
-              </div>
-            </div>
+      </TablesAprendiz>
+
+      <!-- TABLA DE APRENDICES EDITADOS - Usando el mismo componente -->
+      <div v-if="aprendicesEditados.length > 0" class="edited-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-edit"></i>
+          Aprendices Editados ({{ aprendicesEditados.length }})
+        </h3>
+        
+        <TablesAprendiz
+          :aprendices="aprendicesEditados"
+          titulo="Aprendices editados"
+          :mostrar-solo-no-editados="false"
+          @editar-aprendiz="manejarEdicionAprendiz"
+          @modal-cerrado="manejarModalCerrado"
+          @error-carga="manejarErrorCarga"
+        />
+      </div>
+
+      <!-- Formulario del generador -->
+      <div class="user-generator-form">
+        <div class="form-header">
+          <h3 class="form-title">
+            <i class="fa-solid fa-user-gear"></i>
+            Información del generador del reporte
+          </h3>
+          
+          <div class="form-controls">
+            <button 
+              @click="toggleEditMode" 
+              class="btn-edit"
+              type="button"
+            >
+              <i class="fa-solid" :class="isFormReadonly ? 'fa-edit' : 'fa-lock'"></i>
+              {{ isFormReadonly ? 'Editar' : 'Bloquear' }}
+            </button>
             
-            
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">Nombre</label>
-                <input 
-                  v-model="usuarioGenerador.nombre" 
-                  placeholder="Ingrese su nombre" 
-                  class="form-input"
-                  :readonly="isFormReadonly"
-                  :class="{ 'readonly': isFormReadonly }"
-                >
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label">Apellidos</label>
-                <input 
-                  v-model="usuarioGenerador.apellidos" 
-                  placeholder="Ingrese sus apellidos" 
-                  class="form-input"
-                  :readonly="isFormReadonly"
-                  :class="{ 'readonly': isFormReadonly }"
-                >
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label">Correo electrónico</label>
-                <input 
-                  v-model="usuarioGenerador.correo" 
-                  placeholder="correo@ejemplo.com" 
-                  class="form-input"
-                  type="email"
-                  :readonly="isFormReadonly"
-                  :class="{ 'readonly': isFormReadonly }"
-                >
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label">Rol</label>
-                <select 
-                  v-model="usuarioGenerador.rol" 
-                  class="form-select"
-                  :disabled="isFormReadonly"
-                  :class="{ 'readonly': isFormReadonly }"
-                >
-                  <option value="">Seleccionar rol</option>
-                  <option value="INSTRUCTOR">Instructor</option>
-                  <option value="ADMINISTRADOR">Administrador</option>
-                  <option value="coordinador">Coordinador</option>
-                </select>
-              </div>
-            </div>
-
-            <h3 class="form-title">
-              <i class="fa-solid  fa-file-lines"></i>
-              Información Adicional Requerida
-            </h3>
- 
-            <label class="form-label">Nivel de formación</label>
-              <input v-model="informacionAdicional.nivel_formacion" class="form-input" type="text">
-
-            <label class="form-label">Modalidad de formación</label>
-              <input v-model="informacionAdicional.modalidad_formacion" class="form-input" type="text">
-              
-            <label class="form-label">Trimestre</label>
-              <input v-model="informacionAdicional.trimestre" class="form-input" type="text">
-
-            <label class="form-label">Fecha de inicio de etapa productiva</label>
-              <input v-model="informacionAdicional.fecha_inicio_etapa_productiva" class="form-input" type="date">
-
-            <label class="form-label">Jornada</label>
-              <input v-model="informacionAdicional.jornada" class="form-input" type="text">
-            </div>
-
-
-            
-            <button @click="exportarAprendices" class="export-button">
-              <i class="fa-solid fa-download"></i>
-              Generar y Descargar Reporte
+            <button 
+              @click="resetToUserData" 
+              class="btn-reset"
+              type="button"
+              v-if="!isFormReadonly"
+            >
+              <i class="fa-solid fa-refresh"></i>
+              Restaurar
             </button>
           </div>
-      </Transition>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input 
+              v-model="usuarioGenerador.nombre" 
+              placeholder="Ingrese su nombre" 
+              class="form-input"
+              :readonly="isFormReadonly"
+              :class="{ 'readonly': isFormReadonly }"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Apellidos</label>
+            <input 
+              v-model="usuarioGenerador.apellidos" 
+              placeholder="Ingrese sus apellidos" 
+              class="form-input"
+              :readonly="isFormReadonly"
+              :class="{ 'readonly': isFormReadonly }"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Correo electrónico</label>
+            <input 
+              v-model="usuarioGenerador.correo" 
+              placeholder="correo@ejemplo.com" 
+              class="form-input"
+              type="email"
+              :readonly="isFormReadonly"
+              :class="{ 'readonly': isFormReadonly }"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Rol</label>
+            <select 
+              v-model="usuarioGenerador.rol" 
+              class="form-select"
+              :disabled="isFormReadonly"
+              :class="{ 'readonly': isFormReadonly }"
+            >
+              <option value="">Seleccionar rol</option>
+              <option value="INSTRUCTOR">Instructor</option>
+              <option value="ADMINISTRADOR">Administrador</option>
+              <option value="coordinador">Coordinador</option>
+            </select>
+          </div>
+        </div>
+
+        <h3 class="form-title">
+          <i class="fa-solid fa-file-lines"></i>
+          Información Adicional Requerida
+        </h3>
+
+        <div class="additional-info-grid">
+          <div class="form-group">
+            <label class="form-label">Nivel de formación</label>
+            <input v-model="informacionAdicional.nivel_formacion" class="form-input" type="text">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Modalidad de formación</label>
+            <input v-model="informacionAdicional.modalidad_formacion" class="form-input" type="text">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Trimestre</label>
+            <input v-model="informacionAdicional.trimestre" class="form-input" type="text">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha de inicio de etapa productiva</label>
+            <input v-model="informacionAdicional.fecha_inicio_etapa_productiva" class="form-input" type="date">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Jornada</label>
+            <input v-model="informacionAdicional.jornada" class="form-input" type="text">
+          </div>
+        </div>
+      </div>
+
+      <button @click="exportarAprendices" class="export-button">
+        <i class="fa-solid fa-download"></i>
+        Generar y Descargar Reporte
+      </button>
 
       <!-- Mensaje sin resultados -->
       <Transition name="fade" appear>
@@ -739,7 +748,7 @@ onMounted(() => {
     </section>
   </Transition>
 
-  <!-- Modal de edición -->
+  <!-- Modal de edición independiente (mantener tu modal actual) -->
   <EditAprendizModal 
     :aprendiz="aprendizSeleccionado" 
     :mostrar="mostrarModal" 
