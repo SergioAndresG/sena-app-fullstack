@@ -88,6 +88,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     if (!nuevoAprendiz) return;
 
     const esIndividual = (nuevoAprendiz as any).modalidad === 'individual';
+        console.log('Datos del aprendiz al abrir el modal:', nuevoAprendiz);
 
     const { value: formData } = await Swal.fire({
         title: 'Editar Aprendiz',
@@ -243,11 +244,11 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
         canvas.style.width = baseWidth + 'px';
         canvas.style.height = baseHeight + 'px';
 
-        // 🔥 NUEVA FUNCIÓN: Recargar firma después de redimensionar
+        // NUEVA FUNCIÓN: Recargar firma después de redimensionar
         loadExistingSignature();
     }
 
-    // 🔥 SOLUCIÓN: Función separada para cargar la firma existente
+    // SOLUCIÓN: Función separada para cargar la firma existente
     function loadExistingSignature() {
         if (nuevoAprendiz.firma && signaturePad) {
             const img = new Image();
@@ -366,28 +367,56 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             const documento = document.getElementById('numero-doc') as HTMLInputElement;
             const nombre = document.getElementById('nombre') as HTMLInputElement;
             const apellido = document.getElementById('apellidos') as HTMLInputElement;
+
             const direccion = document.getElementById('direccion') as HTMLInputElement;
+            if (direccion.value === "") {
+                Swal.showValidationMessage('La dirección es obligatoria');
+                return false;
+            }
+
             // Solo leemos depto/municipio si es individual; si no, los dejamos vacíos
             const departamentoEl = esIndividual ? document.getElementById('departamento') as HTMLInputElement : null;
             const municipioEl = esIndividual ? document.getElementById('municipio') as HTMLInputElement : null;
             const correo = document.getElementById('correo') as HTMLInputElement;
             const celular = document.getElementById('celular') as HTMLInputElement;
+
+
+            if (nombre.value.trim() === "" || apellido.value.trim() === "" || correo.value.trim() === "") {
+                Swal.showValidationMessage('Los campos de nombre, apellidos y correo son obligatorios');
+                return false
+            }
+
             const discapacidadSi = document.getElementById('discapacidad-si') as HTMLInputElement;
-            const discapacidad = discapacidadSi.checked ? 'Si' : 'No';
+            const discapacidadNO = document.getElementById('discapacidad-no') as HTMLInputElement;
             const tipo_discapacidad = document.getElementById('tipo-disc') as HTMLInputElement;
+
+
+
+            let discapacidadSeleccionada = 'No'
+             if (discapacidadSi.checked) {
+                discapacidadSeleccionada = 'Si'
+             } else if (discapacidadNO.checked){
+                discapacidadSeleccionada = 'No'
+             } else {
+                Swal.showValidationMessage('Debe selccionar si tiene alguna discapacidad');
+                return false
+             }
+
+             if (discapacidadSeleccionada == 'Si' && !tipo_discapacidad.value.trim()) {
+                Swal.showValidationMessage('Debe especifcar el tipo de discapacidad');
+                return false
+             }
+
+
             // 📋 Uso mejorado al obtener los datos
             const firmaData = signaturePad.isEmpty()
                 ? null
                 : (window as any).exportFirma(); // Para PNG de alta calidad
-
-            if (!nombre.value.trim() || !correo.value.trim()) {
-                Swal.showValidationMessage('Nombre y correo son obligatorios');
+            
+            if (!firmaData) {
+                Swal.showValidationMessage('La firma es obligatoria');
                 return false;
-            }
-
-            if (discapacidad === 'Si' && !tipo_discapacidad.value.trim()) {
-                Swal.showValidationMessage('Debe especificar el tipo de discapacidad');
-                return false;
+                
             }
 
             return {
@@ -401,8 +430,8 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
                 municipio: esIndividual ? (municipioEl?.value.trim() || '') : '',
                 correo: correo.value.trim(),
                 celular: celular.value.trim(),
-                discapacidad: discapacidad,
-                tipo_discapacidad: discapacidad === 'Si' ? tipo_discapacidad.value.trim() : null,
+                discapacidad: discapacidadSeleccionada,
+                tipo_discapacidad: discapacidadSeleccionada === 'Si' ? tipo_discapacidad.value.trim() : null,
                 firma: firmaData
             };
 
