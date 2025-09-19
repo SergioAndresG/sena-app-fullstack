@@ -61,12 +61,13 @@ const router = useRouter()
 
 //Redireccionar al formato grupal
 function irAGrupal() {
-  router.back()
+  router.push('/groupformat')
 }
+
 
 //Redireccionar al formato individual
 function irAIndividual() {
-  router.back()
+  router.push('/individualformat')
 }
 
 </script>
