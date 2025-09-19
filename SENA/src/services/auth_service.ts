@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = 'http://127.0.0.1:8000'
 
 export const authService = {
   // Configurar el token en axios
@@ -40,7 +40,7 @@ export const authService = {
       
       this.setAuthToken(token)
       
-      const response = await axios.get(`${API_BASE_URL}/me/`) // Necesitas crear este endpoint
+      const response = await axios.get(`${API_BASE_URL}/me/`)
       return response.data
     } catch (error) {
       console.error('Error al obtener usuario del servidor:', error)

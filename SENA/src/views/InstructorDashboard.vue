@@ -64,6 +64,7 @@ function irAGrupal() {
   router.push('/groupformat')
 }
 
+
 //Redireccionar al formato individual
 function irAIndividual() {
   router.push('/individualformat')
