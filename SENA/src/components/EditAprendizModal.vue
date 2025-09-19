@@ -77,6 +77,7 @@ async function envioDatosAprendiz(aprendiz) {
 const props = defineProps<{
     aprendiz: Aprendiz | null;
     mostrar: boolean;
+    esIndividual: boolean;
 }>()
 
 const emit = defineEmits<{
