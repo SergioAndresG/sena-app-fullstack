@@ -388,7 +388,7 @@ const handleLogin = async () => {
     
     // Reset attempts
     attemptsRemaining.value = 5
-    
+      const rol = user.rol.trim().toUpperCase()
       if (user.rol === 'ADMINISTRADOR') {
         router.push('/admin')
       } else if (user.rol === 'INSTRUCTOR') {
