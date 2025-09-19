@@ -168,7 +168,6 @@ const cambiarContraseñaInstructor = async () => {
       <div style="text-align: left; margin-top: 20px;">
         <h4 style="color: #10b981; margin-bottom: 15px;">Información del Usuario:</h4>
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-          <p style="margin: 8px 0;"><strong>ID:</strong> ${userData.id || props.userId}</p>
           <p style="margin: 8px 0;"><strong>Nombre:</strong> ${userData.nombre || props.selectedUser?.nombre || 'N/A'}</p>
           <p style="margin: 8px 0;"><strong>Apellidos:</strong> ${userData.apellidos || props.selectedUser?.apellidos || 'N/A'}</p>
           <p style="margin: 8px 0;"><strong>Correo:</strong> ${userData.correo || props.selectedUser?.correo || 'N/A'}</p>
