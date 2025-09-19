@@ -1,4 +1,3 @@
-<!-- InstructorModal.vue -->
 <template>
   <Teleport to="body">
     <Transition name="modal" appear>
@@ -102,6 +101,27 @@
                 </div>
               </div>
 
+              <!-- Sección de información del usuario -->
+              <div class="input-group" v-if="props.selectedUser">
+                <label class="input-label">
+                  Cambiar contraseña del usuario 
+                  <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </label>
+                <div class="info-section">
+                    <button 
+                      type="button"
+                      @click="openModalInfo"
+                      class="info-button"
+                      :disabled="isLoading"
+                    >
+                      <i class="fa-solid fa-circle-info"></i>
+                      Cambiar contraseña
+                    </button>
+                </div>
+              </div>
+
               <!-- Botones -->
               <div class="button-group">
                 <button 
@@ -130,13 +150,24 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Modal de información del usuario -->
+    <InfoUsers 
+      v-model="showModalRequest" 
+      :user-id="selectedUserId" 
+      :selected-user="currentUserForInfo" 
+      :require-password="true"
+      @instructor-request="handleInstructorRequest" 
+      @user-request="handleUserRequest"
+    />
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import InfoUsers from './InfoUsers.vue'; // Ajusta la ruta según tu estructura
 
 interface Instructor {
   id?: number;
@@ -147,13 +178,27 @@ interface Instructor {
   contraseña?: string;
 }
 
+interface User {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  correo: string;
+  rol: string;
+}
+
 // Props
 interface Props {
   modelValue: boolean;
-  selectedUser: Instructor | null;
+  userId?: number | null;
+  selectedUser?: User | null;
+  requirePassword?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  userId: null,
+  selectedUser: null,
+  requirePassword: false
+});
 
 // Emits
 const emit = defineEmits<{
@@ -172,6 +217,22 @@ const instructor = ref<Instructor>({
 });
 
 const isLoading = ref(false);
+const showModalRequest = ref(false);
+const selectedUserId = ref<number | null>(null);
+
+// Computed para crear un objeto User compatible con InfoUsers
+const currentUserForInfo = computed((): User | null => {
+  if (props.selectedUser) {
+    return {
+      id: props.selectedUser.id,
+      nombre: props.selectedUser.nombre,
+      apellidos: props.selectedUser.apellidos,
+      correo: props.selectedUser.correo,
+      rol: props.selectedUser.rol
+    };
+  }
+  return null;
+});
 
 const resetForm = () => {
   instructor.value = {
@@ -180,6 +241,16 @@ const resetForm = () => {
     correo: '',
     rol: 'INSTRUCTOR',
   };
+};
+
+const handleInstructorRequest = (userId: number) => {
+  console.log('Instructor consultado:', userId);
+  // Aquí puedes manejar la respuesta si necesitas actualizar algo
+};
+
+const handleUserRequest = (user: User) => {
+  console.log('Usuario consultado:', user);
+  // Aquí puedes manejar la información del usuario si la necesitas
 };
 
 // Inicializar formulario con datos del usuario seleccionado
@@ -196,6 +267,21 @@ watch(() => props.selectedUser, (newUser) => {
     resetForm();
   }
 }, { immediate: true });
+
+// Función corregida para abrir el modal de información
+const openModalInfo = () => {
+  if (props.selectedUser?.id) {
+    selectedUserId.value = props.selectedUser.id;
+    showModalRequest.value = true;
+  } else {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Usuario no seleccionado',
+      text: 'No hay un usuario seleccionado para mostrar información.',
+      confirmButtonColor: '#3b82f6',
+    });
+  }
+};
 
 // Métodos
 const closeModal = () => {
@@ -218,6 +304,7 @@ const guardarInstructor = async () => {
 
     isLoading.value = true;
     let respuesta;
+    
     if (props.selectedUser && instructor.value.id) {
       // Actualizar usuario existente
       respuesta = await axios.put(`http://127.0.0.1:8000/usuarios/${instructor.value.id}/`, instructor.value);
@@ -251,12 +338,12 @@ const guardarInstructor = async () => {
         reverseButtons: true,
       }).then((result) => {
         if (result.isDismissed) {
-          // Aquí se descarga si presiona "Descargar Credenciales"
           downloadCredentials(respuesta.data.correo, respuesta.data.contraseña || '');
         }
       });
       emit('instructor-added', { ...instructor.value, id: respuesta.data.id });
     }
+    
     // Limpiar formulario y cerrar modal
     resetForm();
     closeModal();
@@ -379,7 +466,22 @@ watch(() => props.modelValue, (newValue) => {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
+.info-button {
+  background: linear-gradient(145deg, #1ed0b9, #1aa59a);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  margin: 5px;
+}
+.fa-circle-info{
+  margin: 5px;
+}
 .close-button svg {
   width: 1.25rem;
   height: 1.25rem;
