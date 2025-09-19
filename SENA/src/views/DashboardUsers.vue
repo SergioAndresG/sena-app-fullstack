@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AddUser from '../components/USERS/AddUsers.vue'
 import DeleteUsers from '../components/USERS/DeleteUsers.vue';
+import InfoUsers from '../components/USERS/InfoUsers.vue';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
@@ -22,6 +23,7 @@ const showModal = ref(false);
 const selectedUser = ref<User | null>(null);
 const searchQuery = ref('');
 const showModalDelete = ref(false);
+const showModalRequest = ref(false);
 const selectedUserId = ref<number | null>(null);
 const isDeleting = ref(false);
 const searchTerm = ref("")
@@ -31,6 +33,12 @@ const openDeleteModal = (user: User) => {
   selectedUserId.value = user.id;
   selectedUser.value = user;
   showModalDelete.value = true;
+};
+
+const openMoldalInfo = (user: User) => {
+  selectedUserId.value = user.id;
+  selectedUser.value = user;
+  showModalRequest.value = true;
 };
 
 // Abrir modal para agregar nuevo usuario
@@ -52,6 +60,12 @@ const handleInstructorAdded = (newInstructor) => {
   // Actualizar tu lista, hacer refetch, etc.
   cargarUsuarios();
 
+}
+
+const handleInstructorRequest = (newInstructor) => {
+  console.log('Instructor consultado')
+  // Actualizar tu lista, hacer refetch, etc.
+  cargarUsuarios();
 }
 
 const handleInstructorUpdate = (updatedInstructor) => {
@@ -167,34 +181,90 @@ function irAAdmin(){
 </template>
 
 <style scoped>
+:root {
+  --primary-color: #10b981;
+  --primary-dark: #059669;
+  --secondary-color: #6366f1;
+  --background-light: #f8fafc;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .dashboard-container {
   min-height: 100vh;
   background-color: #ffffff;
 }
+.fa-circle-info{
+  background: linear-gradient(135deg, #555 0%, var(--primary-dark) 100%);
+  color: white;
+  margin-left: 14rem;
+  border: none;
+  padding: 6px 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-md);
+  font-size: 0.9rem;
+}
+.fa-circle-info:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.tooltip-info {
+  position: relative; /* el padre controla dónde se ubica el tooltip */
+  display: inline-block;
+}
+
+.tooltip-text-info {
+  visibility: hidden;
+  width: max-content; /* se ajusta al texto */
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+
+  /* posicionamiento debajo */
+  position: absolute;
+  top: 120%; /* un poco más abajo del ícono */
+  left: 91%;
+  transform: translateX(-50%);
+
+  /* transición */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip-info:hover .tooltip-text-info {
+  visibility: visible;
+  opacity: 1;
+}
 
 .right-buttons{
-    margin-right: 20px;
-  }
-
+  margin-right: 20px;
+}
 .main-content {
   padding: 2rem;
   max-width: 1000px;
   margin: 0 auto;
   margin-top: 80px;
 }
-
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
 }
-
 .dashboard-header h1 {
   margin: auto;
   font-size: 2.5rem;
 }
-
 .actions {
   display: flex;
   align-items: center;
@@ -202,13 +272,11 @@ function irAAdmin(){
   gap: 1rem;
   flex-wrap: wrap;
 }
-
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
 }
-
 .search-input {
   padding: 0.5rem 1rem;
   border: 1px solid #ddd;
@@ -217,7 +285,6 @@ function irAAdmin(){
   font-size: 0.9rem;
   margin: 10px;
 }
-
 .search-icon {
   position: absolute;
   left: 8px;
