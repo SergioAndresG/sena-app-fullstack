@@ -68,7 +68,7 @@ interface AprendizParaExportar {
 }
 
 const usuarioGenerador = ref<UsuarioGenerador>({
-    id: 0,
+  id: 0,
   nombre: '',
   apellidos: '',
   correo: '',
@@ -77,7 +77,7 @@ const usuarioGenerador = ref<UsuarioGenerador>({
 
 
 const aprendices = ref<Aprendiz[]>([])
-const aprendices_editados = ref<Aprendiz[]>([])
+const aprendices_editados = ref<AprendizParaExportar[]>([])
 let ficha = ref<string>('');
 const busquedaRealizada = ref(false);
 const mostrarResultados = ref(false);
@@ -91,7 +91,6 @@ const aprendicesExportar = ref<AprendizParaExportar[]>([]);
 const modalidad = 'grupal'
 const router = useRouter()
 
-
 const currentUser = ref<Usuario | null>(null)
 
 const isFormReadonly = ref(true) // Para hacer los campos de solo lectura inicialmente
@@ -100,58 +99,25 @@ const isFormReadonly = ref(true) // Para hacer los campos de solo lectura inicia
 const aprendicesNoEditados = computed(() => 
   aprendices.value.filter(a => !a.editado)
 )
-
 const aprendicesEditados = computed(() => 
   aprendices.value.filter(a => a.editado)
 )
 
-// Función para obtener los datos del usuario logueado
-const getCurrentUser = (): Usuario | null => {
-  try {
-    const userStr = localStorage.getItem('user')
-    if (userStr) {
-      return JSON.parse(userStr)
-    }
-    return null
-  } catch (error) {
-    console.error('Error al obtener datos del usuario:', error)
-    return null
-  }
-}
 
-// Función para verificar si el token es válido
-const isTokenValid = (): boolean => {
-  const token = localStorage.getItem('access_token')
-  if (!token) return false
-  
-  try {
-    // Decodificar el JWT para verificar si no ha expirado
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    const currentTime = Date.now() / 1000
-    
-    return payload.exp > currentTime
-  } catch (error) {
-    console.error('Error al verificar token:', error)
-    return false
-  }
-}
+const getCurrentUser = () => authService.getCurrentUserFromStorage()
+const isTokenValid = () => authService.isTokenValid()
 
-// Función para cargar los datos del usuario automáticamente
+
+
 const loadUserData = () => {
-  // Verificar si hay un token válido
-  if (!isTokenValid()) {
-    // Redirigir al login si no hay token válido
+  if (!authService.isTokenValid()) {
     router.push('/')
     return
   }
   
-  // Obtener datos del usuario
-  const user = getCurrentUser()
-  
+  const user = authService.getCurrentUserFromStorage()
   if (user) {
     currentUser.value = user
-    
-    // Autocompletar el formulario con los datos del usuario
     usuarioGenerador.value = {
       id: user.id || 0,
       nombre: user.nombre,
@@ -159,10 +125,7 @@ const loadUserData = () => {
       correo: user.correo,
       rol: user.rol
     }
-    
-    console.log('Datos del usuario cargados automáticamente:', user)
   } else {
-    // Si no hay datos de usuario, redirigir al login
     router.push('/')
   }
 }
@@ -263,30 +226,57 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
     aprendices.value = respuesta.data.aprendices;
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
+        aprendicesExportar.value = respuesta.data.aprendices
+    .filter(a => a.editado)
+    .map(ap => ({
+      tipo_documento: ap.tipo_documento,
+      documento: ap.documento,
+      nombre: ap.nombre,
+      apellido: ap.apellido,
+      direccion: ap.direccion || '', 
+      correo: ap.correo,
+      celular: ap.celular,
+      discapacidad: 'No', 
+      tipo_discapacidad: 'N/A', 
+      modalidad: modalidad,
+      firma: ap.firma || '' 
+    }));
+    console.log("Aprendices para editados:", aprendices.value)
+
   }
 });
       return;
     }
     aprendices.value = respuesta.data.aprendices;
-
-    
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
 
+    aprendicesExportar.value = respuesta.data.aprendices
+    .filter(a => a.editado)
+    .map(ap => ({
+      tipo_documento: ap.tipo_documento,
+      documento: ap.documento,
+      nombre: ap.nombre,
+      apellido: ap.apellido,
+      direccion: ap.direccion || '', 
+      correo: ap.correo,
+      celular: ap.celular,
+      discapacidad: 'No', 
+      tipo_discapacidad: 'N/A', 
+      modalidad: modalidad,
+      firma: ap.firma || '' 
+    }));
+
   } catch (error) {
-    console.error('Error al cargar los aprendices ', error);
     aprendices.value = []
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
+
   } finally {
     cargando.value = false;
+
   }
 }
-
-watch(aprendices, (newVal) => {
-  aprendices_editados.value = newVal.filter(a => a.editado);
-}, { immediate: true });
-
 
 const consultarFicha = async () => {
   if (ficha.value.trim() !== '') {
@@ -359,10 +349,13 @@ function actualizarAprendiz(datosEditados) {
     a.documento === aprendizSeleccionado.value?.documento
   )
 
+ 
+
   if (index !== -1) {
     aprendices.value[index] = {
       ...aprendices.value[index],
-      ...datosEditados
+      ...datosEditados,
+      editado: true
     }
 
     const datosParaExportar = {
@@ -389,6 +382,7 @@ function actualizarAprendiz(datosEditados) {
 }
 
 function exportarAprendices() {
+  console.log("Aprendices a exportar", aprendicesExportar.value)
   if (aprendicesExportar.value.length === 0) {
     Swal.fire({
       icon: "info",
@@ -406,6 +400,8 @@ function exportarAprendices() {
     });
     return;
   }
+
+
 
   if (!usuarioGenerador.value.nombre || !usuarioGenerador.value.apellidos || !usuarioGenerador.value.rol) {
     Swal.fire({
@@ -428,7 +424,8 @@ function exportarAprendices() {
   const datosParaEnviar = {
     modalidad: 'grupal',
     ficha: ficha.value,
-    aprendices: aprendicesExportar.value.map(ap => ({
+    aprendices: aprendicesExportar.value
+    .map(ap => ({
       tipo_documento: ap.tipo_documento,
       documento: ap.documento,
       nombre: ap.nombre,
@@ -456,6 +453,7 @@ function exportarAprendices() {
     }
   };
 
+
   axios.post("http://127.0.0.1:8000/exportar-f165", datosParaEnviar, {
     responseType: 'blob'
   }).then(res => {
@@ -465,6 +463,7 @@ function exportarAprendices() {
     link.setAttribute('download', `formato_F165_ficha_${ficha.value}.xlsx`);
     document.body.appendChild(link);
     link.click();
+    volverABusqueda();
     
     Swal.fire({
       icon: "success",
@@ -527,7 +526,7 @@ function irAInstructor(){
 }
 
 onMounted(() => {
-  loadUserData();
+  loadUserData();  
 });
 </script>
 
@@ -711,7 +710,6 @@ onMounted(() => {
               <option value="">Seleccionar rol</option>
               <option value="INSTRUCTOR">Instructor</option>
               <option value="ADMINISTRADOR">Administrador</option>
-              <option value="coordinador">Coordinador</option>
             </select>
           </div>
         </div>
