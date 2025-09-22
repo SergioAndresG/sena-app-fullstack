@@ -14,6 +14,7 @@ interface Aprendiz {
   estado: string;
   editado?: boolean;
   firma?: string;
+  modalidad?: 'individual' | 'grupal';
 }
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
   titulo?: string;
   rowClass?: string;
   mostrarSoloNoEditados?: boolean;
+  esIndividual?: boolean;
 }
 
 interface Emits {
@@ -39,34 +41,27 @@ const cargandoDatos = ref(false)
 
 
 async function abrirModal(aprendiz: Aprendiz) {
-  if (aprendiz.editado) {
-    try {
-    cargandoDatos.value = true
-    const respuesta = await axios.get(`http://127.0.0.1:8000/aprendices/${aprendiz.documento}`)
-    const datosFrescos = respuesta.data.aprendiz || respuesta.data
-
-    emit('editarAprendiz', {...datosFrescos})
-    } catch (error) {
-      console.error('Error al obtener datos frescos del aprendiz:', error)
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "No se pudieron cargar los datos del aprendiz. Inténtalo de nuevo.",
-        willOpen: () => {
-          document.body.style.paddingRight = '0px';
-        },
-        didClose: () => {
-          document.body.style.paddingRight = '';
-        }
-      });
-      return;
+  const modalidad = props.esIndividual ? 'individual' : 'grupal';
+  try {
+    if (aprendiz.editado) {
+      cargandoDatos.value = true;
+      const respuesta = await axios.get(`http://127.0.0.1:8000/aprendices/${aprendiz.documento}`);
+      const datosFrescos = respuesta.data.aprendiz || respuesta.data;
+      // emitimos los datos junto con la modalidad explícita
+      emit('editarAprendiz', { ...datosFrescos, modalidad });
+    } else {
+      emit('editarAprendiz', { ...aprendiz, modalidad });
     }
-  } else {
-    //Emitir al componente padre
-    emit('editarAprendiz', {...aprendiz})
+  } catch (error) {
+    console.error('Error al obtener datos frescos del aprendiz:', error);
+    emit('errorCarga', 'No se pudieron cargar los datos del aprendiz.');
+  } finally {
+    cargandoDatos.value = false;
   }
 }
+
 </script>
+
 <template>
 <!-- Tabla optimizada -->
 <Transition name="table-fade">

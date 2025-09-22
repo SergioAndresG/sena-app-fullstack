@@ -713,6 +713,7 @@ function irAAdmin(){
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
+  padding: 10px;
 }
 
 .modal-header {
@@ -744,7 +745,7 @@ function irAAdmin(){
 }
 
 .modal-body {
-  padding: 1.5rem;
+  font-size: 1rem;
 }
 
 .detail-grid {
@@ -762,11 +763,11 @@ function irAAdmin(){
 }
 
 .modal-footer {
-  padding: 1.5rem;
   border-top: 1px solid var(--border-color);
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+  padding-top: 5px;
 }
 
 .btn-primary, .btn-secondary {
@@ -862,6 +863,17 @@ function irAAdmin(){
   
   .file-actions {
     align-self: flex-end;
+  }
+}
+@media (max-width: 468px) {
+  .modal-body{
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 370px) {
+  .modal-body{
+    font-size: 0.65rem;
   }
 }
 </style>

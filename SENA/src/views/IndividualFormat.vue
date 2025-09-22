@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import axios from "axios";
 import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import { useRouter } from 'vue-router';
 import EditAprendizModal from '../components/EditAprendizModal.vue'
+import TablesAprendiz from '../components/GROUPFORMAT/TablesAprendiz.vue';
+import EditFicha from '../components/EditFicha.vue';
 import IndividualInstructions from '../components/IndividualInstructions.vue'
+import { authService } from '../services/auth_service';
 
 // Interfaces
 interface Aprendiz {
@@ -17,10 +20,22 @@ interface Aprendiz {
   correo: string
   direccion: string
   estado: string
-  modalidad?: string
+  editado?: boolean
+  departamento: string;
+  municipio: string;
+  firma?: string
+  modalidad?: 'individual' | 'grupal'
+}
+
+interface Usuario {
+  nombre: string;
+  apellidos: string;
+  correo: string;
+  rol: string;
 }
 
 interface UsuarioGenerador {
+  id?: number;
   nombre: string;
   apellidos: string;
   correo: string;
@@ -44,26 +59,134 @@ interface AprendizParaExportar {
 }
 
 const usuarioGenerador = ref<UsuarioGenerador>({
+  id: 0,
   nombre: '',
   apellidos: '',
   correo: '',
   rol: ''
 });
 
+const informacionAdicional = ref({
+  nivel_formacion: '',
+  modalidad_formacion: '',
+  trimestre: '',
+  fecha_inicio_etapa_productiva: '',
+  jornada: ''
+})
+
 const aprendices = ref<Aprendiz[]>([])
+const aprendices_editados = ref<Aprendiz[]>([])
 let ficha = ref<string>('');
 let documento_ap = ref<string>('');
 const busquedaRealizada = ref(false);
 const mostrarResultados = ref(false);
 const cargando = ref(false)
+const fichaEditada = ref(false)
 
 // Variables para el modal de edición
 const mostrarModal = ref(false)
+const mostrarModalFicha = ref(false)
 const aprendizSeleccionado = ref<Aprendiz | null>(null)
 
 const aprendicesExportar = ref<AprendizParaExportar[]>([]);
 const modalidad = ref<'individual' | 'grupal'>('individual');
 const router = useRouter()
+
+const currentUser = ref<Usuario | null>(null)
+
+const isFormReadonly = ref(true) // Para hacer los campos de solo lectura inicialmente
+
+// Computed para separar aprendices editados y no editados
+const aprendicesNoEditados = computed(() =>
+  Array.isArray(aprendices.value)
+    ? aprendices.value.filter(a => a.editado !== true)
+    : []
+)
+
+const aprendicesEditados = computed(() =>
+  Array.isArray(aprendices.value)
+    ? aprendices.value.filter(a => a.editado === true)
+    : []
+)
+
+// Función para obtener los datos del usuario logueado
+const getCurrentUser = (): Usuario | null => {
+  try {
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      return JSON.parse(userStr)
+    }
+    return null
+  } catch (error) {
+    console.error('Error al obtener datos del usuario:', error)
+    return null
+  }
+}
+
+// Función para verificar si el token es válido
+const isTokenValid = (): boolean => {
+  const token = localStorage.getItem('access_token')
+  if (!token) return false
+
+  try {
+    // Decodificar el JWT para verificar si no ha expirado
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const currentTime = Date.now() / 1000
+
+    return payload.exp > currentTime
+  } catch (error) {
+    console.error('Error al verificar token:', error)
+    return false
+  }
+}
+
+// Función para cargar los datos del usuario automáticamente
+const loadUserData = () => {
+  // Verificar si hay un token válido
+  if (!isTokenValid()) {
+    // Redirigir al login si no hay token válido
+    router.push('/')
+    return
+  }
+
+  // Obtener datos del usuario
+  const user = getCurrentUser()
+
+  if (user) {
+    currentUser.value = user
+
+    // Autocompletar el formulario con los datos del usuario
+    usuarioGenerador.value = {
+      id: user.id || 0,
+      nombre: user.nombre,
+      apellidos: user.apellidos,
+      correo: user.correo,
+      rol: user.rol
+    }
+
+    console.log('Datos del usuario cargados automáticamente:', user)
+  } else {
+    // Si no hay datos de usuario, redirigir al login
+    router.push('/')
+  }
+}
+
+// Función para permitir editar los campos (opcional)
+const toggleEditMode = () => {
+  isFormReadonly.value = !isFormReadonly.value
+}
+
+// Función para resetear a los datos originales del usuario
+const resetToUserData = () => {
+  if (currentUser.value) {
+    usuarioGenerador.value = {
+      nombre: currentUser.value.nombre,
+      apellidos: currentUser.value.apellidos,
+      correo: currentUser.value.correo,
+      rol: currentUser.value.rol
+    }
+  }
+}
 
 // Función para cargar aprendices
 const cargarAprendicesFicha = async (codigoFicha, doc_aprendiz) => {
@@ -71,10 +194,7 @@ const cargarAprendicesFicha = async (codigoFicha, doc_aprendiz) => {
 
   try {
     await new Promise(resolve => setTimeout(resolve, 800));
-    // 🔽 Aquí apunto al nuevo endpoint que recibe ficha y documento
-    const respuesta = await axios.get(
-      `http://127.0.0.1:8000/individual/${codigoFicha}/${doc_aprendiz}`
-    );
+    const respuesta = await axios.get(`http://127.0.0.1:8000/individual/${codigoFicha}/${doc_aprendiz}`);
 
     if (respuesta.data.archivo_existente) {
       Swal.fire({
@@ -111,22 +231,34 @@ const cargarAprendicesFicha = async (codigoFicha, doc_aprendiz) => {
         }
       });
       return;
-    }
+    } else {
+      if (respuesta.data.aprendiz) {
+        aprendices.value = [respuesta.data.aprendiz];
+      } else {
+        aprendices.value = [];
+      }
 
-    // Si no existe archivo, igual asignamos el aprendiz único
-    aprendices.value = [respuesta.data.aprendiz];
+      busquedaRealizada.value = true;
+      mostrarResultados.value = true;
+    }
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
 
   } catch (error) {
     console.error('Error al cargar los aprendices ', error);
-    aprendices.value = [];
+    aprendices.value = []
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
   } finally {
     cargando.value = false;
   }
 }
+
+watch(aprendices, (newVal) => {
+  aprendices_editados.value = Array.isArray(newVal)
+    ? newVal.filter(a => a.editado)
+    : [];
+}, { immediate: true });
 
 const consultarFicha = async () => {
   if (ficha.value.trim() !== '' && documento_ap.value.trim() !== '') {
@@ -157,12 +289,42 @@ const volverABusqueda = () => {
   documento_ap.value = '';
 }
 
-function abrirModal(aprendiz: Aprendiz) {
-  aprendizSeleccionado.value = {
-    ...aprendiz,
-    modalidad: modalidad.value, // inyectas la modalidad real
-  }
+// Función para manejar la edición desde el componente tabla
+const manejarEdicionAprendiz = (aprendiz: Aprendiz) => {
+  console.log('Editando aprendiz desde', aprendiz.nombre)
+  aprendizSeleccionado.value = aprendiz
   mostrarModal.value = true
+  bloquearScroll()
+}
+
+// Función para manejar errores de carga desde el componente tabla
+const manejarErrorCarga = (error: any) => {
+  console.error('Error desde tabla:', error)
+  Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: error,
+    scrollbarPadding: false,
+    heightAuto: false,
+    didOpen: () => {
+      document.body.style.paddingRight = '';
+      document.body.style.overflow = '';
+    }
+  });
+}
+
+// Función para manejar cuando se cierra el modal desde el componente tabla
+const manejarModalCerrado = () => {
+  console.log('Modal cerrado desde tabla')
+  cerrarModal()
+}
+
+const bloquearScroll = () => {
+  document.body.style.overflow = 'hidden'
+}
+
+const desbloquearScroll = () => {
+  document.body.style.overflow = ''
 }
 
 function actualizarAprendiz(datosEditados) {
@@ -188,7 +350,7 @@ function actualizarAprendiz(datosEditados) {
       municipio: datosEditados.municipio || '',
       discapacidad: datosEditados.discapacidad || 'No',
       tipo_discapacidad: datosEditados.tipo_discapacidad || 'N/A',
-      modalidad: modalidad.value,
+      modalidad: 'individual',
       firma: datosEditados.firma || ''
     };
 
@@ -256,10 +418,18 @@ function exportarAprendices() {
       firma: ap.firma || '',
     })),
     usuario_generator: {
+      id: usuarioGenerador.value.id || 0,
       nombre: usuarioGenerador.value.nombre,
       apellidos: usuarioGenerador.value.apellidos,
       correo: usuarioGenerador.value.correo,
       rol: usuarioGenerador.value.rol.toUpperCase()
+    },
+    informacion_adicional: {
+      nivel_formacion: informacionAdicional.value?.nivel_formacion || '',
+      modalidad_formacion: informacionAdicional.value?.modalidad_formacion || '',
+      trimestre: informacionAdicional.value?.trimestre || '',
+      fecha_inicio_etapa_productiva: informacionAdicional.value?.fecha_inicio_etapa_productiva || '',
+      jornada: informacionAdicional.value?.jornada || ''
     }
   };
 
@@ -269,7 +439,7 @@ function exportarAprendices() {
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'formato_F165.xlsx');
+    link.setAttribute('download', `formato_F165_ficha_${ficha.value}.xlsx`);
     document.body.appendChild(link);
     link.click();
 
@@ -322,13 +492,58 @@ function exportarAprendices() {
   });
 }
 
+//Función para guardar la información adicional de la ficha
+const manejarGuardar = async (datos: any) => {
+  usuarioGenerador.value = datos.usuario
+  informacionAdicional.value = datos.info
+  mostrarModalFicha.value = false
+  fichaEditada.value = true
+
+  console.log('Datos listos para enviar:', datos)
+
+  try {
+    await axios.post(
+      `http://127.0.0.1:8000/ficha/${ficha.value}/informacion-adicional`,
+      informacionAdicional.value
+    )
+    console.log("Información adicional guardada en BD")
+  } catch (err) {
+    console.error("Error guardando información adicional:", err)
+  }
+}
+//Función para cargar los datos adicionales de la ficha
+async function cargarInformacionAdicional(numeroFicha: string) {
+  try {
+    const res = await axios.get(
+      `http://127.0.0.1:8000/ficha/${numeroFicha}/informacion-adicional`
+    )
+    informacionAdicional.value = res.data
+    console.log("Información adicional cargada:", res.data)
+  } catch (err) {
+    console.error("Error cargando información adicional:", err)
+  }
+}
+
+async function abrirModalFicha(numeroFicha: string) {
+  await cargarInformacionAdicional(numeroFicha)
+  fichaEditada.value = false
+  mostrarModalFicha.value = true
+}
+
 function cerrarModal() {
   mostrarModal.value = false
+  mostrarModalFicha.value = false
+  desbloquearScroll()
 }
+
 
 function irAInstructor() {
   router.back()
 }
+
+onMounted(() => {
+  loadUserData();
+});
 </script>
 
 <template>
@@ -410,96 +625,28 @@ function irAInstructor() {
         </button>
       </div>
 
-      <!-- Tabla optimizada -->
-      <Transition name="table-fade">
-        <div v-if="aprendices.length > 0" class="table-wrapper">
-          <div class="table-container">
-            <table class="modern-table">
-              <thead>
-                <tr class="table-header">
-                  <th class="th-number">#</th>
-                  <th class="th-documento">Tipo Doc.</th>
-                  <th class="th-numero">Número</th>
-                  <th class="th-nombre">Nombre</th>
-                  <th class="th-apellidos">Apellidos</th>
-                  <th class="th-celular">Celular</th>
-                  <th class="th-correo">Correo</th>
-                  <th class="th-estado">Estado</th>
-                  <th class="th-accion">Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in aprendices" :key="item.documento" class="table-row"
-                  :style="{ 'animation-delay': `${index * 0.05}s` }">
-                  <td class="td-number">{{ index + 1 }}</td>
-                  <td class="td-documento">
-                    <span class="document-badge">{{ item.tipo_documento }}</span>
-                  </td>
-                  <td class="td-numero">{{ item.documento }}</td>
-                  <td class="td-nombre">{{ item.nombre }}</td>
-                  <td class="td-apellidos">{{ item.apellido }}</td>
-                  <td class="td-celular">{{ item.celular }}</td>
-                  <td class="td-correo">{{ item.correo }}</td>
-                  <td class="td-estado">
-                    <span class="status-badge" :class="[item.estado.toLowerCase()]">
-                      {{ item.estado }}
-                    </span>
-                  </td>
-                  <td class="td-accion">
-                    <button class="edit-button" @click="abrirModal(item)" :title="`Editar ${item.nombre}`">
-                      <i class="fa-solid fa-edit"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <!-- TABLA DE APRENDICES NO EDITADOS - Usando componente reutilizable -->
+      <TablesAprendiz v-if="aprendicesNoEditados?.length" :aprendices="aprendicesNoEditados" :esIndividual="true"
+        titulo="Aprendices disponibles" @editar-aprendiz="manejarEdicionAprendiz" @modal-cerrado="manejarModalCerrado"
+        @error-carga="manejarErrorCarga">
 
-          <!-- Formulario del generador -->
-          <div class="user-generator-form">
-            <h3 class="form-title">
-              <i class="fa-solid fa-user-gear"></i>
-              Información del generador del reporte
-            </h3>
+      </TablesAprendiz>
 
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">Nombre</label>
-                <input v-model="usuarioGenerador.nombre" placeholder="Ingrese su nombre" class="form-input">
-              </div>
+      <!-- TABLA DE APRENDICES EDITADOS - Usando el mismo componente -->
+      <div v-if="aprendicesEditados?.length" class="edited-section">
+        <h3 class="section-title">
+          <i class="fa-solid fa-edit"></i>
+          Aprendices Editados ({{ aprendicesEditados.length }})
+        </h3>
 
-              <div class="form-group">
-                <label class="form-label">Apellidos</label>
-                <input v-model="usuarioGenerador.apellidos" placeholder="Ingrese sus apellidos" class="form-input">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Correo electrónico</label>
-                <input v-model="usuarioGenerador.correo" placeholder="correo@ejemplo.com" class="form-input"
-                  type="email">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Rol</label>
-                <select v-model="usuarioGenerador.rol" class="form-select">
-                  <option value="">Seleccionar rol</option>
-                  <option value="INSTRUCTOR">Instructor</option>
-                  <option value="coordinador">Coordinador</option>
-                </select>
-              </div>
-            </div>
-
-            <button @click="exportarAprendices" class="export-button">
-              <i class="fa-solid fa-download"></i>
-              Generar y Descargar Reporte
-            </button>
-          </div>
-        </div>
-      </Transition>
+        <TablesAprendiz :aprendices="aprendicesEditados" titulo="Aprendices editados" :mostrar-solo-no-editados="false"
+          :esIndividual="true" @editar-aprendiz="manejarEdicionAprendiz" @modal-cerrado="manejarModalCerrado"
+          @error-carga="manejarErrorCarga" />
+      </div>
 
       <!-- Mensaje sin resultados -->
       <Transition name="fade" appear>
-        <div v-if="aprendices.length === 0 && busquedaRealizada" class="no-results">
+        <div v-if="aprendices?.length === 0 && busquedaRealizada" class="no-results">
           <div class="no-results-content">
             <i class="fa-solid fa-search no-results-icon"></i>
             <h3 class="no-results-title">No se encontraron resultados</h3>
@@ -509,15 +656,121 @@ function irAInstructor() {
           </div>
         </div>
       </Transition>
+
+      <div v-if="mostrarResultados && (aprendicesNoEditados?.length || aprendicesEditados?.length)" class="btns-ficha">
+        <!-- Botón para abrir modal -->
+        <button class="export-button" @click="abrirModalFicha(ficha)">
+          Editar datos de ficha
+        </button>
+
+        <!-- El modal -->
+        <EditFicha :visible="mostrarModalFicha" :usuarioGenerador="usuarioGenerador"
+          :informacionAdicional="informacionAdicional" @cerrar="cerrarModal" @guardar="manejarGuardar" />
+
+        <!-- Botón exportar (deshabilitado hasta editar) -->
+        <button :disabled="!fichaEditada || !aprendices?.length" @click="exportarAprendices" class="export-button">
+          <i class="fa-solid fa-download"></i>
+          Generar y Descargar Reporte
+        </button>
+      </div>
+
     </section>
   </Transition>
 
-  <!-- Modal de edición -->
+  <!-- Modal de edición independiente (mantener tu modal actual) -->
   <EditAprendizModal :aprendiz="aprendizSeleccionado" :mostrar="mostrarModal" @cerrar="cerrarModal"
     @actualizar="actualizarAprendiz" />
 </template>
 
 <style scoped>
+/* Variables CSS */
+:root {
+  --primary-color: #10b981;
+  --primary-dark: #059669;
+  --secondary-color: #6366f1;
+  --background-light: #f8fafc;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  overflow-x: hidden;
+  /* Previene scroll horizontal */
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit,
+.btn-reset {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #2563eb;
+}
+
+.btn-reset {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-reset:hover {
+  background-color: #4b5563;
+}
+
+.user-info-banner {
+  background-color: #dbeafe;
+  border: 1px solid #3b82f6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #1e40af;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-input.readonly,
+.form-select.readonly {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.form-input:read-only {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+
 /* Layout principal */
 .navigation-container {
   padding: 20px 50px 0;
@@ -547,11 +800,10 @@ function irAInstructor() {
 .search-container {
   display: flex;
   justify-content: center;
+  margin-top: 110px;
   align-items: center;
   min-height: 60vh;
   padding: 20px;
-  margin: 0 auto;
-  margin-top: 120px;
 }
 
 .search-card {
@@ -612,9 +864,7 @@ function irAInstructor() {
 .search-button {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: white;
-  width: 40%;
   font-size: 1.1rem;
-  margin: auto;
   font-weight: 600;
   padding: 16px 32px;
   border: none;
@@ -640,12 +890,6 @@ function irAInstructor() {
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-
-.mi-alerta {
-  max-width: 500px !important;  /* límite para pantallas grandes */
-  width: 90% !important;        /* ocupa el 90% en móviles */
-  margin: 0 auto !important;        /* bordes más suaves */
 }
 
 /* Sección de resultados */
@@ -683,7 +927,7 @@ function irAInstructor() {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #149653 100%);
+  background: var(--secondary-color);
   color: white;
   border: none;
   padding: 12px 20px;
@@ -815,12 +1059,12 @@ function irAInstructor() {
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: #239c52;
-  color: #fafafa;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: ease-in-out 0.2s;
+  transition: var(--transition);
   font-size: 0.9rem;
 }
 
@@ -885,6 +1129,17 @@ function irAInstructor() {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
+.btns-ficha {
+  display: flex;
+  /* botones en fila */
+  gap: 16px;
+  /* espacio entre botones */
+  justify-content: center;
+  /* centrados */
+  flex-wrap: wrap;
+  /* se ajustan si no caben */
+}
+
 .export-button {
   display: flex;
   align-items: center;
@@ -893,22 +1148,29 @@ function irAInstructor() {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: white;
   border: none;
-  padding: 16px 32px;
+  padding: 16px 2px;
   border-radius: var(--border-radius);
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow-md);
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
+  flex: 1;
+  /* ocupan mismo espacio */
+  max-width: 250px;
+  margin-top: 40px;
 }
 
-.export-button:hover {
+.export-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
+.export-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sin resultados */
 .no-results {
   display: flex;
   justify-content: center;
@@ -920,27 +1182,58 @@ function irAInstructor() {
 .no-results-content {
   text-align: center;
   background: white;
-  padding: 40px;
+  padding: 48px;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   max-width: 400px;
 }
 
-.no-results-subtitle {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin-top: 8px;
+.no-results-icon {
+  font-size: 3rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.no-results-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.no-results-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Animaciones */
+@keyframes slideInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Transiciones */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.02s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.fade-slide-enter-form {
+.fade-slide-enter-from {
   opacity: 0;
   transform: translateX(-30px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 
 .table-fade-enter-active {
@@ -950,22 +1243,6 @@ function irAInstructor() {
 .table-fade-enter-from {
   opacity: 0;
   transform: translateY(20px);
-}
-
-.table-row {
-  animation: slideInUp 0.6s ease-out both;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .fade-enter-active,
@@ -978,135 +1255,149 @@ function irAInstructor() {
   opacity: 0;
 }
 
-/* Salida: termina invisible y desplazado */
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-  /* puedes usar translateX(0) si no quieres movimiento */
-}
-
-/* ✅ Estilos responsive para pantallas menores a 768px */
-@media (max-width: 1400px) {
+/* Responsive Design */
+@media (max-width: 1200px) {
   .right-buttons {
-    margin-right: 40px;
+    margin-right: 30px;
   }
 
-  .container-gf {
-    width: 60%;
-    height: 300px;
-    margin-top: 50px;
-    padding: 1rem;
+  .results-section {
+    padding: 15px;
   }
 
-  .icon-gf {
-    height: 8rem;
-    width: 8rem;
+  .modern-table {
+    font-size: 0.85rem;
   }
 
-  .title-gf {
-    font-size: 1.5rem;
-    text-align: center;
-  }
-
-  .button-gf {
-    width: 40%;
-    font-size: 1.1rem;
-    padding: 0.8rem;
+  .modern-table th,
+  .modern-table td {
+    padding: 10px 8px;
   }
 }
 
-@media (max-width: 600px) {
-  .container-gf {
-    width: 60%;
-    height: 320px;
-    margin: 0 auto;
-    margin-top: 80px;
-    padding: 1rem;
+@media (max-width: 768px) {
+  .navigation-container {
+    padding: 20px 20px 0;
   }
 
-  .icon-gf {
-    height: 5rem;
-    width: 5rem;
+  .search-card {
+    padding: 40px 24px;
+    margin: 20px;
   }
 
-  .title-gf {
-    font-size: 1.3rem;
-    text-align: center;
-  }
-
-  .button-gf {
-    width: 50%;
-    font-size: 1.1rem;
-    padding: 0.8rem;
+  .search-title {
+    font-size: 1.25rem;
   }
 
   .results-header {
     flex-direction: column;
-    gap: 15px;
+    gap: 16px;
     text-align: center;
-  }
-
-  .results-title {
-    font-size: 1.2rem;
-  }
-
-  .button-back {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .mi-alerta {
-    max-width: 95% !important;
-    margin: 0.5rem !important;
-    padding: 1rem !important;
-  }
-  
-  .mi-alerta .swal2-title {
-    font-size: 1.2rem !important;
-  }
-  
-  .mi-alerta .swal2-content {
-    font-size: 0.9rem !important;
-  }
-  
-  .mi-alerta .swal2-actions {
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-  }
-  
-  .mi-alerta .swal2-styled {
-    width: 100% !important;
-    margin: 0.2rem 0 !important;
-  }
-}
-
-@media (max-width: 479px) {
-  .search-title {
-    font-size: 1.2rem;
-  }
-
-  .input-label {
-    font-size: 1rem;
+    padding: 20px;
   }
 
   .search-input::placeholder {
     font-size: 0.85rem;
   }
 
-  .search-button {
+  .results-title {
+    font-size: 1.25rem;
+  }
+
+  .back-to-search-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table-container {
+    border-radius: 8px;
+    margin: 0 -10px;
+  }
+
+  .modern-table {
     font-size: 0.8rem;
-    width: 50%;
+  }
+
+  .modern-table th,
+  .modern-table td {
+    padding: 8px 6px;
+  }
+
+  .user-generator-form {
+    margin: 20px -10px 0;
+    padding: 24px 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .export-button {
+    width: 100%;
+    max-width: none;
   }
 }
 
-@media (max-width: 361px) {
-  .search-input::placeholder {
-    font-size: 0.65rem;
+@media (max-width: 480px) {
+  .search-card {
+    margin: 10px;
+    padding: 32px 20px;
   }
 
-  .search-button {
-    font-size: 0.6rem;
-    width: 65%;
+  .modern-table th,
+  .modern-table td {
+    padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+
+  /* Ocultar columnas menos importantes en móvil */
+  .th-direccion,
+  .td-direccion,
+  .th-celular,
+  .td-celular {
+    display: none;
+  }
+}
+
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+
+  .table-row,
+  .search-button,
+  .edit-button,
+  .export-button,
+  .back-button {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Focus visible para accesibilidad */
+.search-input:focus-visible,
+.form-input:focus-visible,
+.form-select:focus-visible,
+.search-button:focus-visible,
+.edit-button:focus-visible,
+.export-button:focus-visible,
+.back-button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Indicador de carga mejorado */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

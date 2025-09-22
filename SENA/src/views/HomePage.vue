@@ -572,13 +572,13 @@ onUnmounted(() => {
 }
 /* Panel derecho */
 .right-panel {
-  padding: 2rem;
+  padding: 1.8rem;
   flex-direction: column;
 }
 
 .logo-container {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .sena-logo {
@@ -611,7 +611,7 @@ onUnmounted(() => {
 
 .form-container {
   max-width: 35rem;
-  height: 450px;
+  height: 550px;
   margin: 0 auto;
   border: 1px solid rgba(222, 220, 220, 0.345);
   border-radius: 10px;
@@ -884,6 +884,29 @@ onUnmounted(() => {
   border-top: 2px solid currentColor;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+@media (max-width: 1400px) {
+  .sena-logo {
+    gap: 3.5rem;
+  }
+
+  .logo-icon{
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .logo-text{
+    font-size: 1.3rem;
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+  }
+
+  .field-label{
+    font-size: 0.9rem;
+  }
 }
 
 @keyframes spin {
