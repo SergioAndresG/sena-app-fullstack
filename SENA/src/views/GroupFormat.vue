@@ -647,8 +647,8 @@ onMounted(() => {
           Aprendices Editados ({{ aprendicesEditados.length }})
         </h3>
 
-        <TablesAprendiz :aprendices="aprendicesEditados" titulo="Aprendices editados" :mostrar-solo-no-editados="false" :esIndividual="false"
-          @editar-aprendiz="manejarEdicionAprendiz" @modal-cerrado="manejarModalCerrado"
+        <TablesAprendiz :aprendices="aprendicesEditados" titulo="Aprendices editados" :mostrar-solo-no-editados="false"
+          :esIndividual="false" @editar-aprendiz="manejarEdicionAprendiz" @modal-cerrado="manejarModalCerrado"
           @error-carga="manejarErrorCarga" />
       </div>
 
@@ -665,31 +665,23 @@ onMounted(() => {
         </div>
       </Transition>
 
-      <div class="btns-ficha">
-  <!-- Botón para abrir modal -->
-  <button class="export-button" @click="abrirModalFicha(ficha)">
-    Editar datos de ficha
-  </button>
+      <div v-if="mostrarResultados && (aprendicesNoEditados?.length || aprendicesEditados?.length)" class="btns-ficha">
+        <!-- Botón para abrir modal -->
+        <button class="export-button" @click="abrirModalFicha(ficha)">
+          Editar datos de ficha
+        </button>
 
-  <!-- El modal -->
-  <EditFicha 
-    :visible="mostrarModalFicha" 
-    :usuarioGenerador="usuarioGenerador"
-    :informacionAdicional="informacionAdicional" 
-    @cerrar="cerrarModal" 
-    @guardar="manejarGuardar" 
-  />
+        <!-- El modal -->
+        <EditFicha :visible="mostrarModalFicha" :usuarioGenerador="usuarioGenerador"
+          :informacionAdicional="informacionAdicional" @cerrar="cerrarModal" @guardar="manejarGuardar" />
 
-  <!-- Botón exportar (deshabilitado hasta editar) -->
-  <button 
-    :disabled="!fichaEditada || aprendices.length === 0"
-    @click="exportarAprendices" 
-    class="export-button">
-    <i class="fa-solid fa-download"></i>
-    Generar y Descargar Reporte
-  </button>
-</div>
-      
+        <!-- Botón exportar (deshabilitado hasta editar) -->
+        <button :disabled="!fichaEditada || aprendices.length === 0" @click="exportarAprendices" class="export-button">
+          <i class="fa-solid fa-download"></i>
+          Generar y Descargar Reporte
+        </button>
+      </div>
+
     </section>
   </Transition>
 
@@ -1146,10 +1138,14 @@ body {
 }
 
 .btns-ficha {
-  display: flex;              /* botones en fila */
-  gap: 16px;                  /* espacio entre botones */
-  justify-content: center;    /* centrados */
-  flex-wrap: wrap;            /* se ajustan si no caben */
+  display: flex;
+  /* botones en fila */
+  gap: 16px;
+  /* espacio entre botones */
+  justify-content: center;
+  /* centrados */
+  flex-wrap: wrap;
+  /* se ajustan si no caben */
 }
 
 .export-button {
@@ -1166,7 +1162,8 @@ body {
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow-md);
-  flex: 1;                     /* ocupan mismo espacio */
+  flex: 1;
+  /* ocupan mismo espacio */
   max-width: 250px;
   margin-top: 40px;
 }

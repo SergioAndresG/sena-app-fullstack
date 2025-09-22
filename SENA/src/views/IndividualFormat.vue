@@ -350,7 +350,7 @@ function actualizarAprendiz(datosEditados) {
       municipio: datosEditados.municipio || '',
       discapacidad: datosEditados.discapacidad || 'No',
       tipo_discapacidad: datosEditados.tipo_discapacidad || 'N/A',
-      modalidad: 'individual', 
+      modalidad: 'individual',
       firma: datosEditados.firma || ''
     };
 
@@ -639,8 +639,8 @@ onMounted(() => {
           Aprendices Editados ({{ aprendicesEditados.length }})
         </h3>
 
-        <TablesAprendiz :aprendices="aprendicesEditados" titulo="Aprendices editados" :mostrar-solo-no-editados="false" :esIndividual="true"
-          @editar-aprendiz="manejarEdicionAprendiz" @modal-cerrado="manejarModalCerrado"
+        <TablesAprendiz :aprendices="aprendicesEditados" titulo="Aprendices editados" :mostrar-solo-no-editados="false"
+          :esIndividual="true" @editar-aprendiz="manejarEdicionAprendiz" @modal-cerrado="manejarModalCerrado"
           @error-carga="manejarErrorCarga" />
       </div>
 
@@ -657,7 +657,7 @@ onMounted(() => {
         </div>
       </Transition>
 
-      <div class="btns-ficha">
+      <div v-if="mostrarResultados && (aprendicesNoEditados?.length || aprendicesEditados?.length)" class="btns-ficha">
         <!-- Botón para abrir modal -->
         <button class="export-button" @click="abrirModalFicha(ficha)">
           Editar datos de ficha
