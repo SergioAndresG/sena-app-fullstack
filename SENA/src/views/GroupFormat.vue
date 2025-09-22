@@ -19,6 +19,8 @@ interface Aprendiz {
   direccion: string
   estado: string
   editado?: boolean
+  discapacidad?: string
+  tipo_discapacidad?: string
   firma?: string
 }
 
@@ -236,8 +238,8 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
       direccion: ap.direccion || '', 
       correo: ap.correo,
       celular: ap.celular,
-      discapacidad: 'No', 
-      tipo_discapacidad: 'N/A', 
+      discapacidad: ap.discapacidad.toUpperCase() || 'NO', 
+      tipo_discapacidad: ap.tipo_discapacidad || 'N/A', 
       modalidad: modalidad,
       firma: ap.firma || '' 
     }));
@@ -433,7 +435,7 @@ function exportarAprendices() {
       direccion: ap.direccion || '', 
       correo: ap.correo,
       celular: ap.celular,
-      discapacidad: ap.discapacidad || 'No', 
+      discapacidad: ap.discapacidad.toUpperCase() || 'NO', 
       tipo_discapacidad: ap.tipo_discapacidad || 'N/A', 
       firma: ap.firma || '', 
     })),
