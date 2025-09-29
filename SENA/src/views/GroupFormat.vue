@@ -133,34 +133,31 @@ const isTokenValid = (): boolean => {
 }
 
 // Función para cargar los datos del usuario automáticamente
-const loadUserData = () => {
-  // Verificar si hay un token válido
-  if (!isTokenValid()) {
-    // Redirigir al login si no hay token válido
-    router.push('/')
-    return
-  }
+const loadUserData = async () => {
+  try{
+     // Obtener datos del usuario
+      const user = await authService.getCurrentUserFromServer();
 
-  // Obtener datos del usuario
-  const user = getCurrentUser()
+      if (user) {
+        user.value = user;
+        // Autocompletar el formulario con los datos del usuario
+        usuarioGenerador.value = {
+          id: user.id || 0,
+          nombre: user.nombre,
+          apellidos: user.apellidos,
+          correo: user.correo,
+          rol: user.rol
+        }
 
-  if (user) {
-    currentUser.value = user
-
-    // Autocompletar el formulario con los datos del usuario
-    usuarioGenerador.value = {
-      id: user.id || 0,
-      nombre: user.nombre,
-      apellidos: user.apellidos,
-      correo: user.correo,
-      rol: user.rol
+        console.log('Datos del usuario cargados automáticamente:', user)
+      } else {
+        // Si no hay datos de usuario, redirigir al login
+        router.push('/')
+      }
+    } catch (error) {
+      console.error('Error cargando datos del usuario:', error)
+      router.push('/')
     }
-
-    console.log('Datos del usuario cargados automáticamente:', user)
-  } else {
-    // Si no hay datos de usuario, redirigir al login
-    router.push('/')
-  }
 }
 
 // Función para permitir editar los campos (opcional)
@@ -183,10 +180,17 @@ const resetToUserData = () => {
 // Función para cargar aprendices
 const cargarAprendicesFicha = async (codigoFicha: String) => {
   cargando.value = true;
+  aprendicesExportar.value = []; // Limpiar datos previos
 
   try {
     await new Promise(resolve => setTimeout(resolve, 800));
     const respuesta = await axios.get(`http://127.0.0.1:8000/ficha/${codigoFicha}/aprendices`);
+    console.log("Respuesta de aprendices:", respuesta.data);
+
+    const normalizarEstadoAprendices = respuesta.data.aprendices.map(ap => ({
+      ...ap,
+      editado: ap.editado === 1
+    }));
 
     if (respuesta.data.archivo_existente) {
       console.log(respuesta.data.archivo_existente)
@@ -260,20 +264,20 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
     aprendices.value = respuesta.data.aprendices;
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
-        aprendicesExportar.value = respuesta.data.aprendices
-    .filter(a => a.editado)
-    .map(ap => ({
-      tipo_documento: ap.tipo_documento,
-      documento: ap.documento,
-      nombre: ap.nombre,
-      apellido: ap.apellido,
-      direccion: ap.direccion || '', 
-      correo: ap.correo,
-      celular: ap.celular,
-      discapacidad: ap.discapacidad.toUpperCase() || 'NO', 
-      tipo_discapacidad: ap.tipo_discapacidad || 'N/A', 
+    aprendicesExportar.value = respuesta.data.aprendices
+    .filter(ap => ap.editado)
+    .map(a => ({
+      tipo_documento: a.tipo_documento,
+      documento: a.documento,
+      nombre: a.nombre,
+      apellido: a.apellido,
+      direccion: a.direccion || '', 
+      correo: a.correo,
+      celular: a.celular,
+      discapacidad: (a.discapacidad || 'NO').toUpperCase(), 
+      tipo_discapacidad: a.tipo_discapacidad || 'N/A', 
       modalidad: modalidad,
-      firma: ap.firma || '' 
+      firma: a.firma || '' 
     }));
     console.log("Aprendices para editados:", aprendices.value)
 
@@ -281,9 +285,7 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
 });
       return;
     }
-    aprendices.value = respuesta.data.aprendices;
-
-
+    aprendices.value = normalizarEstadoAprendices;
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
 
@@ -375,7 +377,8 @@ function actualizarAprendiz(datosEditados) {
   if (index !== -1) {
     aprendices.value[index] = {
       ...aprendices.value[index],
-      ...datosEditados
+      ...datosEditados,
+      editado: true
     }
 
     const datosParaExportar = {
@@ -393,7 +396,7 @@ function actualizarAprendiz(datosEditados) {
     };
 
     const existente = aprendicesExportar.value.findIndex(a => a.documento === datosEditados.documento)
-    if (existente == -1) {
+    if (existente === -1) {
       aprendicesExportar.value.push(datosParaExportar)
     } else {
       aprendicesExportar.value[existente] = datosParaExportar
@@ -419,6 +422,7 @@ function exportarAprendices() {
     });
     return;
   }
+  console.log("Datos a exportar:", aprendicesExportar.value)
 
   if (!usuarioGenerador.value.nombre || !usuarioGenerador.value.apellidos || !usuarioGenerador.value.rol) {
     Swal.fire({
@@ -449,7 +453,7 @@ function exportarAprendices() {
       direccion: ap.direccion || '',
       correo: ap.correo,
       celular: ap.celular,
-      discapacidad: ap.discapacidad.toUpperCase() || 'NO', 
+      discapacidad: (ap.discapacidad || 'NO').toUpperCase(), 
       tipo_discapacidad: ap.tipo_discapacidad || 'N/A', 
       firma: ap.firma || '', 
     })),
@@ -493,6 +497,8 @@ function exportarAprendices() {
         document.body.style.paddingRight = '';
       }
     });
+    volverABusqueda();
+
   }).catch(async (err) => {
     console.error("Error al exportar:", err);
 
@@ -572,10 +578,17 @@ function cerrarModal() {
   desbloquearScroll()
 }
 
-
-function irAInstructor() {
+function regresar() {
   router.back()
 }
+
+async function cerrarSession() {
+  authService.logout();
+  localStorage.removeItem('access_token')
+  router.push('/');
+}
+
+
 
 onMounted(() => {
   loadUserData();
@@ -588,7 +601,7 @@ onMounted(() => {
   <div class="floating-buttons" v-if="!mostrarResultados">
     <!-- Botón izquierdo -->
     <div class="tooltip tooltip-left btn-left">
-      <button class="back-buttons" @click="irAInstructor">
+      <button class="back-buttons" @click="regresar">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <span class="tooltip-text">Regresar</span>
@@ -604,7 +617,7 @@ onMounted(() => {
       </div>
 
       <div class="tooltip">
-        <button class="back-buttons">
+        <button class="back-buttons" @click="cerrarSession">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
         <span class="tooltip-text">Cerrar sesión</span>
