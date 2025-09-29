@@ -104,10 +104,10 @@
             <div class="form-group">
               <label class="form-label">Fecha inicio etapa productiva</label>
               <input 
-              v-model="localInfo.fecha_inicio_etapa_productiva" 
-              type="date" 
-              class="form-input" 
-            />
+                v-model="localInfo.fecha_inicio_etapa_productiva" 
+                type="date" 
+                class="form-input" 
+              />
             </div>
 
             <div class="form-group form-group-full">
@@ -206,238 +206,298 @@ const guardar = () => {
 </script>
 
 <style scoped>
+/* ========== ANIMACIONES ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* ========== OVERLAY Y CONTENEDOR PRINCIPAL ========== */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 1rem;
-  animation: fadeIn 0.3s ease-out;
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1000 !important;
+  padding: 1rem !important;
+  animation: fadeIn 0.3s ease-out !important;
 }
 
 .modal-content {
-  background: #ffffff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow: hidden;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  width: 100% !important;
+  max-width: 800px !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
   box-shadow: 
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: slideIn 0.3s ease-out;
-  display: flex;
-  flex-direction: column;
+    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  animation: slideIn 0.3s ease-out !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 /* ========== HEADER ========== */
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 1.5rem 2rem !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
 }
 
 .modal-title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin: 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
 }
 
 .modal-title i {
-  color: #059669;
-  font-size: 1.1rem;
+  color: #059669 !important;
+  font-size: 1.1rem !important;
 }
 
 .btn-cerrar {
-  background: transparent;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  color: #6b7280;
-  font-size: 1.2rem;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  color: #6b7280 !important;
+  font-size: 1.2rem !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .btn-cerrar:hover {
-  background: #f3f4f6;
-  color: #374151;
-  transform: scale(1.05);
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  transform: scale(1.05) !important;
 }
 
 /* ========== BODY ========== */
 .modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db #f9fafb;
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 0 !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #d1d5db #f9fafb !important;
 }
 
 .modal-body::-webkit-scrollbar {
-  width: 6px;
+  width: 6px !important;
 }
 
 .modal-body::-webkit-scrollbar-track {
-  background: #f9fafb;
+  background: #f9fafb !important;
 }
 
 .modal-body::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
+  background: #d1d5db !important;
+  border-radius: 3px !important;
 }
 
 .modal-body::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #9ca3af !important;
 }
 
 .section {
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 1.5rem 2rem !important;
+  border-bottom: 1px solid #f3f4f6 !important;
 }
 
 .section:last-child {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
 .form-title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0 0 1.5rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #374151;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin: 0 0 1.5rem 0 !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
 }
 
 .form-title i {
-  color: #059669;
-  font-size: 1rem;
+  color: #059669 !important;
+  font-size: 1rem !important;
 }
 
 /* ========== GRID Y FORMULARIOS ========== */
 .form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 1.5rem !important;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
 }
 
 .form-group-full {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1 !important;
 }
 
 .form-label {
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 0.25rem !important;
 }
 
 .form-input,
 .form-select {
-  padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  background: #ffffff;
-  color: #374151;
+  padding: 0.75rem 1rem !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease !important;
+  background: #ffffff !important;
+  color: #374151 !important;
 }
 
 .form-input:focus,
 .form-select:focus {
-  outline: none;
-  border-color: #059669;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-  transform: translateY(-1px);
+  outline: none !important;
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1) !important;
+  transform: translateY(-1px) !important;
 }
 
 .form-input::placeholder {
-  color: #9ca3af;
+  color: #9ca3af !important;
 }
 
 .form-select {
-  cursor: pointer;
+  cursor: pointer !important;
 }
 
 .form-select option {
-  padding: 0.5rem;
+  padding: 0.5rem !important;
+  background: white !important;
+  color: #374151 !important;
 }
 
 /* ========== FOOTER ========== */
 .modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 1rem !important;
+  padding: 1.5rem 2rem !important;
+  border-top: 1px solid #e5e7eb !important;
+  background: #f9fafb !important;
 }
 
 .btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  min-width: 100px;
-  justify-content: center;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  min-width: 100px !important;
+  justify-content: center !important;
 }
 
 .btn-cancelar {
-  background: #ffffff;
-  color: #6b7280;
-  border: 2px solid #e5e7eb;
+  background: #ffffff !important;
+  color: #6b7280 !important;
+  border: 2px solid #e5e7eb !important;
 }
 
 .btn-cancelar:hover {
-  background: #f3f4f6;
-  color: #374151;
-  border-color: #d1d5db;
-  transform: translateY(-1px);
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  border-color: #d1d5db !important;
+  transform: translateY(-1px) !important;
 }
 
 .btn-guardar {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3) !important;
 }
 
 .btn-guardar:hover {
-  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 12px -2px rgba(5, 150, 105, 0.4);
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 12px -2px rgba(5, 150, 105, 0.4) !important;
 }
 
 .btn:active {
-  transform: translateY(0);
+  transform: translateY(0) !important;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0.5rem !important;
+  }
+  
+  .modal-content {
+    max-height: 95vh !important;
+  }
+  
+  .modal-header {
+    padding: 1rem 1.5rem !important;
+  }
+  
+  .modal-title {
+    font-size: 1.1rem !important;
+  }
+  
+  .section {
+    padding: 1rem 1.5rem !important;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .modal-footer {
+    padding: 1rem 1.5rem !important;
+    flex-direction: column-reverse !important;
+  }
+  
+  .btn {
+    width: 100% !important;
+  }
 }
 
 /* ========== ANIMACIONES ========== */
