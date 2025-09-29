@@ -155,6 +155,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { authService, AuthService } from '../services/auth_service';
 import axios from 'axios'
 import Swal from 'sweetalert2';
 
@@ -344,6 +345,8 @@ watch(attemptsRemaining, (newValue) => {  // 👈 Vue te da el valor aquí
     })
   }
 })
+
+
 const handleLogin = async () => {
   // Clear previous errors
   clearErrors()
@@ -364,34 +367,17 @@ const handleLogin = async () => {
     // Sanitize inputs
     const sanitizedForm = {
       correo: sanitizeInput(loginForm.value.correo).toLowerCase(),
-      contraseña: loginForm.value.contraseña // Don't sanitize password as it might contain special chars
+      contraseña: loginForm.value.contraseña
     }
     
-    const response = await axios.post<LoginResponse>(
-      `${API_BASE_URL}/login/`,
-      sanitizedForm,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    
-    const { access_token, user } = response.data
-    
-    // Store token securely (consider using httpOnly cookies in production)
-    localStorage.setItem('access_token', access_token)
-    localStorage.setItem('user', JSON.stringify(user))
-    
-    // Configure axios for future requests
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
-    
+    const user = await authService.login(sanitizedForm.correo, sanitizedForm.contraseña)
+  
     // Reset attempts
     attemptsRemaining.value = 5
-      const rol = user.rol.trim().toUpperCase()
-      if (user.rol === 'ADMINISTRADOR') {
+      const userRole = user.rol.trim().toUpperCase()
+      if (userRole === 'ADMINISTRADOR') {
         router.push('/admin')
-      } else if (user.rol === 'INSTRUCTOR') {
+      } else if (userRole === 'INSTRUCTOR') {
         router.push('/instructor')
       } else {
         Swal.fire({
