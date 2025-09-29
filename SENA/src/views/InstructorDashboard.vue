@@ -1,12 +1,15 @@
 <template>
   <Header />
+  <h1 class="title-instructor">¡BIENVENIDO INSTRUCTOR!</h1>
+  <hr style="width: 50%;">
+
   <!-- Botón de logout fijo -->
   <div class="right-button-dashboard">
     <div class="tooltip-dashboard">
-      <button class="back-buttons">
+      <button class="back-buttons" @click="cerrarSession">
         <i class="fa-solid fa-right-from-bracket"></i>
       </button>
-      <span class="tooltip-text-dashboard">Cerrar sesión</span>
+      <span class="tooltip-text-dashboard" >Cerrar sesión</span>
     </div>
   </div>
 
@@ -55,7 +58,8 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import Header from '../components/Header.vue'
+import Header from '../components/Header.vue';
+import { authService } from '../services/auth_service';
 
 const router = useRouter()
 
@@ -64,22 +68,32 @@ function irAGrupal() {
   router.push('/groupformat')
 }
 
-
 //Redireccionar al formato individual
 function irAIndividual() {
   router.push('/individualformat')
 }
 
+function cerrarSession(){
+  authService.logout();
+  router.push('/')
+}
+
 </script>
 
 <style scoped>
+.title-instructor{
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 3px;
+  font-size: 2rem;
+}
 .forms-container {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   gap: 6rem;
   max-width: 1150px;
-  margin: 120px auto 0;
-  padding: 2rem 0;
+  margin: 50px auto 0;
 }
 
 .title-id {
