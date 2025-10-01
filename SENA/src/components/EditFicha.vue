@@ -92,13 +92,21 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Trimestre</label>
+              <label class="form-label">Fecha inicio ficha</label>
               <input 
-                v-model="localInfo.trimestre" 
-                class="form-input" 
-                type="text"
-                placeholder="Ej: 2024-1"
-              />
+              v-model="localInfo.fecha_inicio" 
+              type="date" 
+              class="form-input" 
+            />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Fecha fin ficha</label>
+              <input 
+              v-model="localInfo.fecha_fin" 
+              type="date" 
+              class="form-input" 
+            />
             </div>
 
             <div class="form-group">
@@ -108,6 +116,16 @@
               type="date" 
               class="form-input" 
             />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Trimestre</label>
+              <input 
+                v-model="localInfo.trimestre" 
+                class="form-input" 
+                type="text"
+                placeholder="Ej: 1"
+              />
             </div>
 
             <div class="form-group form-group-full">
@@ -154,8 +172,10 @@ const props = defineProps<{
   informacionAdicional: {
     nivel_formacion: string
     modalidad_formacion: string
-    trimestre: string
+    fecha_inicio: string
+    fecha_fin: string
     fecha_inicio_etapa_productiva: string
+    trimestre: string
     jornada: string
   }
 }>()
