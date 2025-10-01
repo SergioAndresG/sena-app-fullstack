@@ -425,40 +425,25 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
 
             if (nombre.value.trim() === "" || apellido.value.trim() === "" || correo.value.trim() === "") {
                 Swal.showValidationMessage('Los campos de nombre, apellidos y correo son obligatorios');
-                return false
+                return false;
             }
 
             const discapacidadSi = document.getElementById('discapacidad-si') as HTMLInputElement;
-            const discapacidadNO = document.getElementById('discapacidad-no') as HTMLInputElement;
-            const tipo_discapacidad = document.getElementById('tipo-disc') as HTMLInputElement;
+            const tipo_discapacidad_select = document.getElementById('tipo-disc') as HTMLSelectElement;
+            let discapacidadSeleccionada = discapacidadSi.checked ? 'SI' : 'NO';
 
-
-
-            let discapacidadSeleccionada = 'No'
-             if (discapacidadSi.checked) {
-                discapacidadSeleccionada = 'Si'
-             } else if (discapacidadNO.checked){
-                discapacidadSeleccionada = 'No'
-             } else {
-                Swal.showValidationMessage('Debe selccionar si tiene alguna discapacidad');
-                return false
-             }
-
-             if (discapacidadSeleccionada == 'Si' && !tipo_discapacidad.value.trim()) {
+             if (discapacidadSeleccionada == 'SI' && !tipo_discapacidad_select.value.trim()) {
                 Swal.showValidationMessage('Debe especifcar el tipo de discapacidad');
                 return false
              }
-
-
             // 📋 Uso mejorado al obtener los datos
             const firmaData = signaturePad.isEmpty()
-                ? null
+                ? (nuevoAprendiz.firma || null)  // Mantener la firma existente si no se ha dibujado nada nuevo
                 : (window as any).exportFirma(); // Para PNG de alta calidad
             
             if (!firmaData) {
                 Swal.showValidationMessage('La firma es obligatoria');
                 return false;
-                
             }
 
             return {
@@ -473,7 +458,7 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
                 correo: correo.value.trim(),
                 celular: celular.value.trim(),
                 discapacidad: discapacidadSeleccionada,
-                tipo_discapacidad: discapacidadSeleccionada === 'Si' ? tipo_discapacidad.value.trim() : null,
+                tipo_discapacidad: discapacidadSeleccionada === 'SI' ? tipo_discapacidad_select.value.trim() : null,
                 firma: firmaData
             };
 
@@ -490,6 +475,9 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
 </script>
 
 <style scoped>
+
+
+
 
 /* ✅ PREVENCIÓN DEL DESPLAZAMIENTO LATERAL */
 :global(body.swal2-shown) {

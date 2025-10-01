@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import { ref } from 'vue';
 import axios from 'axios';
 import router from '../router';
-
+import { authService } from '../services/auth_service';
 
 const inputFichas = ref<HTMLInputElement | null>(null)
 const inputMaestro = ref<HTMLInputElement | null>(null)
@@ -31,6 +31,13 @@ function irAIndividual() {
 function irAUsuarios() {
   router.push('/user-dashboard')
 }
+
+async function cerrarSession() {
+  authService.logout();
+  localStorage.removeItem('access_token')
+  router.push('/');
+}
+
 
 async function subirFichas(event: Event) {
   const files = (event.target as HTMLInputElement).files
@@ -138,12 +145,16 @@ function irAHistorial() {
   <!-- Botón de logout fijo -->
   <div class="right-button-dashboard">
     <div class="tooltip-dashboard">
-      <button class="back-buttons">
+      <button class="back-buttons" @click="cerrarSession">
         <i class="fa-solid fa-right-from-bracket"></i>
       </button>
-      <span class="tooltip-text-dashboard">Cerrar sesión</span>
+      <span class="tooltip-text-dashboard" >
+        Cerrar sesión</span>
     </div>
   </div>
+
+  <h1 class="title-admin">¡BIENVENIDO ADMINISTRADOR!</h1>
+  <hr style="width: 50%;">
 
   <div class="container-section-docs">
     <section class="container-docs">
@@ -249,13 +260,21 @@ function irAHistorial() {
 </template>
 
 <style scoped>
+.title-admin {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 3px;
+  font-size: 2rem;
+}
+
 .container-section-docs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   max-width: 1150px;
   margin: 0 auto;
-  margin-top: 80px;
+  margin-top: 30px;
   padding: 2rem 0;
   overflow: hidden;
 }

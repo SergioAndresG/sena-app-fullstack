@@ -133,33 +133,31 @@ const isTokenValid = (): boolean => {
 }
 
 // Función para cargar los datos del usuario automáticamente
-const loadUserData = () => {
-  // Verificar si hay un token válido
-  if (!isTokenValid()) {
-    // Redirigir al login si no hay token válido
-    router.push('/')
-    return
-  }
+const loadUserData = async () => {
+  try{
+     // Obtener datos del usuario
+      const user = await authService.getCurrentUserFromServer();
 
-  // Obtener datos del usuario
-  const user = getCurrentUser()
+      if (user) {
+        user.value = user;
+        // Autocompletar el formulario con los datos del usuario
+        usuarioGenerador.value = {
+          id: user.id || 0,
+          nombre: user.nombre,
+          apellidos: user.apellidos,
+          correo: user.correo,
+          rol: user.rol
+        }
 
-  if (user) {
-    currentUser.value = user
-
-    // Autocompletar el formulario con los datos del usuario
-    usuarioGenerador.value = {
-      id: user.id || 0,
-      nombre: user.nombre,
-      apellidos: user.apellidos,
-      correo: user.correo,
-      rol: user.rol
+        console.log('Datos del usuario cargados automáticamente:', user)
+      } else {
+        // Si no hay datos de usuario, redirigir al login
+        router.push('/')
+      }
+    } catch (error) {
+      console.error('Error cargando datos del usuario:', error)
+      router.push('/')
     }
-
-  } else {
-    // Si no hay datos de usuario, redirigir al login
-    router.push('/')
-  }
 }
 
 // Función para permitir editar los campos (opcional)
@@ -182,10 +180,17 @@ const resetToUserData = () => {
 // Función para cargar aprendices
 const cargarAprendicesFicha = async (codigoFicha: String) => {
   cargando.value = true;
+  aprendicesExportar.value = []; // Limpiar datos previos
 
   try {
     await new Promise(resolve => setTimeout(resolve, 800));
     const respuesta = await axios.get(`http://127.0.0.1:8000/ficha/${codigoFicha}/aprendices`);
+    console.log("Respuesta de aprendices:", respuesta.data);
+
+    const normalizarEstadoAprendices = respuesta.data.aprendices.map(ap => ({
+      ...ap,
+      editado: ap.editado === 1
+    }));
 
     if (respuesta.data.archivo_existente) {
       Swal.fire({
@@ -278,9 +283,7 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
 });
       return;
     }
-    aprendices.value = respuesta.data.aprendices;
-
-
+    aprendices.value = normalizarEstadoAprendices;
     busquedaRealizada.value = true;
     mostrarResultados.value = true;
 
@@ -370,7 +373,8 @@ function actualizarAprendiz(datosEditados) {
   if (index !== -1) {
     aprendices.value[index] = {
       ...aprendices.value[index],
-      ...datosEditados
+      ...datosEditados,
+      editado: true
     }
 
     const datosParaExportar = {
@@ -388,7 +392,7 @@ function actualizarAprendiz(datosEditados) {
     };
 
     const existente = aprendicesExportar.value.findIndex(a => a.documento === datosEditados.documento)
-    if (existente == -1) {
+    if (existente === -1) {
       aprendicesExportar.value.push(datosParaExportar)
     } else {
       aprendicesExportar.value[existente] = datosParaExportar
@@ -414,6 +418,7 @@ function exportarAprendices() {
     });
     return;
   }
+  console.log("Datos a exportar:", aprendicesExportar.value)
 
   if (!usuarioGenerador.value.nombre || !usuarioGenerador.value.apellidos || !usuarioGenerador.value.rol) {
     Swal.fire({
@@ -488,6 +493,8 @@ function exportarAprendices() {
         document.body.style.paddingRight = '';
       }
     });
+    volverABusqueda();
+
   }).catch(async (err) => {
     console.error("Error al exportar:", err);
 
@@ -497,7 +504,7 @@ function exportarAprendices() {
       try {
         const errorText = await err.response.data.text();
         const errorData = JSON.parse(errorText);
-        errorMessage = errorData.detail || errorMessage;
+        errorMesyysage = errorData.detail || errorMessage;
         console.error("Error parseado:", errorData);
       } catch (parseError) {
         console.error("No se pudo parsear el error del blob:", parseError);
@@ -563,10 +570,16 @@ function cerrarModal() {
   desbloquearScroll()
 }
 
-
-function irAInstructor() {
+function regresar() {
   router.back()
 }
+
+async function cerrarSession() {
+  authService.logout();
+  localStorage.removeItem('access_token')
+  router.push('/');
+}
+
 
 onMounted(() => {
   loadUserData();
@@ -579,7 +592,7 @@ onMounted(() => {
   <div class="floating-buttons" v-if="!mostrarResultados">
     <!-- Botón izquierdo -->
     <div class="tooltip tooltip-left btn-left">
-      <button class="back-buttons" @click="irAInstructor">
+      <button class="back-buttons" @click="regresar">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <span class="tooltip-text">Regresar</span>
@@ -595,7 +608,7 @@ onMounted(() => {
       </div>
 
       <div class="tooltip">
-        <button class="back-buttons">
+        <button class="back-buttons" @click="cerrarSession">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
         <span class="tooltip-text">Cerrar sesión</span>

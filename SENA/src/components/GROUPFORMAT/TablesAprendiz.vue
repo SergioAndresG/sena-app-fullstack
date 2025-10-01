@@ -88,6 +88,8 @@ async function abrirModal(aprendiz: Aprendiz) {
                 class="table-row"
                 :style="{ 'animation-delay': `${index * 0.05}s` }"
             >
+                {{ console.log('Estado:', item.estado, 'Tipo:', typeof item.estado) }}
+
                 <td class="td-number">{{ index + 1 }}</td>
                 <td class="td-documento">
                 <span class="document-badge">{{ item.tipo_documento }}</span>

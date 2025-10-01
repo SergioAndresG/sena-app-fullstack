@@ -530,9 +530,13 @@ function cerrarModal() {
   desbloquearScroll()
 }
 
-
 function irAInstructor() {
   router.back()
+}
+
+function cerrarSession(){
+  authService.logout()
+  router.push('/')
 }
 
 onMounted(() => {
@@ -562,7 +566,7 @@ onMounted(() => {
       </div>
 
       <div class="tooltip">
-        <button class="back-buttons">
+        <button class="back-buttons" @click="cerrarSession">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
         <span class="tooltip-text">Cerrar sesión</span>

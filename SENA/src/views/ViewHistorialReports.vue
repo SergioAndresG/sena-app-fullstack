@@ -12,7 +12,7 @@
     <!-- Contenedor de botones derechos -->
     <div class="right-buttons">
       <div class="tooltip">
-        <button class="back-buttons">
+        <button class="back-buttons" @="cerrarSession">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
         <span class="tooltip-text">Cerrar sesión</span>
@@ -90,11 +90,6 @@
               <span class="info-value modalidad" :class="archivo.modalidad.toLowerCase()">
                 {{ archivo.modalidad }}
               </span>
-            </div>
-            
-            <div class="info-row">
-              <span class="info-label">Aprendices:</span>
-              <span class="info-value">{{ archivo.cantidad_aprendices }}</span>
             </div>
             
             <div class="info-row">
@@ -354,6 +349,11 @@ const tiempoTranscurrido = (fecha: string): string => {
   return 'hace un momento'
 }
 
+function cerrarSession(){
+  authService.logout();
+  router.push('/')
+}
+
 // Lifecycle
 onMounted(() => {
   obtenerHistorial()
@@ -386,7 +386,7 @@ function irAAdmin(){
 
 /* Contenedor principal */
 .historial-container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 1rem;
   min-height: 100vh;
@@ -512,6 +512,8 @@ function irAAdmin(){
   cursor: pointer;
   overflow: hidden;
   border: 3px solid var(--border-color);
+  flex-direction: column;
+  width: 530px;
 }
 
 .archivo-card:hover {
