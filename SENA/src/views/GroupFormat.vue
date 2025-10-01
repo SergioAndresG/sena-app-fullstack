@@ -21,6 +21,8 @@ interface Aprendiz {
   direccion: string
   estado: string
   editado?: boolean
+  discapacidad?: string
+  tipo_discapacidad?: string
   firma?: string
 }
 
@@ -154,7 +156,6 @@ const loadUserData = () => {
       rol: user.rol
     }
 
-    console.log('Datos del usuario cargados automáticamente:', user)
   } else {
     // Si no hay datos de usuario, redirigir al login
     router.push('/')
@@ -187,7 +188,6 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
     const respuesta = await axios.get(`http://127.0.0.1:8000/ficha/${codigoFicha}/aprendices`);
 
     if (respuesta.data.archivo_existente) {
-      console.log(respuesta.data.archivo_existente)
       Swal.fire({
         icon: "info",
         title: "Archivo ya generado",
@@ -249,17 +249,33 @@ const cargarAprendicesFicha = async (codigoFicha: String) => {
             Swal.close();
             Swal.fire('¡Éxito!', 'Archivo descargado correctamente', 'success');
 
-          } catch (error) {
-            Swal.close();
-            Swal.fire('Error', 'No se pudo descargar el archivo', 'error');
-            console.error('Error descargando:', error);
-          }
-        } else if (result.isDenied) {
-          aprendices.value = respuesta.data.aprendices;
-          busquedaRealizada.value = true;
-          mostrarResultados.value = true;
-        }
-      });
+    } catch (error) {
+      Swal.close();
+      Swal.fire('Error', 'No se pudo descargar el archivo', 'error');
+      console.error('Error descargando:', error);
+    }
+  } else if (result.isDenied) {
+    aprendices.value = respuesta.data.aprendices;
+    busquedaRealizada.value = true;
+    mostrarResultados.value = true;
+        aprendicesExportar.value = respuesta.data.aprendices
+    .filter(a => a.editado)
+    .map(ap => ({
+      tipo_documento: ap.tipo_documento,
+      documento: ap.documento,
+      nombre: ap.nombre,
+      apellido: ap.apellido,
+      direccion: ap.direccion || '', 
+      correo: ap.correo,
+      celular: ap.celular,
+      discapacidad: ap.discapacidad.toUpperCase() || 'NO', 
+      tipo_discapacidad: ap.tipo_discapacidad || 'N/A', 
+      modalidad: modalidad,
+      firma: ap.firma || '' 
+    }));
+
+  }
+});
       return;
     }
     aprendices.value = respuesta.data.aprendices;
@@ -312,7 +328,6 @@ const volverABusqueda = () => {
 
 // Función para manejar la edición desde el componente tabla
 const manejarEdicionAprendiz = (aprendiz: Aprendiz) => {
-  console.log('Editando aprendiz desde', aprendiz.nombre)
   aprendizSeleccionado.value = aprendiz
   mostrarModal.value = true
   bloquearScroll()
@@ -336,7 +351,6 @@ const manejarErrorCarga = (error: any) => {
 
 // Función para manejar cuando se cierra el modal desde el componente tabla
 const manejarModalCerrado = () => {
-  console.log('Modal cerrado desde tabla')
   cerrarModal()
 }
 
@@ -430,9 +444,9 @@ function exportarAprendices() {
       direccion: ap.direccion || '',
       correo: ap.correo,
       celular: ap.celular,
-      discapacidad: ap.discapacidad || 'No',
-      tipo_discapacidad: ap.tipo_discapacidad || 'N/A',
-      firma: ap.firma || '',
+      discapacidad: ap.discapacidad.toUpperCase() || 'NO', 
+      tipo_discapacidad: ap.tipo_discapacidad || 'N/A', 
+      firma: ap.firma || '', 
     })),
     usuario_generator: {
       id: usuarioGenerador.value.id || 0,
@@ -516,14 +530,11 @@ const manejarGuardar = async (datos: any) => {
   mostrarModalFicha.value = false
   fichaEditada.value = true
 
-  console.log('Datos listos para enviar:', datos)
-
   try {
     await axios.post(
       `http://127.0.0.1:8000/ficha/${ficha.value}/informacion-adicional`,
       informacionAdicional.value
     )
-    console.log("Información adicional guardada en BD")
   } catch (err) {
     console.error("Error guardando información adicional:", err)
   }
@@ -535,7 +546,6 @@ async function cargarInformacionAdicional(numeroFicha: string) {
       `http://127.0.0.1:8000/ficha/${numeroFicha}/informacion-adicional`
     )
     informacionAdicional.value = res.data
-    console.log("Información adicional cargada:", res.data)
   } catch (err) {
     console.error("Error cargando información adicional:", err)
   }
