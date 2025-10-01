@@ -164,7 +164,6 @@ const loadUserData = () => {
       rol: user.rol
     }
 
-    console.log('Datos del usuario cargados automáticamente:', user)
   } else {
     // Si no hay datos de usuario, redirigir al login
     router.push('/')
@@ -291,7 +290,6 @@ const volverABusqueda = () => {
 
 // Función para manejar la edición desde el componente tabla
 const manejarEdicionAprendiz = (aprendiz: Aprendiz) => {
-  console.log('Editando aprendiz desde', aprendiz.nombre)
   aprendizSeleccionado.value = aprendiz
   mostrarModal.value = true
   bloquearScroll()
@@ -315,7 +313,6 @@ const manejarErrorCarga = (error: any) => {
 
 // Función para manejar cuando se cierra el modal desde el componente tabla
 const manejarModalCerrado = () => {
-  console.log('Modal cerrado desde tabla')
   cerrarModal()
 }
 
@@ -328,6 +325,7 @@ const desbloquearScroll = () => {
 }
 
 function actualizarAprendiz(datosEditados) {
+  aprendicesExportar.value = [datosEditados]
   const index = aprendices.value.findIndex(a =>
     a.documento === aprendizSeleccionado.value?.documento
   )
@@ -439,7 +437,7 @@ function exportarAprendices() {
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `formato_F165_ficha_${ficha.value}.xlsx`);
+    link.setAttribute('download', `formato_F165_individual_${ficha.value}_${documento_ap.value}.xlsx`);
     document.body.appendChild(link);
     link.click();
 
@@ -499,14 +497,11 @@ const manejarGuardar = async (datos: any) => {
   mostrarModalFicha.value = false
   fichaEditada.value = true
 
-  console.log('Datos listos para enviar:', datos)
-
   try {
     await axios.post(
       `http://127.0.0.1:8000/ficha/${ficha.value}/informacion-adicional`,
       informacionAdicional.value
     )
-    console.log("Información adicional guardada en BD")
   } catch (err) {
     console.error("Error guardando información adicional:", err)
   }
@@ -518,7 +513,6 @@ async function cargarInformacionAdicional(numeroFicha: string) {
       `http://127.0.0.1:8000/ficha/${numeroFicha}/informacion-adicional`
     )
     informacionAdicional.value = res.data
-    console.log("Información adicional cargada:", res.data)
   } catch (err) {
     console.error("Error cargando información adicional:", err)
   }
@@ -629,7 +623,6 @@ onMounted(() => {
       <TablesAprendiz v-if="aprendicesNoEditados?.length" :aprendices="aprendicesNoEditados" :esIndividual="true"
         titulo="Aprendices disponibles" @editar-aprendiz="manejarEdicionAprendiz" @modal-cerrado="manejarModalCerrado"
         @error-carga="manejarErrorCarga">
-
       </TablesAprendiz>
 
       <!-- TABLA DE APRENDICES EDITADOS - Usando el mismo componente -->
