@@ -7,6 +7,9 @@ import {  ref, watch } from 'vue'
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import SignaturePad from "signature_pad";
+import Choices from "choices.js";
+import "choices.js/public/assets/styles/choices.min.css";
+
 
 let signaturePad: SignaturePad;
 
@@ -20,7 +23,7 @@ interface Aprendiz {
     municipio?: string,
     correo: string;
     celular: string;
-    discapacidad?: "Si" | "No";
+    discapacidad?: "SI" | "NO";
     tipo_discapacidad?: string;
     firma?: string;
 }
@@ -89,7 +92,6 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
     if (!nuevoAprendiz) return;
 
     const esIndividual = (nuevoAprendiz as any).modalidad === 'individual';
-        console.log('Datos del aprendiz al abrir el modal:', nuevoAprendiz);
 
     const { value: formData } = await Swal.fire({
         title: 'Editar Aprendiz',
@@ -154,18 +156,27 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
             <label class="field-label">¿Tiene alguna discapacidad?</label>
             <div class="radio-group">
                 <label class="radio-option">
-                <input type="radio" name="discapacidad" id="discapacidad-si" value="Si" ${nuevoAprendiz.discapacidad === 'Si' ? 'checked' : ''}> 
+                <input type="radio" name="discapacidad" id="discapacidad-si" value="SI" ${nuevoAprendiz.discapacidad === 'SI' ? 'checked' : ''}> 
                 <span class="radio-label">Sí</span>
                 </label>
                 <label class="radio-option">
-                <input type="radio" name="discapacidad" id="discapacidad-no" value="No" ${nuevoAprendiz.discapacidad === 'No' ? 'checked' : ''}> 
+                <input type="radio" name="discapacidad" id="discapacidad-no" value="NO" ${nuevoAprendiz.discapacidad === 'NO' ? 'checked' : ''}> 
                 <span class="radio-label">No</span>
                 </label>
             </div>
             
-            <div id="detalle-discapacidad" class="disability-detail" style="display: ${nuevoAprendiz.discapacidad === 'Si' ? 'block' : 'none'}">
+            <div id="detalle-discapacidad" class="disability-detail" style="display: ${nuevoAprendiz.discapacidad === 'SI' ? 'block' : 'none'}">
                 <label class="field-label">¿Cuál es la situación de discapacidad que presenta?</label>
-                <input id="tipo-disc" class="form-input" placeholder="Ingrese el tipo de discapacidad" value="${nuevoAprendiz.tipo_discapacidad || ''}">
+                <select id="tipo-disc" class="form-input" placeholder="Ingrese el tipo de discapacidad" value="${nuevoAprendiz.tipo_discapacidad || ''}">
+                    <option value="AUDITIVA" ${nuevoAprendiz.tipo_discapacidad === 'AUDITIVA' ? 'selected' : ''}>AUDITIVA</option>
+                    <option value="VISUAL" ${nuevoAprendiz.tipo_discapacidad === 'VISUAL' ? 'selected' : ''}>VISUAL</option>
+                    <option value="FISICA" ${nuevoAprendiz.tipo_discapacidad === 'FISICA' ? 'selected' : ''}>FISICA</option>
+                    <option value="INTELECTUAL" ${nuevoAprendiz.tipo_discapacidad === 'INTELECTUAL' ? 'selected' : ''}>INTELECTUAL</option>
+                    <option value="SORDOCEGUERA" ${nuevoAprendiz.tipo_discapacidad === 'SORDOCEGUERA' ? 'selected' : ''}>SORDOCEGUERA</option>
+                    <option value="PSICOSOCIAL" ${nuevoAprendiz.tipo_discapacidad === 'PSICOSOCIAL' ? 'selected' : ''}>PSICOSOCIAL</option>
+                    <option value="MULTIPLE" ${nuevoAprendiz.tipo_discapacidad === 'MULTIPLE' ? 'selected' : ''}>MULTIPLE</option>
+
+                </select>
                 <p class="help-text">Recuerde que debe anexar su certificado de discapacidad emitido por la EPS</p>
             </div>
             </div>
@@ -309,6 +320,36 @@ watch(() => props.aprendiz, async (nuevoAprendiz) => {
         velocityFilterWeight: 0.1,
         dotSize: 1.5
     });
+
+    new Choices("#tipo-disc", {
+      searchEnabled: false,   // quita el buscador
+      itemSelectText: "",     // quita el texto "Press to select"
+    });
+
+    const style = document.createElement("style");
+    style.textContent = `
+    .swal2-popup .choices__inner {
+        width: 75%;
+        border: 1px solid #10b981;
+        min-height: 14px;
+        padding-bottom: 8px 12px;
+    }
+    .swal2-popup .choices__list--dropdown {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        opacity: 0;
+        transform: translateY(-5px); /* empieza un poco arriba */
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    /* Estado visible */
+    .swal2-popup .is-open .choices__list--dropdown {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .swal2-popup .choices[data-type*="select-one"]::after {
+    display: none !important;
+    }
+    `;
+    document.head.appendChild(style);
 
     // 🔥 LLAMAR A LA FUNCIÓN DESPUÉS DE INICIALIZAR SignaturePad
     // Pequeño delay para asegurar que todo esté listo

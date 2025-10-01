@@ -244,12 +244,10 @@ const resetForm = () => {
 };
 
 const handleInstructorRequest = (userId: number) => {
-  console.log('Instructor consultado:', userId);
   // Aquí puedes manejar la respuesta si necesitas actualizar algo
 };
 
 const handleUserRequest = (user: User) => {
-  console.log('Usuario consultado:', user);
   // Aquí puedes manejar la información del usuario si la necesitas
 };
 

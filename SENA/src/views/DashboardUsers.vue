@@ -56,27 +56,23 @@ const cargarUsuarios = async () => {
 }
 
 const handleInstructorAdded = (newInstructor) => {
-  console.log('Instructor agregado')
   // Actualizar tu lista, hacer refetch, etc.
   cargarUsuarios();
 
 }
 
 const handleInstructorRequest = (newInstructor) => {
-  console.log('Instructor consultado')
   // Actualizar tu lista, hacer refetch, etc.
   cargarUsuarios();
 }
 
 const handleInstructorUpdate = (updatedInstructor) => {
-  console.log('Instructor actualizado:');
   // Recargar la lista de usuarios
   cargarUsuarios();
 };
 
 // Manejar eliminación exitosa
 const handleInstructorDeleted = (userId: number) => {
-  console.log('Usuario eliminado:');
   // Recargar la lista de usuarios
   cargarUsuarios();
 

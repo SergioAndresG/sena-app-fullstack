@@ -11,12 +11,10 @@ const inputFichas = ref<HTMLInputElement | null>(null)
 const inputMaestro = ref<HTMLInputElement | null>(null)
 
 function abrirExploradorFichas() {
-  console.log("Abriendo input de fichas")
   inputFichas.value?.click()
 }
 
 function abrirExploradorMaestro() {
-  console.log("Abriendo input de")
   inputMaestro.value?.click()
 }
 
