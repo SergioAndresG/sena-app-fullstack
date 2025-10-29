@@ -1,157 +1,3 @@
-<template>
-  <!-- Contenedor principal -->
-  <div class="login-card">
-    <div class="card-content">
-      <!-- Panel izquierdo con ilustración -->
-      <div class="left-panel">
-        <!-- Formas decorativas de fondo -->
-        <div class="background-shapes">
-          <div class="shape shape-1"></div>
-          <div class="shape shape-2"></div>
-          <div class="shape shape-3"></div>
-        </div>
-        <!-- Contenido principal -->
-        <div class="left-content">
-          <h1 class="welcome-title">Bienvenidos</h1>
-          <p class="welcome-subtitle">Sistema de Gestión de Formatos F-165</p>
-          <div>
-            <img class="avatar-container" src="/src/assets/team-illustration.png" alt="">
-          </div>
-          <!-- Ilustración de personas -->
-          <div class="people-illustration">
-            <div class="person person-1"><div class="person-avatar"></div></div>
-            <div class="person person-2"><div class="person-avatar"></div></div>
-            <div class="person person-3"><div class="person-avatar"></div></div>
-          </div>
-          <div class="welcome-description">
-            Genere y descargue los formatos de forma fácil y segura
-          </div>
-        </div>
-      </div>
-      
-      <!-- Panel derecho con formulario -->
-      <div class="right-panel">
-        <div class="logo-container">
-          <div class="sena-logo">
-            <div class="content-icon">
-              <img class="logo-icon" src="/src/assets/logo_Sena.png" alt="Logo SENA">
-            </div>
-            <span class="logo-text">Centro de Biotecnología Agropecuaria</span>
-          </div>
-        </div>
-        
-        <div class="form-container">
-          <h2 class="form-title">Inicio Sesión</h2>
-          <p class="form-subtitle">Ingrese sus credenciales para acceder</p>
-          
-          <!-- Mostrar errores -->
-          <div v-if="errorMessage" class="error-message">
-            {{ errorMessage }}
-          </div>
-          
-          
-          <form @submit.prevent="handleLogin" class="form-fields">
-            <!-- Campo Email -->
-            <div class="field-group">
-              <label class="field-label">Correo electrónico</label>
-              <div class="input-container">
-                <input 
-                  type="email" 
-                  v-model="loginForm.correo" 
-                  class="form-input" 
-                  :class="{ 'error': emailError }"
-                  placeholder="usuario@ejemplo.com" 
-                  required 
-                  autocomplete="email"
-                  :disabled="isLoading || isBlocked"
-                  @blur="validateEmail"
-                  @input="clearErrors"
-                />
-                <div class="input-icon">
-                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
-                </div>
-              </div>
-              <span v-if="emailError" class="field-error">{{ emailError }}</span>
-            </div>
-            
-            <!-- Campo Contraseña -->
-            <div class="field-group">
-              <label class="field-label">Contraseña</label>
-              <div class="input-container">
-                <input 
-                  :type="showPassword ? 'text' : 'password'" 
-                  v-model="loginForm.contraseña" 
-                  class="form-input" 
-                  :class="{ 'error': passwordError }"
-                  placeholder="••••••••" 
-                  required 
-                  autocomplete="current-password"
-                  :disabled="isLoading || isBlocked"
-                  @blur="validatePassword"
-                  @input="clearErrors"
-                  minlength="8"
-                />
-                <div class="input-icon">
-                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <button 
-                  type="button" 
-                  @click="togglePassword" 
-                  class="password-toggle"
-                  :disabled="isLoading || isBlocked"
-                >
-                  <svg v-if="showPassword" class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029M5.394 5.394L4 4m0 0l1.394 1.394M4 4l15.364 15.364M19.606 19.606L21 21m-1.394-1.394L19.606 19.606m0 0a12.002 12.002 0 01-1.563-3.029 10.05 10.05 0 01-5.043-1.877" />
-                  </svg>
-                  <svg v-else class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </button>
-              </div>
-              <span v-if="passwordError" class="field-error">{{ passwordError }}</span>
-            </div>
-            
-            <!-- Indicador de fortaleza de contraseña -->
-            <div v-if="loginForm.contraseña" class="password-strength">
-              <div class="strength-bar">
-                <div class="strength-fill" :class="passwordStrength.class" :style="{ width: passwordStrength.width }"></div>
-              </div>
-              <span class="strength-text">{{ passwordStrength.text }}</span>
-            </div>
-            
-            <!-- Botón de ingreso -->
-            <button 
-              type="submit"
-              :disabled="isLoading || isBlocked || !isFormValid" 
-              class="login-button" 
-              :class="{ 'loading': isLoading, 'blocked': isBlocked }"
-            >
-              <div v-if="isLoading" class="loading-content">
-                <div class="spinner"></div>
-                Ingresando...
-              </div>
-              <span v-else-if="isBlocked">
-                Bloqueado por {{ Math.ceil(blockTimeRemaining / 60) }} min
-              </span>
-              <span v-else>Ingresar</span>
-            </button>
-            
-            <!-- Información de bloqueo -->
-            <div v-if="isBlocked" class="block-info">
-              Demasiados intentos fallidos. Intente de nuevo en {{ Math.ceil(blockTimeRemaining / 60) }} minutos.
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -429,6 +275,160 @@ onUnmounted(() => {
   }
 })
 </script>
+
+<template>
+  <!-- Contenedor principal -->
+  <div class="login-card">
+    <div class="card-content">
+      <!-- Panel izquierdo con ilustración -->
+      <div class="left-panel">
+        <!-- Formas decorativas de fondo -->
+        <div class="background-shapes">
+          <div class="shape shape-1"></div>
+          <div class="shape shape-2"></div>
+          <div class="shape shape-3"></div>
+        </div>
+        <!-- Contenido principal -->
+        <div class="left-content">
+          <h1 class="welcome-title">Bienvenidos</h1>
+          <p class="welcome-subtitle">Sistema de Gestión de Formatos F-165</p>
+          <div>
+            <img class="avatar-container" src="/src/assets/team-illustration.png" alt="">
+          </div>
+          <!-- Ilustración de personas -->
+          <div class="people-illustration">
+            <div class="person person-1"><div class="person-avatar"></div></div>
+            <div class="person person-2"><div class="person-avatar"></div></div>
+            <div class="person person-3"><div class="person-avatar"></div></div>
+          </div>
+          <div class="welcome-description">
+            Genere y descargue los formatos de forma fácil y segura
+          </div>
+        </div>
+      </div>
+      
+      <!-- Panel derecho con formulario -->
+      <div class="right-panel">
+        <div class="logo-container">
+          <div class="sena-logo">
+            <div class="content-icon">
+              <img class="logo-icon" src="/src/assets/logo_Sena.png" alt="Logo SENA">
+            </div>
+            <span class="logo-text">Centro de Biotecnología Agropecuaria</span>
+          </div>
+        </div>
+        
+        <div class="form-container">
+          <h2 class="form-title">Inicio Sesión</h2>
+          <p class="form-subtitle">Ingrese sus credenciales para acceder</p>
+          
+          <!-- Mostrar errores -->
+          <div v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </div>
+          
+          
+          <form @submit.prevent="handleLogin" class="form-fields">
+            <!-- Campo Email -->
+            <div class="field-group">
+              <label class="field-label">Correo electrónico</label>
+              <div class="input-container">
+                <input 
+                  type="email" 
+                  v-model="loginForm.correo" 
+                  class="form-input" 
+                  :class="{ 'error': emailError }"
+                  placeholder="usuario@ejemplo.com" 
+                  required 
+                  autocomplete="email"
+                  :disabled="isLoading || isBlocked"
+                  @blur="validateEmail"
+                  @input="clearErrors"
+                />
+                <div class="input-icon">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                </div>
+              </div>
+              <span v-if="emailError" class="field-error">{{ emailError }}</span>
+            </div>
+            
+            <!-- Campo Contraseña -->
+            <div class="field-group">
+              <label class="field-label">Contraseña</label>
+              <div class="input-container">
+                <input 
+                  :type="showPassword ? 'text' : 'password'" 
+                  v-model="loginForm.contraseña" 
+                  class="form-input" 
+                  :class="{ 'error': passwordError }"
+                  placeholder="••••••••" 
+                  required 
+                  autocomplete="current-password"
+                  :disabled="isLoading || isBlocked"
+                  @blur="validatePassword"
+                  @input="clearErrors"
+                  minlength="8"
+                />
+                <div class="input-icon">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <button 
+                  type="button" 
+                  @click="togglePassword" 
+                  class="password-toggle"
+                  :disabled="isLoading || isBlocked"
+                >
+                  <svg v-if="showPassword" class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029M5.394 5.394L4 4m0 0l1.394 1.394M4 4l15.364 15.364M19.606 19.606L21 21m-1.394-1.394L19.606 19.606m0 0a12.002 12.002 0 01-1.563-3.029 10.05 10.05 0 01-5.043-1.877" />
+                  </svg>
+                  <svg v-else class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+              </div>
+              <span v-if="passwordError" class="field-error">{{ passwordError }}</span>
+            </div>
+            
+            <!-- Indicador de fortaleza de contraseña -->
+            <div v-if="loginForm.contraseña" class="password-strength">
+              <div class="strength-bar">
+                <div class="strength-fill" :class="passwordStrength.class" :style="{ width: passwordStrength.width }"></div>
+              </div>
+              <span class="strength-text">{{ passwordStrength.text }}</span>
+            </div>
+            
+            <!-- Botón de ingreso -->
+            <button 
+              type="submit"
+              :disabled="isLoading || isBlocked || !isFormValid" 
+              class="login-button" 
+              :class="{ 'loading': isLoading, 'blocked': isBlocked }"
+            >
+              <div v-if="isLoading" class="loading-content">
+                <div class="spinner"></div>
+                Ingresando...
+              </div>
+              <span v-else-if="isBlocked">
+                Bloqueado por {{ Math.ceil(blockTimeRemaining / 60) }} min
+              </span>
+              <span v-else>Ingresar</span>
+            </button>
+            
+            <!-- Información de bloqueo -->
+            <div v-if="isBlocked" class="block-info">
+              Demasiados intentos fallidos. Intente de nuevo en {{ Math.ceil(blockTimeRemaining / 60) }} minutos.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 /* Contenedor principal */
