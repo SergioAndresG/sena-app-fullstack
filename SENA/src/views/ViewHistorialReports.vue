@@ -204,7 +204,8 @@ import { ref, computed, onMounted, type Ref } from 'vue'
 import axios, { type AxiosResponse } from 'axios'
 import { useRouter } from 'vue-router';
 import Header from '../components/Header.vue'
-
+import { AuthService } from '../services/auth_service';
+import Swal from 'sweetalert2';
 // Interfaces
 interface ArchivoExcel {
   id: number
@@ -283,7 +284,7 @@ const archivosFiltrados = computed((): ArchivoExcel[] => {
 const obtenerHistorial = async (): Promise<void> => {
   try {
     loading.value = true
-    const response: AxiosResponse<ArchivoExcel[]> = await axios.get('http://127.0.0.1:8000/archivo/historial')
+    const response: AxiosResponse<ArchivoExcel[]> = await axios.get('http://localhost:8000/archivo/historial')
     archivos.value = response.data
   } catch (error) {
     console.error('Error al obtener historial:', error)
@@ -306,8 +307,20 @@ const cerrarModal = (): void => {
 const descargar = async (): Promise<void> => {
   try {
     loading.value = true
-    const response: AxiosResponse<any> = await axios.post('http://127.0.0.1:8000/exportar-f165')
-    archivos.value = response.data
+    const response = await axios.get(`http://127.0.0.1:8000/descargar-archivo/${archivoSeleccionado.value?.id}`, {
+      responseType: 'blob'
+    });
+      const url = window.URL.createObjectURL(new Blob([response.data],{
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = archivoSeleccionado.value?.nombre_original
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url)
+    
   } catch (error) {
     console.error('Error al obtener historial:', error)
     // Aquí puedes agregar manejo de errores (toast, notification, etc.)
