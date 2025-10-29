@@ -314,9 +314,10 @@ onUnmounted(() => {
             <div class="content-icon">
               <img class="logo-icon" src="/src/assets/logo_Sena.png" alt="Logo SENA">
             </div>
-            <span class="logo-text">Centro de Biotecnología Agropecuaria</span>
           </div>
         </div>
+        <span class="logo-text">Centro de <br> Biotecnología Agropecuaria</span>
+
         
         <div class="form-container">
           <h2 class="form-title">Inicio Sesión</h2>
@@ -563,7 +564,6 @@ onUnmounted(() => {
 }
 
 .logo-container {
-  text-align: center;
   margin-bottom: 0.5rem;
 }
 
@@ -585,14 +585,14 @@ onUnmounted(() => {
   justify-content: center;
 }
 
-.logo-icon span {
-  color: white;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
-
 .logo-text {
+  color: #16a34a;
+  text-align: center;
   font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0 auto;
+  margin-bottom: 2rem;
+  margin-top: -4.7rem;
 }
 
 .form-container {
