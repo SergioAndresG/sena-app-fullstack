@@ -1,6 +1,7 @@
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from connection import crear
 from connection import get_db
 from MODELS import Usuarios
 from MODELS.token_blacklist import TokenBlacklist
@@ -164,3 +165,22 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     usuario asociado desde la base de datos y lo retorna. 
     Si el token es inválido, está vacío o el usuario no existe, lanza un error 401.
     """
+
+def cleanup_expired_tokens():
+    """Elimina tokens caducados de la tabla TokenBlacklist."""
+    db = Session(bind=crear)
+    try:
+        now = datetime.now(timezone.utc)
+        expired_tokens = db.query(TokenBlacklist).filter(TokenBlacklist.expires_at < now).all()
+        
+        for token in expired_tokens:
+            db.delete(token)
+            print(f"🗑️ Token expirado eliminado: {token.jti}")
+        
+        db.commit()
+    except Exception as e:
+        print(f"❌ Error eliminando tokens caducados: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
