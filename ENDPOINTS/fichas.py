@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from connection import get_db
 from SCHEMAS.aprendiz_schemas import ExportarF165Request
 from FUNCIONES import procesar_archivos_background, procesar_archivo_maestro_background
+from FUNCIONES.FUNCIONES_FICHAS.delete_fichas import delete_ficha # <--- IMPORTACIÓN AÑADIDA
 from connection import SessionLocal
 from typing import List
 import uuid
@@ -290,4 +291,23 @@ def obtener_informacion_adicional(
             if ficha.fecha_inicio_prod else None
         ),
         "jornada": ficha.jornada
+    }
+
+# === NUEVO ENDPOINT PARA ELIMINAR FICHA ===
+@router_tokens.delete("/ficha/{numero_ficha}", status_code=200)
+def endpoint_delete_ficha(numero_ficha: str, db: Session = Depends(get_db)):
+    """
+    Elimina una ficha por su número y todos sus aprendices asociados (en cascada).
+    """
+    ficha_eliminada = delete_ficha(db, numero_ficha)
+    
+    if ficha_eliminada is None:
+        raise HTTPException(status_code=404, detail=f"Ficha con número {numero_ficha} no encontrada")
+    
+    # La relación `aprendices` se puede usar aquí porque la sesión aún no se ha expirado por completo
+    # aunque los objetos ya estén marcados para eliminación.
+    num_aprendices = len(ficha_eliminada.aprendices)
+
+    return {
+        "message": f"Ficha {numero_ficha} y sus {num_aprendices} aprendices han sido eliminados exitosamente."
     }
