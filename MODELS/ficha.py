@@ -19,4 +19,4 @@ class Ficha(base):
     modalidad_formacion = Column(String(20), nullable=True)
     jornada = Column(String(20), nullable=True)
 
-    aprendices = relationship("Aprendiz", back_populates="ficha")
+    aprendices = relationship("Aprendiz", back_populates="ficha", cascade="all, delete-orphan")
