@@ -1,6 +1,6 @@
 from connection import crear, get_db, base, SessionLocal
 from MODELS import Ficha, Aprendiz, FichaMaestro
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 import polars as pl
 import pandas as pd
@@ -81,20 +81,10 @@ class ProcesadorArchivos:
             columnas_requeridas = ["Tipo de Documento", "Número de Documento", "Nombre", "Apellidos"]
             columnas_faltantes = [col for col in columnas_requeridas if col not in nombres_columnas]
             
-            if columnas_faltantes:
-                print(f"⚠️  Columnas críticas faltantes: {columnas_faltantes}")
-                print(f"⚠️  Columnas disponibles: {nombres_columnas}")
-                # No lanzar error, continuar con las columnas disponibles
-            else:
-                print("✅ Todas las columnas requeridas están presentes")
 
             # Extraer datos desde la fila 6 (índice 5)
             df_datos = df.slice(4)
             
-            print("✅ DataFrame de datos configurado:")
-            print("   Shape original:", df_datos.shape)
-            print("   Columnas originales:", df_datos.columns)
-
             # ✅ CORREGIR: Trabajar directamente con las columnas del DataFrame
             # Las columnas en df_datos corresponden a las posiciones en nombres_columnas
             
@@ -218,7 +208,7 @@ class ProcesadorArchivos:
                     estado=estado_ficha or "DESCONOCIDO",
                     fecha_inicio=fecha_inicio_maestro,
                     fecha_fin=fecha_fin_maestro,
-                    fecha_reporte=fecha_reporte
+                    fecha_reporte=fecha_reporte or datetime.now(timezone.utc).date()
                 )
                 self.session.add(nueva_ficha)
                 fichas_creadas += 1
