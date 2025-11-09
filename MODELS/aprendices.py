@@ -24,7 +24,7 @@ class Aprendiz(base):
     editado = Column(Boolean, default=False)
 
     # Clave foránea para ficha
-    ficha_numero = Column(String(20), ForeignKey("Fichas.numero_ficha"))
+    ficha_numero = Column(String(20), ForeignKey("Fichas.numero_ficha", ondelete="CASCADE"))
 
     # Relación con ficha
     ficha = relationship("Ficha", back_populates="aprendices")
