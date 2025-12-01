@@ -1,9 +1,9 @@
-# -- Conección a base de datos --
+# Conexión a base de datos
 connection.py
 
-# -- Credenciales de tokens, etc --
+# Credenciales de tokens, etc
 .env
 
-# -- Archivos de Python innecesarios --
+# Archivos de Python innecesarios
 *.pyc
-_pycache_/
+__pycache__/
