@@ -168,7 +168,7 @@ Limpieza automática de datos obsoletos
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## Arquitectura del Sistema
 
 ### Diagrama de Arquitectura
 
@@ -216,7 +216,7 @@ Limpieza automática de datos obsoletos
 
 ---
 
-## 👥 Roles y Permisos
+## Roles y Permisos
 
 ### Matriz de Permisos
 
@@ -352,8 +352,8 @@ frontend/
 
 ---
 
-```
 ## 🛠️ Tecnologías Utilizadas
+```
 
 ### Backend
 
@@ -397,11 +397,12 @@ frontend/
 | **MySQL Workbench** | Gestión de BD |
 | **VS Code** | Editor de código |
 
----
+```
 
 ---
 
 ## 🔒 Seguridad
+---
 
 ### Medidas Implementadas
 
@@ -422,8 +423,9 @@ frontend/
 - 🔐 Realizar backups regulares de la base de datos
 
 ---
-
 ## 🤝 Contribuciones
+---
+
 
 ¡Las contribuciones son bienvenidas! Para contribuir:
 
@@ -478,7 +480,6 @@ Docs: cambios en documentación
 Style: cambios de formato (sin cambios de lógica)
 ```
 
----
 
 
 ---
