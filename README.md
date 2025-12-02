@@ -20,10 +20,8 @@
 - [Problema que Resuelve](#-problema-que-resuelve)
 - [Características Principales](#-características-principales)
 - [Arquitectura del Sistema](#-arquitectura-del-sistema)
-- [Uso del Sistema](#-uso-del-sistema)
 - [Roles y Permisos](#-roles-y-permisos)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
-- [API Endpoints](#-api-endpoints)
 - [Tecnologías Utilizadas](#-tecnologías-utilizadas)
 - [Contribuciones](#-contribuciones)
 
