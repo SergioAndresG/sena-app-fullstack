@@ -16,15 +16,17 @@
 
 ## 📋 Tabla de Contenidos
 
-- [¿Qué es este sistema?](#-qué-es-este-sistema)
-- [Problema que Resuelve](#-problema-que-resuelve)
-- [Características Principales](#-características-principales)
-- [Arquitectura del Sistema](#-arquitectura-del-sistema)
-- [Roles y Permisos](#-roles-y-permisos)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Tecnologías Utilizadas](#-tecnologías-utilizadas)
-- [Contribuciones](#-contribuciones)
-
+- [🎯 ¿Qué es este sistema?](#-qué-es-este-sistema)
+- [💡 Problema que Resuelve](#-problema-que-resuelve)
+- [✨ Características Principales](#-características-principales)
+- [🏗️ Arquitectura del Sistema](#️-arquitectura-del-sistema)
+- [👥 Roles y Permisos](#-roles-y-permisos)
+- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+- [🛠️ Tecnologías Utilizadas](#️-tecnologías-utilizadas)
+- [🔒 Seguridad](#-seguridad)
+- [🤝 Contribuciones](#-contribuciones)
+- [📧 Contacto y Soporte](#-contacto-y-soporte)
+- [📊 Estadísticas del Proyecto](#-estadísticas-del-proyecto)
 ---
 
 ## 🎯 ¿Qué es este sistema?
@@ -166,7 +168,7 @@ Limpieza automática de datos obsoletos
 
 ---
 
-## Arquitectura del Sistema
+## 🏗️ Arquitectura del Sistema
 
 ### Diagrama de Arquitectura
 
@@ -214,7 +216,7 @@ Limpieza automática de datos obsoletos
 
 ---
 
-## Roles y Permisos
+## 👥 Roles y Permisos
 
 ### Matriz de Permisos
 
