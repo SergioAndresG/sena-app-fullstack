@@ -27,6 +27,7 @@
 - [🤝 Contribuciones](#-contribuciones)
 - [📧 Contacto y Soporte](#-contacto-y-soporte)
 - [📊 Estadísticas del Proyecto](#-estadísticas-del-proyecto)
+- [👥 Equipo de Desarrollo](#-equipo-de-desarrollo)
 ---
 
 ## 🎯 ¿Qué es este sistema?
@@ -506,6 +507,38 @@ Style: cambios de formato (sin cambios de lógica)
 | 📁 **Fichas gestionadas** | 25+ fichas activas |
 
 ---
+
+## 👥 Equipo de Desarrollo
+
+Este proyecto fue desarrollado colaborativamente por:
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/SergioAndresG">
+        <img src="https://github.com/SergioAndresG.png" width="100px;" alt="Sergio García"/>
+        <br />
+        <sub><b>Sergio Andrés García</b></sub>
+      </a>
+      <br />
+      <sub>Full-Stack Developer</sub>
+      <br />
+      💻 📊 🎨 📖
+    </td>
+    <td align="center">
+      <a href="https://github.com/JohannaB95">
+        <img src="https://github.com/JohannaB95.png" width="100px;" alt="Johanna"/>
+        <br />
+        <sub><b>Leidy Johanna Bolivar Gonzalez</b></sub>
+      </a>
+      <br />
+      <sub>Full-Stack Developer</sub>
+      <br />
+      💻 🎨 🐛 📖
+    </sub>
+    </td>
+  </tr>
+</table>
 
 <p align="center">
   <sub>Sistema de digitalización completa del formato F-165 para migración a SGVA</sub>
