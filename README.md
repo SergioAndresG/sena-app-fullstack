@@ -149,7 +149,7 @@ Limpieza automática de datos obsoletos
 
 ### 🖊️ Sistema de Firma Digital
 
-- **Canvas HTML5** para firma manuscrita
+- **Canvas** para firma
 - **Guardado en base64** para almacenamiento eficiente
 - **Integración automática** en el .xlsx generado
 - **Validación de firma** antes de generar formato
@@ -161,6 +161,11 @@ Limpieza automática de datos obsoletos
 - **Detección de inconsistencias** (fichas sin PE-04, fechas inválidas)
 - **Limpieza automática** de fichas obsoletas después de X tiempo
 - **Sistema de logs** para auditoría completa
+  
+- ** 🗃️ Procesamiento de Datos**
+- **Pandas 2.0+** - Conversión de formatos Excel legacy
+- **Polars 2.0+** - Procesamiento masivo de alto rendimiento
+- **openpyxl 3.1+** - Lectura/escritura Excel
 
 ### 📥 Exportación y Descarga
 
@@ -372,6 +377,8 @@ frontend/
 | **openpyxl** | 3.1+ | Lectura/escritura Excel |
 | **ReportLab** | 4.0+ | Generación de PDFs |
 | **Uvicorn** | 0.23+ | Servidor ASGI |
+
+
 
 ### Frontend
 
