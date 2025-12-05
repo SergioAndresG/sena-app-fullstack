@@ -26,7 +26,6 @@
 - [🔒 Seguridad](#-seguridad)
 - [🤝 Contribuciones](#-contribuciones)
 - [📧 Contacto y Soporte](#-contacto-y-soporte)
-- [📊 Estadísticas del Proyecto](#-estadísticas-del-proyecto)
 - [👥 Equipo de Desarrollo](#-equipo-de-desarrollo)
 ---
 
@@ -499,20 +498,6 @@ Style: cambios de formato (sin cambios de lógica)
 - 🐛 **Reportar bugs**: [Issues del repositorio](https://github.com/SergioAndresG/sena-app-fullstack/issues)
 - 💡 **Sugerencias**: [Discussions](https://github.com/SergioAndresG/sena-app-fullstack/discussions)
 - 📧 **Contacto directo**: sergiogarcia3421@gmail.com
----
-
----
-
-## 📊 Estadísticas del Proyecto
-
-| Métrica | Valor |
-|---------|-------|
-| ⏱️ **Reducción de tiempo** | ~75% en proceso completo |
-| 📋 **Formatos generados** | 100+ desde implementación |
-| 👥 **Usuarios activos** | 20+ instructores |
-| 🎓 **Aprendices procesados** | 500+ aprendices |
-| 📁 **Fichas gestionadas** | 25+ fichas activas |
-
 ---
 
 ## 👥 Equipo de Desarrollo
